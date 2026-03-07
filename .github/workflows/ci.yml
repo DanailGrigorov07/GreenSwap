@@ -20,16 +20,17 @@ jobs:
         dotnet-version: '8.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore SecondHandGoods.sln
       
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build SecondHandGoods.sln --no-restore --configuration Release --verbosity minimal
       
     - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test SecondHandGoods.sln --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
       
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
+      if: always()
       with:
         files: '**/coverage.cobertura.xml'
         fail_ci_if_error: false
@@ -48,13 +49,13 @@ jobs:
         dotnet-version: '8.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore SecondHandGoods.sln
       
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build SecondHandGoods.sln --no-restore --configuration Release --verbosity minimal
       
     - name: Run unit tests
-      run: dotnet test tests/SecondHandGoods.Tests/SecondHandGoods.Tests.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+      run: dotnet test tests/SecondHandGoods.Tests/SecondHandGoods.Tests.csproj --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
       
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
@@ -63,6 +64,7 @@ jobs:
         files: '**/test-results.trx'
         
     - name: Generate coverage report
+      if: success()
       run: |
         dotnet tool install -g dotnet-reportgenerator-globaltool
         reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coverage" -reporttypes:"Html;Badges"
