@@ -1,0 +1,39 @@
+@model List<SecondHandGoods.Web.ViewComponents.PaidAdViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row g-3">
+        @foreach (var ad in Model)
+        {
+            <div class="col-md-4">
+                <div class="paid-ad-space border rounded p-3 text-center" style="min-height: 200px;">
+                    <div class="ad-label mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-ad me-1"></i>Advertisement
+                        </small>
+                    </div>
+                    <div class="ad-content">
+                        @if (!string.IsNullOrEmpty(ad.ImageUrl))
+                        {
+                            var link = !string.IsNullOrEmpty(ad.TargetUrl) ? ad.TargetUrl : "#";
+                            var target = link.StartsWith("http") ? "_blank" : "_self";
+                            var rel = link.StartsWith("http") ? "noopener noreferrer" : null;
+                            <a href="@link" target="@target" rel="@rel" class="d-block">
+                                <img src="@ad.ImageUrl" alt="@ad.AltText" class="img-fluid" style="max-height: 150px; object-fit: contain;" />
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="ad-placeholder d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <div class="text-muted">
+                                    <i class="fas fa-image fa-2x mb-2"></i>
+                                    <p class="mb-0 small">@ad.AltText<br><small>728×200</small></p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

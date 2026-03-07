@@ -1,0 +1,299 @@
+@model SecondHandGoods.Web.Models.Ads.EditAdvertisementViewModel
+@{
+    ViewData["Title"] = "Edit Advertisement";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="h3 mb-2">
+                    <i class="fas fa-edit text-primary me-2"></i>Edit Advertisement
+                </h1>
+                <p class="text-muted">Update your advertisement details</p>
+            </div>
+
+            <!-- Form -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input asp-for="Id" type="hidden" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                                </h5>
+                            </div>
+                            
+                            <!-- Title -->
+                            <div class="col-12 mb-3">
+                                <label asp-for="Title" class="form-label">
+                                    <i class="fas fa-heading me-1"></i>@Html.DisplayNameFor(m => m.Title) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Title" class="form-control" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                <label asp-for="Description" class="form-label">
+                                    <i class="fas fa-align-left me-1"></i>@Html.DisplayNameFor(m => m.Description) <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <!-- Category and Condition -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CategoryId" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>@Html.DisplayNameFor(m => m.CategoryId) <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                                    <option value="">Select a category</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Condition" class="form-label">
+                                    <i class="fas fa-star me-1"></i>@Html.DisplayNameFor(m => m.Condition) <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Condition" asp-items="Model.Conditions" class="form-select">
+                                    <option value="">Select condition</option>
+                                </select>
+                                <span asp-validation-for="Condition" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-dollar-sign me-2"></i>Pricing
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Price" class="form-label">
+                                    <i class="fas fa-money-bill-wave me-1"></i>@Html.DisplayNameFor(m => m.Price) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check">
+                                    <input asp-for="IsPriceNegotiable" class="form-check-input" />
+                                    <label asp-for="IsPriceNegotiable" class="form-check-label">
+                                        <i class="fas fa-handshake me-1"></i>@Html.DisplayNameFor(m => m.IsPriceNegotiable)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location
+                                </h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="Location" class="form-label">
+                                    <i class="fas fa-location-dot me-1"></i>@Html.DisplayNameFor(m => m.Location)
+                                </label>
+                                <input asp-for="Location" class="form-control" placeholder="e.g., New York, NY" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Current Images -->
+                        @if (Model.CurrentImages.Any())
+                        {
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="border-bottom pb-2 mb-3">
+                                        <i class="fas fa-images me-2"></i>Current Images
+                                    </h5>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        @foreach (var image in Model.CurrentImages)
+                                        {
+                                            <div class="position-relative">
+                                                <img src="@image.ImageUrl" class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;" alt="@image.AltText" />
+                                                @if (image.IsMainImage)
+                                                {
+                                                    <span class="position-absolute top-0 start-0 badge bg-primary">Main</span>
+                                                }
+                                                <div class="position-absolute top-0 end-0 p-1">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input image-remove-checkbox" 
+                                                               type="checkbox" 
+                                                               name="ImagesToRemove" 
+                                                               value="@image.Id" 
+                                                               id="remove_@image.Id" />
+                                                        <label class="form-check-label visually-hidden" for="remove_@image.Id">Remove</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-trash me-1"></i>Check the boxes to remove images
+                                    </small>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Add New Images -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-plus me-2"></i>Add New Images
+                                </h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="NewImages" class="form-label">
+                                    <i class="fas fa-camera me-1"></i>@Html.DisplayNameFor(m => m.NewImages)
+                                </label>
+                                <input asp-for="NewImages" class="form-control" type="file" multiple accept="image/jpeg,image/jpg,image/png,image/webp" />
+                                <span asp-validation-for="NewImages" class="text-danger"></span>
+                                <small class="form-text text-muted">
+                                    Upload additional images (JPEG, PNG, WebP, max 10MB each). Maximum 20 images total.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- New Image Preview -->
+                        <div class="row mb-4" id="imagePreviewArea" style="display: none;">
+                            <div class="col-12">
+                                <h6>New Images Preview:</h6>
+                                <div class="d-flex flex-wrap gap-2" id="imagePreviewContainer">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Options -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-toggle-on me-2"></i>Status Options
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input asp-for="IsActive" class="form-check-input" />
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        <i class="fas fa-eye me-1"></i>@Html.DisplayNameFor(m => m.IsActive)
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">Uncheck to hide your advertisement from search results</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input asp-for="IsSold" class="form-check-input" />
+                                    <label asp-for="IsSold" class="form-check-label">
+                                        <i class="fas fa-check-circle me-1"></i>@Html.DisplayNameFor(m => m.IsSold)
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">Check when the item has been sold</small>
+                            </div>
+                        </div>
+
+                        <!-- Submit Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-save me-1"></i>Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle new image preview
+            const fileInput = document.querySelector('input[name="NewImages"]');
+            const previewArea = document.getElementById('imagePreviewArea');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            
+            fileInput.addEventListener('change', function() {
+                previewContainer.innerHTML = '';
+                
+                if (this.files.length > 0) {
+                    previewArea.style.display = 'block';
+                    
+                    Array.from(this.files).forEach((file, index) => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const div = document.createElement('div');
+                                div.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;" alt="New image ${index + 1}">`;
+                                previewContainer.appendChild(div);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                } else {
+                    previewArea.style.display = 'none';
+                }
+            });
+
+            // Handle image removal checkboxes
+            const removeCheckboxes = document.querySelectorAll('.image-remove-checkbox');
+            removeCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const imageContainer = this.closest('.position-relative');
+                    if (this.checked) {
+                        imageContainer.style.opacity = '0.5';
+                        imageContainer.style.position = 'relative';
+                        if (!imageContainer.querySelector('.removal-overlay')) {
+                            const overlay = document.createElement('div');
+                            overlay.className = 'removal-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-danger bg-opacity-75';
+                            overlay.innerHTML = '<i class="fas fa-trash text-white fa-2x"></i>';
+                            imageContainer.appendChild(overlay);
+                        }
+                    } else {
+                        imageContainer.style.opacity = '1';
+                        const overlay = imageContainer.querySelector('.removal-overlay');
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

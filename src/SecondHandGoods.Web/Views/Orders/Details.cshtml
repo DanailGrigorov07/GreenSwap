@@ -1,0 +1,414 @@
+@model SecondHandGoods.Data.Entities.Order
+@{
+    ViewData["Title"] = $"Order {Model.OrderNumber}";
+    var currentUserId = ViewBag.CurrentUserId as string;
+    var isBuyer = ViewBag.IsBuyer as bool? ?? false;
+    var isSeller = ViewBag.IsSeller as bool? ?? false;
+}
+
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.OrderNumber</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Order Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>Order Details
+                    </h5>
+                    <span class="badge @GetStatusBadgeClass() fs-6">@Model.Status.ToString()</span>
+                </div>
+                <div class="card-body">
+                    <!-- Order Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Order Number:</dt>
+                                <dd class="col-sm-8">@Model.OrderNumber</dd>
+
+                                <dt class="col-sm-4">Status:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @GetStatusBadgeClass()">@Model.Status.ToString()</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Final Price:</dt>
+                                <dd class="col-sm-8 fw-bold text-primary">$@Model.FinalPrice.ToString("F2")</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Created:</dt>
+                                <dd class="col-sm-8">@Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</dd>
+
+                                @if (Model.CompletedAt.HasValue)
+                                {
+                                    <dt class="col-sm-4">Completed:</dt>
+                                    <dd class="col-sm-8">@Model.CompletedAt.Value.ToString("MMM dd, yyyy 'at' h:mm tt")</dd>
+                                }
+
+                                @if (Model.CancelledAt.HasValue)
+                                {
+                                    <dt class="col-sm-4">Cancelled:</dt>
+                                    <dd class="col-sm-8">@Model.CancelledAt.Value.ToString("MMM dd, yyyy 'at' h:mm tt")</dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Advertisement Details -->
+                    <div class="border rounded p-3 mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-shopping-bag me-2"></i>Item Details
+                        </h6>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <img src="@(Model.Advertisement.Images.FirstOrDefault(i => i.IsMainImage)?.ImageUrl ?? "/images/no-image.svg")" 
+                                     alt="@Model.Advertisement.Title" 
+                                     class="rounded"
+                                     style="width: 100px; height: 100px; object-fit: cover;" />
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-2">
+                                    <a asp-controller="Ads" asp-action="Details" asp-route-id="@Model.AdvertisementId"
+                                       class="text-decoration-none">
+                                        @Model.Advertisement.Title
+                                    </a>
+                                </h5>
+                                <p class="text-muted mb-1">@Model.Advertisement.Description.Substring(0, Math.Min(100, Model.Advertisement.Description.Length))@(Model.Advertisement.Description.Length > 100 ? "..." : "")</p>
+                                <div class="small text-muted">
+                                    <span>Original Price: $@Model.Advertisement.Price.ToString("F2")</span>
+                                    @if (!string.IsNullOrEmpty(Model.Advertisement.Location))
+                                    {
+                                        <span class="ms-3">
+                                            <i class="fas fa-map-marker-alt me-1"></i>@Model.Advertisement.Location
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Parties -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 mb-3">
+                                <h6 class="text-success mb-3">
+                                    <i class="fas fa-user-tie me-2"></i>Seller
+                                    @if (isSeller)
+                                    {
+                                        <span class="badge bg-success ms-2">You</span>
+                                    }
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-circle fa-2x text-muted me-3"></i>
+                                    <div>
+                                        <div class="fw-bold">@Model.Seller.FirstName @Model.Seller.LastName</div>
+                                        @if (Model.Seller.SellerRating > 0)
+                                        {
+                                            <div class="small">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= Model.Seller.SellerRating ? "text-warning" : "text-muted")"></i>
+                                                }
+                                                <span class="text-muted ms-1">(@Model.Seller.SellerRating.ToString("F1"))</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!isSeller)
+                                {
+                                    <div class="mt-2">
+                                        <a asp-controller="Reviews" asp-action="UserReviews" asp-route-userId="@Model.SellerId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-star me-1"></i>View Reviews
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 mb-3">
+                                <h6 class="text-info mb-3">
+                                    <i class="fas fa-user me-2"></i>Buyer
+                                    @if (isBuyer)
+                                    {
+                                        <span class="badge bg-info ms-2">You</span>
+                                    }
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-circle fa-2x text-muted me-3"></i>
+                                    <div>
+                                        <div class="fw-bold">@Model.Buyer.FirstName @Model.Buyer.LastName</div>
+                                        @if (Model.Buyer.SellerRating > 0)
+                                        {
+                                            <div class="small">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= Model.Buyer.SellerRating ? "text-warning" : "text-muted")"></i>
+                                                }
+                                                <span class="text-muted ms-1">(@Model.Buyer.SellerRating.ToString("F1"))</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!isBuyer)
+                                {
+                                    <div class="mt-2">
+                                        <a asp-controller="Reviews" asp-action="UserReviews" asp-route-userId="@Model.BuyerId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-star me-1"></i>View Reviews
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div class="border rounded p-3">
+                            <h6 class="mb-2">
+                                <i class="fas fa-sticky-note me-2"></i>Order Notes
+                            </h6>
+                            <p class="mb-0 text-muted">@Model.Notes</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.CancellationReason))
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Cancellation Reason
+                            </h6>
+                            <p class="mb-0">@Model.CancellationReason</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Order Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Status == OrderStatus.Pending)
+                    {
+                        <div class="d-grid gap-2 mb-3">
+                            <form asp-action="Confirm" method="post" class="d-grid">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check me-2"></i>Confirm Order
+                                </button>
+                            </form>
+                        </div>
+                        <p class="small text-muted mb-3">Confirming this order indicates you agree to proceed with the transaction.</p>
+                    }
+
+                    @if (Model.Status == OrderStatus.Confirmed)
+                    {
+                        <div class="d-grid gap-2 mb-3">
+                            <form asp-action="Complete" method="post" class="d-grid">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-primary" 
+                                        onclick="return confirm('Mark this order as completed? This cannot be undone.')">
+                                    <i class="fas fa-flag-checkered me-2"></i>Mark Completed
+                                </button>
+                            </form>
+                        </div>
+                        <p class="small text-muted mb-3">Mark as completed once the transaction is finished and payment is exchanged.</p>
+                    }
+
+                    @if (Model.Status == OrderStatus.Completed)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>Order Completed!
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-3">
+                            <a asp-controller="Reviews" asp-action="Create" asp-route-orderId="@Model.Id" 
+                               class="btn btn-warning">
+                                <i class="fas fa-star me-2"></i>Leave Review
+                            </a>
+                        </div>
+                        <p class="small text-muted mb-3">Share your experience to help build trust in our community.</p>
+                    }
+
+                    <!-- Communication -->
+                    <div class="d-grid gap-2 mb-3">
+                        <a asp-controller="Chat" asp-action="Conversation" 
+                           asp-route-advertisementId="@Model.AdvertisementId"
+                           asp-route-otherUserId="@(isBuyer ? Model.SellerId : Model.BuyerId)"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-comments me-2"></i>Open Chat
+                        </a>
+                    </div>
+
+                    <!-- Cancellation -->
+                    @if (Model.Status != OrderStatus.Completed && Model.Status != OrderStatus.Cancelled)
+                    {
+                        <hr>
+                        <button class="btn btn-outline-danger btn-sm w-100" 
+                                data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                            <i class="fas fa-times me-2"></i>Cancel Order
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Order Timeline
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Order Created</h6>
+                                <small class="text-muted">@Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                            </div>
+                        </div>
+
+                        @if (Model.Status >= OrderStatus.Confirmed)
+                        {
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Order Confirmed</h6>
+                                    <small class="text-muted">Both parties agreed</small>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.Status == OrderStatus.Completed)
+                        {
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Order Completed</h6>
+                                    <small class="text-muted">@Model.CompletedAt?.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.Status == OrderStatus.Cancelled)
+                        {
+                            <div class="timeline-item active">
+                                <div class="timeline-marker bg-danger"></div>
+                                <div class="timeline-content">
+                                    <h6 class="mb-1">Order Cancelled</h6>
+                                    <small class="text-muted">@Model.CancelledAt?.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Cancel" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel this order?</p>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason (optional)</label>
+                        <textarea name="reason" id="reason" class="form-control" rows="3" 
+                                  placeholder="Provide a reason for cancellation..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep Order</button>
+                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 12px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -18px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #e9ecef;
+    }
+
+    .timeline-item.active .timeline-marker {
+        box-shadow: 0 0 0 2px currentColor;
+    }
+
+    .timeline-content h6 {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+
+    .timeline-content small {
+        font-size: 0.75rem;
+    }
+</style>
+
+@functions {
+    string GetStatusBadgeClass()
+    {
+        return Model.Status switch
+        {
+            OrderStatus.Pending => "bg-warning text-dark",
+            OrderStatus.Confirmed => "bg-info",
+            OrderStatus.MeetingScheduled => "bg-primary",
+            OrderStatus.Completed => "bg-success",
+            OrderStatus.Cancelled => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

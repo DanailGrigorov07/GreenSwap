@@ -1,0 +1,243 @@
+@model SecondHandGoods.Web.Models.Categories.CategoriesIndexViewModel
+@{
+    ViewData["Title"] = "Browse Categories";
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 mb-3">
+            <i class="fas fa-th-large text-primary me-3"></i>Browse Categories
+        </h1>
+        <p class="lead text-muted mb-4">
+            Discover quality second-hand items organized by category
+        </p>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="bg-light rounded p-3">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary mb-1">@Model.TotalCategories</h4>
+                            <small class="text-muted">Categories</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success mb-1">@Model.TotalActiveAds.ToString("N0")</h4>
+                            <small class="text-muted">Active Items</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form asp-controller="Ads" asp-action="Index" method="get">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="searchTerm" class="form-control" 
+                                   placeholder="Search for items across all categories..."
+                                   id="globalSearch" />
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i>Search All
+                            </button>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                Try searching for: "iPhone", "furniture", "books", or "bicycle"
+                            </small>
+                            <a asp-controller="Search" asp-action="Advanced" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-sliders-h me-1"></i>Advanced Search
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="row g-4">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm category-card @category.CardClass">
+                    <div class="card-body text-center d-flex flex-column">
+                        <!-- Icon and Title -->
+                        <div class="mb-3">
+                            <i class="@category.IconClass fa-3x text-primary mb-2"></i>
+                            <h5 class="card-title mb-2">@category.Name</h5>
+                        </div>
+
+                        <!-- Description -->
+                        <p class="card-text text-muted small flex-grow-1">
+                            @category.Description
+                        </p>
+
+                        <!-- Stats -->
+                        <div class="mb-3">
+                            <span class="badge bg-primary-subtle text-primary fs-6">
+                                @category.FormattedAdCount
+                            </span>
+                        </div>
+
+                        <!-- Browse Button -->
+                        <div class="mt-auto">
+                            <a asp-action="Browse" asp-route-id="@category.Id" asp-route-slug="@category.Slug" 
+                               class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-arrow-right me-1"></i>Browse @category.Name
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Hover overlay for additional actions -->
+                    <div class="category-hover-overlay position-absolute top-0 start-0 w-100 h-100 d-none">
+                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                            <a asp-action="Browse" asp-route-id="@category.Id" asp-route-slug="@category.Slug" 
+                               class="btn btn-primary btn-lg mb-2">
+                                <i class="fas fa-search me-2"></i>Browse Now
+                            </a>
+                            @if (category.AdCount > 0)
+                            {
+                                <small class="text-white bg-dark bg-opacity-75 px-2 py-1 rounded">
+                                    @category.AdCount item@(category.AdCount == 1 ? "" : "s") available
+                                </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <i class="fas fa-rocket text-warning me-2"></i>Quick Actions
+                    </h5>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a asp-controller="Ads" asp-action="Index" class="btn btn-primary me-2">
+                                <i class="fas fa-list me-1"></i>View All Items
+                            </a>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <a asp-controller="Ads" asp-action="Create" class="btn btn-success me-2">
+                                    <i class="fas fa-plus me-1"></i>Post Item
+                                </a>
+                                <a asp-controller="Ads" asp-action="MyAds" class="btn btn-outline-primary">
+                                    <i class="fas fa-user-tag me-1"></i>My Items
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-success">
+                                    <i class="fas fa-user-plus me-1"></i>Join Now
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .category-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    }
+
+    .category-card:hover .category-hover-overlay {
+        display: flex !important;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .category-card-empty .card-body {
+        opacity: 0.6;
+    }
+
+    .category-card-low {
+        border-left: 4px solid #ffc107 !important;
+    }
+
+    .category-card-medium {
+        border-left: 4px solid #0dcaf0 !important;
+    }
+
+    .category-card-high {
+        border-left: 4px solid #198754 !important;
+    }
+
+    .category-hover-overlay {
+        background: linear-gradient(45deg, rgba(13, 110, 253, 0.9), rgba(25, 135, 84, 0.9));
+        z-index: 10;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Search input styling */
+    #globalSearch {
+        font-size: 1.1rem;
+    }
+
+    #globalSearch:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Add search autocomplete functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('globalSearch');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length >= 2) {
+                    searchTimeout = setTimeout(() => {
+                        // In a full implementation, this would call the suggestions API
+                        console.log('Would fetch suggestions for:', query);
+                    }, 300);
+                }
+            });
+
+            // Add category card click handlers
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // If the click wasn't on a button or link, navigate to category
+                    if (!e.target.closest('a, button')) {
+                        const browseLink = this.querySelector('a[href*="Browse"]');
+                        if (browseLink) {
+                            window.location.href = browseLink.href;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

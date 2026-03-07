@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="py-5">
+            <i class="fas fa-shield-alt fa-5x text-warning mb-4"></i>
+            <h1 class="display-4 text-danger">Access Denied</h1>
+            <p class="lead text-muted">
+                Sorry, you don't have permission to access this resource.
+            </p>
+            <hr class="my-4">
+            <p>
+                You may need to log in with appropriate credentials or contact an administrator 
+                if you believe you should have access to this page.
+            </p>
+            <div class="mt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-1"></i>Go Home
+                </a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">
+                    <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

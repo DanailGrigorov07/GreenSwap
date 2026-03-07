@@ -1,0 +1,549 @@
+@model SecondHandGoods.Web.Models.Admin.ForbiddenWordsManagementViewModel
+
+@{
+    ViewData["Title"] = "Forbidden Words Management";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas fa-list me-2"></i>Forbidden Words Management
+                </h1>
+                <p class="text-muted mb-0">Manage words and phrases for content filtering</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="CreateForbiddenWord" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>Add New Word
+                </a>
+                <a asp-action="Moderation" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Moderation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.TotalWords.ToString("N0")</div>
+                        <div class="small">Total Words</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.ActiveWordsCount.ToString("N0")</div>
+                        <div class="small">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-ban fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.BlockedWordsCount.ToString("N0")</div>
+                        <div class="small">Block Content</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-flag fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.FlaggedWordsCount.ToString("N0")</div>
+                        <div class="small">Flag Only</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Search and Filter
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" asp-action="ForbiddenWords" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search Words</label>
+                            <input type="text" name="searchTerm" value="@Model.SearchTerm" 
+                                   class="form-control" placeholder="Search words or categories...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select name="isActive" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="true" selected="@(Model.IsActive == true)">Active Only</option>
+                                <option value="false" selected="@(Model.IsActive == false)">Inactive Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Action</label>
+                            <select name="isBlocked" class="form-select">
+                                <option value="">All Actions</option>
+                                <option value="true" selected="@(Model.IsBlocked == true)">Block Content</option>
+                                <option value="false" selected="@(Model.IsBlocked == false)">Flag Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Severity</label>
+                            <select name="severity" class="form-select" asp-items="Model.SeverityOptions">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Sort By</label>
+                            <select name="sortBy" class="form-select" asp-items="Model.SortOptions">
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Filters -->
+                    <div class="collapse mt-3" id="advancedFilters">
+                        <hr>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-select">
+                                    <option value="">All Categories</option>
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <option value="@category" selected="@(Model.Category == category)">@category</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Apply Filters
+                        </button>
+                        <a href="@Url.Action("ForbiddenWords")" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </a>
+                        <button type="button" class="btn btn-link" data-bs-toggle="collapse" 
+                                data-bs-target="#advancedFilters" aria-expanded="false">
+                            <i class="fas fa-chevron-down me-1"></i>Advanced
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forbidden Words List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Forbidden Words (@Model.TotalWords.ToString("N0"))
+                    </h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-check-label me-2">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                        Select All
+                    </label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" disabled id="bulkActionsDropdown">
+                            Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-action="activate">
+                                <i class="fas fa-check-circle me-2 text-success"></i>Activate Selected
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-action="deactivate">
+                                <i class="fas fa-times-circle me-2 text-warning"></i>Deactivate Selected
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" data-action="delete">
+                                <i class="fas fa-trash me-2"></i>Delete Selected
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.ForbiddenWords.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th width="40">
+                                        <input type="checkbox" id="selectAllHeader" class="form-check-input">
+                                    </th>
+                                    <th>Word/Phrase</th>
+                                    <th>Category</th>
+                                    <th>Severity</th>
+                                    <th>Action</th>
+                                    <th>Match Type</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var word in Model.ForbiddenWords)
+                                {
+                                    <tr class="@(!word.IsActive ? "table-secondary" : "")">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input word-checkbox" 
+                                                   value="@word.Id" data-word="@word.Word">
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <strong class="@(!word.IsActive ? "text-muted" : "")">@word.Word</strong>
+                                                @if (!string.IsNullOrEmpty(word.Replacement))
+                                                {
+                                                    <small class="text-info">
+                                                        <i class="fas fa-arrow-right me-1"></i>Replaces with: "@word.Replacement"
+                                                    </small>
+                                                }
+                                                @if (!string.IsNullOrEmpty(word.AdminNotes))
+                                                {
+                                                    <small class="text-muted" title="@word.AdminNotes">
+                                                        <i class="fas fa-sticky-note me-1"></i>
+                                                        @(word.AdminNotes.Length > 50 ? word.AdminNotes.Substring(0, 50) + "..." : word.AdminNotes)
+                                                    </small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(word.Category))
+                                            {
+                                                <span class="badge bg-light text-dark">@word.Category</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="@word.SeverityBadgeClass">@word.SeverityDisplay</span>
+                                        </td>
+                                        <td>
+                                            <span class="@word.ActionBadgeClass">@word.ActionDisplay</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(word.IsExactMatch ? "bg-info" : "bg-secondary")">
+                                                @word.MatchTypeDisplay
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="@word.StatusBadgeClass">@word.StatusText</span>
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                <div>@word.CreatedAgo</div>
+                                                <div class="text-muted">by @word.CreatedByUserName</div>
+                                                @if (word.UpdatedAt.HasValue)
+                                                {
+                                                    <div class="text-info">
+                                                        <i class="fas fa-edit me-1"></i>Updated
+                                                        @if (!string.IsNullOrEmpty(word.UpdatedByUserName))
+                                                        {
+                                                            <span>by @word.UpdatedByUserName</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                        data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" asp-action="EditForbiddenWord" asp-route-id="@word.Id">
+                                                        <i class="fas fa-edit me-2 text-primary"></i>Edit
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    @if (word.IsActive)
+                                                    {
+                                                        <li><a class="dropdown-item word-action" href="#" 
+                                                               data-word-id="@word.Id" data-action="deactivate">
+                                                            <i class="fas fa-times-circle me-2 text-warning"></i>Deactivate
+                                                        </a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li><a class="dropdown-item word-action" href="#" 
+                                                               data-word-id="@word.Id" data-action="activate">
+                                                            <i class="fas fa-check-circle me-2 text-success"></i>Activate
+                                                        </a></li>
+                                                    }
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item word-action text-danger" href="#" 
+                                                           data-word-id="@word.Id" data-action="delete">
+                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-list fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No forbidden words found</h5>
+                        @if (string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <p class="text-muted mb-3">Start protecting your platform by adding forbidden words.</p>
+                            <a asp-action="CreateForbiddenWord" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add First Forbidden Word
+                            </a>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Try adjusting your search criteria.</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Forbidden words pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPrevious)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page - 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            }
+
+            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="?page=@i&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">@i</a>
+                </li>
+            }
+
+            @if (Model.HasNext)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page + 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            }
+        </ul>
+        <div class="text-center text-muted">
+            Showing page @Model.Page of @Model.TotalPages (@Model.TotalWords.ToString("N0") total words)
+        </div>
+    </nav>
+}
+
+<!-- Word Action Modal -->
+<div class="modal fade" id="wordActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="actionConfirmText"></p>
+                <div class="mb-3">
+                    <label class="form-label">Reason (optional)</label>
+                    <textarea id="actionReason" class="form-control" rows="3" 
+                              placeholder="Enter a reason for this action..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+    border-top: 1px solid #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0,123,255,.075);
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+
+@section Scripts {
+    <script>
+        let selectedAction = null;
+        let selectedWordId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle individual word actions
+            document.querySelectorAll('.word-action').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const wordId = this.dataset.wordId;
+                    const action = this.dataset.action;
+                    const wordText = this.closest('tr').querySelector('.word-checkbox').dataset.word;
+                    
+                    showActionModal(wordId, action, wordText);
+                });
+            });
+
+            // Handle bulk selection
+            const selectAllCheckboxes = document.querySelectorAll('#selectAll, #selectAllHeader');
+            const wordCheckboxes = document.querySelectorAll('.word-checkbox');
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+
+            selectAllCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    wordCheckboxes.forEach(cb => cb.checked = isChecked);
+                    selectAllCheckboxes.forEach(cb => cb.checked = isChecked);
+                    updateBulkActionsState();
+                });
+            });
+
+            wordCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateBulkActionsState);
+            });
+
+            // Handle action confirmation
+            document.getElementById('confirmActionBtn').addEventListener('click', confirmAction);
+        });
+
+        function updateBulkActionsState() {
+            const selectedCount = document.querySelectorAll('.word-checkbox:checked').length;
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+            
+            bulkActionsDropdown.disabled = selectedCount === 0;
+            
+            const totalCheckboxes = document.querySelectorAll('.word-checkbox').length;
+            const selectAllCheckboxes = document.querySelectorAll('#selectAll, #selectAllHeader');
+            
+            selectAllCheckboxes.forEach(cb => {
+                cb.checked = selectedCount === totalCheckboxes;
+                cb.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+            });
+        }
+
+        function showActionModal(wordId, action, wordText) {
+            selectedAction = action;
+            selectedWordId = wordId;
+            
+            const actionTexts = {
+                'activate': `activate forbidden word "${wordText}"`,
+                'deactivate': `deactivate forbidden word "${wordText}"`,
+                'delete': `permanently delete forbidden word "${wordText}"`
+            };
+            
+            document.getElementById('actionConfirmText').textContent = 
+                `Are you sure you want to ${actionTexts[action]}?`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('wordActionModal'));
+            modal.show();
+        }
+
+        async function confirmAction() {
+            const reason = document.getElementById('actionReason').value;
+            
+            try {
+                const response = await fetch('@Url.Action("DeleteForbiddenWord")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        id: parseInt(selectedWordId)
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error performing action:', error);
+                alert('An error occurred while performing the action.');
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('wordActionModal'));
+            modal.hide();
+        }
+    </script>
+}

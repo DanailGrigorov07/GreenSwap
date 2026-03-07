@@ -1,0 +1,446 @@
+@model SecondHandGoods.Web.Models.Admin.ContentModerationDashboardViewModel
+
+@{
+    ViewData["Title"] = "Content Moderation";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas fa-shield-alt me-2"></i>Content Moderation
+                </h1>
+                <p class="text-muted mb-0">Monitor and manage platform content quality</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="ForbiddenWords" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i>Manage Words
+                </a>
+                <a asp-action="ModerationLogs" class="btn btn-outline-secondary">
+                    <i class="fas fa-history me-1"></i>View Logs
+                </a>
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row mb-4">
+    <!-- Total Moderations -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-primary text-white stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.TotalModerations.ToString("N0")</div>
+                        <div class="small">Total Moderations</div>
+                        <div class="small opacity-75">@Model.ModerationsToday today</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Automatic Actions -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-success text-white stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.AutomaticActions.ToString("N0")</div>
+                        <div class="small">Automatic</div>
+                        <div class="small opacity-75">@Model.AutomationRate.ToString("F1")% rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked Content -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-danger text-white stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-ban fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.BlockedContent.ToString("N0")</div>
+                        <div class="small">Blocked</div>
+                        <div class="small opacity-75">Content prevented</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flagged Content -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-warning text-dark stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-flag fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.FlaggedContent.ToString("N0")</div>
+                        <div class="small">Flagged</div>
+                        <div class="small opacity-75">Needs review</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Reviews -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-info text-white stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.PendingReviews.ToString("N0")</div>
+                        <div class="small">Pending</div>
+                        <div class="small opacity-75">Manual review</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forbidden Words -->
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-secondary text-white stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.TotalForbiddenWords.ToString("N0")</div>
+                        <div class="small">Forbidden Words</div>
+                        <div class="small opacity-75">@Model.CriticalWords critical</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Overview -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom-0">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>Moderation Effectiveness
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage text-success"></i>
+                            </div>
+                            <div class="stat-value">@Model.AutomationRate.ToString("F1")%</div>
+                            <div class="stat-label">Automation Rate</div>
+                            <small class="text-muted">@Model.AutomaticActions of @Model.TotalModerations</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-bullseye text-primary"></i>
+                            </div>
+                            <div class="stat-value">@Model.EffectivenessRate.ToString("F1")%</div>
+                            <div class="stat-label">Effectiveness</div>
+                            <small class="text-muted">Content blocked/flagged</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day text-info"></i>
+                            </div>
+                            <div class="stat-value">@Model.ModerationsToday.ToString("N0")</div>
+                            <div class="stat-label">Today</div>
+                            <small class="text-muted">Moderations today</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-week text-warning"></i>
+                            </div>
+                            <div class="stat-value">@Model.ModerationsThisWeek.ToString("N0")</div>
+                            <div class="stat-label">This Week</div>
+                            <small class="text-muted">Weekly moderations</small>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.PendingReviews > 0)
+                {
+                    <div class="alert alert-warning mt-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <div class="flex-grow-1">
+                                <strong>Action Required:</strong> @Model.PendingReviews items need manual review.
+                            </div>
+                            <a asp-action="ModerationLogs" asp-route-result="5" class="btn btn-sm btn-warning">
+                                Review Now
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tools me-2 text-success"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="CreateForbiddenWord" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Forbidden Word
+                    </a>
+                    <a asp-action="ForbiddenWords" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>Manage Forbidden Words
+                    </a>
+                    <a asp-action="ModerationLogs" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-2"></i>View All Logs
+                    </a>
+                    @if (Model.PendingReviews > 0)
+                    {
+                        <a asp-action="ModerationLogs" asp-route-result="5" class="btn btn-warning">
+                            <i class="fas fa-eye me-2"></i>Review Pending (@Model.PendingReviews)
+                        </a>
+                    }
+                </div>
+
+                <hr class="my-3">
+
+                <h6 class="mb-3">Content Protection Status</h6>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small>Active Words</small>
+                        <span class="badge bg-success">@Model.ActiveWords</span>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: @((Model.ActiveWords / (double)Math.Max(Model.TotalForbiddenWords, 1)) * 100)%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small>Critical Severity</small>
+                        <span class="badge bg-dark">@Model.CriticalWords</span>
+                    </div>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-dark" 
+                             style="width: @((Model.CriticalWords / (double)Math.Max(Model.ActiveWords, 1)) * 100)%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mb-4">
+    <!-- Recent Moderations -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2 text-info"></i>Recent Moderations
+                    </h5>
+                    <a asp-action="ModerationLogs" class="btn btn-sm btn-outline-info">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentModerations.Any())
+                {
+                    @foreach (var log in Model.RecentModerations)
+                    {
+                        <div class="list-item d-flex align-items-start p-3 border-bottom">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="moderation-icon @(log.IsAutomatic ? "bg-success" : "bg-primary") text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas @(log.IsAutomatic ? "fa-robot" : "fa-user") fa-sm"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            @log.EntityTypeDisplay #@log.EntityId
+                                            <span class="@log.ResultBadgeClass ms-2">@log.Result</span>
+                                        </h6>
+                                        <p class="mb-1 small text-muted">@log.TruncatedContent</p>
+                                        <div class="d-flex align-items-center gap-3 small text-muted">
+                                            <span><i class="fas fa-user me-1"></i>@log.ContentAuthor</span>
+                                            <span><i class="fas fa-clock me-1"></i>@log.CreatedAgo</span>
+                                            @if (!string.IsNullOrEmpty(log.DetectedWords))
+                                            {
+                                                <span><i class="fas fa-exclamation-triangle me-1 text-warning"></i>@log.DetectedWords</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <span class="@log.SeverityBadgeClass">@log.Severity</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                        <h6>No recent moderations</h6>
+                        <p>Content moderation activity will appear here.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Forbidden Words -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2 text-warning"></i>Recent Words
+                    </h5>
+                    <a asp-action="ForbiddenWords" class="btn btn-sm btn-outline-warning">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentWords.Any())
+                {
+                    @foreach (var word in Model.RecentWords)
+                    {
+                        <div class="list-item p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium">@word.Word</div>
+                                    <div class="small text-muted">
+                                        @if (!string.IsNullOrEmpty(word.Category))
+                                        {
+                                            <span class="badge bg-light text-dark me-1">@word.Category</span>
+                                        }
+                                        Added @word.CreatedAgo by @word.CreatedByUserName
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="@word.SeverityBadgeClass mb-1">@word.SeverityDisplay</div>
+                                    <div class="@word.ActionBadgeClass">@word.ActionDisplay</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-list fa-3x mb-3"></i>
+                        <h6>No forbidden words</h6>
+                        <p class="mb-3">Start protecting your platform by adding forbidden words.</p>
+                        <a asp-action="CreateForbiddenWord" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add First Word
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.stat-item {
+    padding: 0.5rem;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.list-item:hover {
+    background-color: #f8f9fa;
+}
+
+.moderation-icon {
+    font-size: 0.875rem;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+
+        // Add interactive hover effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.stats-card');
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function() {
+                    // Could add click handlers to navigate to relevant sections
+                });
+            });
+        });
+    </script>
+}

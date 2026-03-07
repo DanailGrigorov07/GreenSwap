@@ -1,0 +1,351 @@
+@model SecondHandGoods.Web.Models.Reviews.PendingReviewsViewModel
+@{
+    ViewData["Title"] = "Pending Reviews";
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 mb-2">
+                <i class="fas fa-clock text-warning me-3"></i>Pending Reviews
+            </h1>
+            <p class="text-muted">
+                Leave reviews for your completed transactions to help build trust in our community.
+            </p>
+        </div>
+        <div>
+            @if (Model.TotalPending > 0)
+            {
+                <span class="badge bg-warning text-dark fs-6">
+                    @Model.TotalPending pending review@(Model.TotalPending == 1 ? "" : "s")
+                </span>
+            }
+        </div>
+    </div>
+
+    @if (Model.PendingReviews.Any())
+    {
+        <!-- Pending Reviews List -->
+        <div class="row">
+            @foreach (var pendingReview in Model.PendingReviews)
+            {
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100 pending-review-card">
+                        <div class="card-body">
+                            <!-- Header with urgency indicator -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="card-title mb-1">@pendingReview.ReviewTypeDisplay</h6>
+                                    <small class="text-muted">Order completed @pendingReview.TimeSinceCompletion</small>
+                                </div>
+                                @{
+                                    var urgencyClass = DateTime.UtcNow.Subtract(pendingReview.CompletedAt).TotalDays switch
+                                    {
+                                        > 7 => "bg-danger",
+                                        > 3 => "bg-warning",
+                                        _ => "bg-info"
+                                    };
+                                    var urgencyText = DateTime.UtcNow.Subtract(pendingReview.CompletedAt).TotalDays switch
+                                    {
+                                        > 7 => "Urgent",
+                                        > 3 => "Soon",
+                                        _ => "New"
+                                    };
+                                }
+                                <span class="badge @urgencyClass">@urgencyText</span>
+                            </div>
+
+                            <!-- Transaction Details -->
+                            <div class="transaction-details mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <img src="@pendingReview.AdvertisementImageUrl" 
+                                             alt="@pendingReview.AdvertisementTitle" 
+                                             class="rounded"
+                                             style="width: 80px; height: 80px; object-fit: cover;" />
+                                    </div>
+                                    <div class="col">
+                                        <h6 class="mb-1">@pendingReview.AdvertisementTitle</h6>
+                                        <div class="text-primary fw-bold mb-1">@pendingReview.FormattedPrice</div>
+                                        <small class="text-muted">Order: @pendingReview.OrderNumber</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Other User Info -->
+                            <div class="other-user-info bg-light rounded p-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">@pendingReview.OtherUserName</h6>
+                                        @if (pendingReview.OtherUserRating > 0)
+                                        {
+                                            <div class="small">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= pendingReview.OtherUserRating ? "text-warning" : "text-muted")"></i>
+                                                }
+                                                <span class="text-muted ms-1">(@pendingReview.OtherUserRating.ToString("F1"))</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">No ratings yet</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-grid gap-2">
+                                <a asp-action="Create" asp-route-orderId="@pendingReview.OrderId" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-star me-2"></i>Leave Review
+                                </a>
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        onclick="showTransactionDetails(@pendingReview.OrderId)">
+                                    <i class="fas fa-info-circle me-1"></i>View Transaction Details
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Completion timestamp -->
+                        <div class="card-footer bg-transparent border-0">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Completed on @pendingReview.CompletedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Pending reviews pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                        <a class="page-link" asp-route-page="@(Model.Page - 1)">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+
+                    @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" asp-route-page="@i">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                        <a class="page-link" asp-route-page="@(Model.Page + 1)">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        <!-- Help Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-question-circle text-info me-2"></i>Why leave reviews?
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-shield-alt text-success me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Build Trust</h6>
+                                        <small class="text-muted">Help other users make informed decisions</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-users text-primary me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Improve Community</h6>
+                                        <small class="text-muted">Encourage good behavior among users</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-star text-warning me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Get Better Deals</h6>
+                                        <small class="text-muted">Higher rated users attract more buyers</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                <h5 class="text-muted mb-3">All caught up!</h5>
+                <p class="text-muted mb-4">
+                    You don't have any pending reviews at the moment.
+                    <br>Complete more transactions to help build your reputation.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a asp-controller="Ads" asp-action="Index" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Browse Items
+                    </a>
+                    <a asp-controller="Ads" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>Sell Something
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="transactionDetailsContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading transaction details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pending-review-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .pending-review-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        border-left-color: #0d6efd;
+    }
+
+    .transaction-details {
+        border-left: 3px solid #e9ecef;
+        padding-left: 15px;
+    }
+
+    .other-user-info {
+        border: 1px solid #e9ecef;
+    }
+
+    .badge.bg-danger {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .pending-review-card .row {
+            --bs-gutter-x: 0.5rem;
+        }
+        
+        .pending-review-card img {
+            width: 60px !important;
+            height: 60px !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        async function showTransactionDetails(orderId) {
+            const modal = new bootstrap.Modal(document.getElementById('transactionDetailsModal'));
+            const contentDiv = document.getElementById('transactionDetailsContent');
+            
+            // Reset content
+            contentDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading transaction details...</p>
+                </div>
+            `;
+            
+            modal.show();
+            
+            try {
+                // In a real implementation, this would fetch order details from API
+                setTimeout(() => {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Order ID:</strong> ${orderId}
+                            <br><br>
+                            <p class="mb-0">Detailed transaction information would be displayed here, including order timeline, communications, and transaction history.</p>
+                        </div>
+                    `;
+                }, 1000);
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load transaction details. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        // Add urgency indicators based on time since completion
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.pending-review-card');
+            
+            cards.forEach(card => {
+                const badge = card.querySelector('.badge');
+                if (badge && badge.textContent.trim() === 'Urgent') {
+                    // Add visual emphasis for urgent reviews
+                    card.style.borderLeftColor = '#dc3545';
+                    card.style.borderLeftWidth = '4px';
+                }
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === '1') {
+                e.preventDefault();
+                const firstReviewBtn = document.querySelector('.btn.btn-primary[href*="Create"]');
+                if (firstReviewBtn) {
+                    firstReviewBtn.click();
+                }
+            }
+        });
+    </script>
+}

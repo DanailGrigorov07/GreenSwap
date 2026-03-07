@@ -1,0 +1,187 @@
+@model SecondHandGoods.Web.Models.Ads.AdvertisementDetailsViewModel
+@{
+    ViewData["Title"] = "Delete Advertisement";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Warning Header -->
+            <div class="text-center mb-4">
+                <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                <h1 class="h3 text-danger mb-2">Delete Advertisement</h1>
+                <p class="text-muted">This action cannot be undone</p>
+            </div>
+
+            <!-- Confirmation Card -->
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trash me-2"></i>Confirm Deletion
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Warning!</strong> You are about to permanently delete this advertisement. 
+                        This will also remove all associated images and cannot be recovered.
+                    </div>
+
+                    <!-- Advertisement Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            @if (Model.Images.Any())
+                            {
+                                <img src="@Model.Images.First().ImageUrl" 
+                                     class="img-fluid rounded shadow-sm" 
+                                     alt="@Model.Images.First().AltText"
+                                     style="max-height: 200px; width: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="mb-2">@Model.Title</h4>
+                            
+                            <div class="mb-2">
+                                <span class="@Model.ConditionBadgeClass">@Model.ConditionDisplay</span>
+                                @if (Model.IsFeatured)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1">
+                                        <i class="fas fa-star"></i> Featured
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <h5 class="text-primary mb-1">@Model.FormattedPrice</h5>
+                                <small class="text-muted">
+                                    <i class="@Model.CategoryIconClass me-1"></i>@Model.CategoryName
+                                    @if (!string.IsNullOrEmpty(Model.Location))
+                                    {
+                                        <span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i>@Model.Location</span>
+                                    }
+                                </small>
+                            </div>
+
+                            <div class="small text-muted">
+                                <div class="mb-1">
+                                    <i class="fas fa-calendar-alt me-1"></i>Posted: @Model.CreatedAt.ToString("MMM dd, yyyy")
+                                </div>
+                                <div class="mb-1">
+                                    <i class="fas fa-eye me-1"></i>Views: @Model.ViewCount
+                                </div>
+                                @if (Model.UpdatedAt.HasValue)
+                                {
+                                    <div class="mb-1">
+                                        <i class="fas fa-edit me-1"></i>Last updated: @Model.UpdatedAt.Value.ToString("MMM dd, yyyy")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description Preview -->
+                    <div class="mb-4">
+                        <h6>Description:</h6>
+                        <p class="text-muted small border-start border-3 ps-3">
+                            @(Model.Description.Length > 200 ? Model.Description.Substring(0, 200) + "..." : Model.Description)
+                        </p>
+                    </div>
+
+                    <!-- Image Count -->
+                    @if (Model.Images.Any())
+                    {
+                        <div class="mb-4">
+                            <h6>Images to be deleted:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var image in Model.Images.Take(5))
+                                {
+                                    <img src="@image.ImageUrl" 
+                                         class="img-thumbnail opacity-75" 
+                                         alt="@image.AltText"
+                                         style="width: 60px; height: 60px; object-fit: cover;" />
+                                }
+                                @if (Model.Images.Count > 5)
+                                {
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                        <small class="text-muted">+@(Model.Images.Count - 5)</small>
+                                    </div>
+                                }
+                            </div>
+                            <small class="text-muted">@Model.Images.Count image@(Model.Images.Count == 1 ? "" : "s") will be permanently deleted</small>
+                        </div>
+                    }
+
+                    <!-- Final Confirmation -->
+                    <div class="alert alert-danger mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Final Warning:</strong> This advertisement and all its data will be permanently deleted. 
+                        Any ongoing conversations about this item will also be affected.
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <form asp-action="Delete" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Cancel - Keep Advertisement
+                                </a>
+                            </div>
+                            <div>
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                                    <i class="fas fa-edit me-1"></i>Edit Instead
+                                </a>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash me-1"></i>Yes, Delete Permanently
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alternative Actions -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-lightbulb me-2"></i>Alternative Actions
+                    </h6>
+                    <p class="card-text small text-muted mb-3">
+                        Instead of deleting, you might want to consider these options:
+                    </p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-eye-slash text-warning me-2"></i>
+                                <div>
+                                    <strong>Hide Advertisement</strong>
+                                    <small class="d-block text-muted">Make it inactive but keep the data</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <div>
+                                    <strong>Mark as Sold</strong>
+                                    <small class="d-block text-muted">Indicate the item was sold successfully</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit Status Options Instead
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

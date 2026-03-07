@@ -1,0 +1,62 @@
+@model List<SecondHandGoods.Web.Models.Ads.AdvertisementCardViewModel>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">
+                <i class="fas fa-star text-warning me-2"></i>Featured Listings
+            </h5>
+            <div id="userAdsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < Model.Count; i += 4)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row g-3">
+                                @for (int j = 0; j < 4 && (i + j) < Model.Count; j++)
+                                {
+                                    var ad = Model[i + j];
+                                    <div class="col-md-3 col-sm-6">
+                                        <a asp-controller="Ads" asp-action="Details" asp-route-id="@ad.Id" class="text-decoration-none">
+                                            <div class="card h-100 border-0 shadow-sm hover-lift">
+                                                <img src="@ad.MainImageUrl" 
+                                                     class="card-img-top" 
+                                                     alt="@ad.MainImageAlt"
+                                                     style="height: 150px; object-fit: cover;" />
+                                                <div class="card-body p-2">
+                                                    <h6 class="card-title text-dark small mb-1" style="font-size: 0.85rem;">
+                                                        @(ad.Title.Length > 40 ? ad.Title.Substring(0, 40) + "..." : ad.Title)
+                                                    </h6>
+                                                    <p class="card-text text-primary mb-0 fw-bold" style="font-size: 0.9rem;">
+                                                        @ad.FormattedPrice
+                                                    </p>
+                                                    @if (!string.IsNullOrEmpty(ad.Location))
+                                                    {
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-map-marker-alt"></i> @ad.Location
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (Model.Count > 4)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#userAdsCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#userAdsCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}

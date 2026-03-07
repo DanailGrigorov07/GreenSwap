@@ -1,0 +1,530 @@
+@model SecondHandGoods.Web.Models.Ads.AdvertisementDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var (statusText, statusClass) = Model.GetStatusBadge();
+    var (fullStars, hasHalfStar, emptyStars) = Model.GetSellerRatingStars();
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Advertisements</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.CategoryName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Title and Status -->
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h1 class="h3 mb-2">@Model.Title</h1>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="@statusClass">@statusText</span>
+                        <span class="@Model.ConditionBadgeClass">@Model.ConditionDisplay</span>
+                        @if (Model.IsFeatured)
+                        {
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star"></i> Featured
+                            </span>
+                        }
+                    </div>
+                </div>
+                @if (Model.CanEdit)
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Manage
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@Model.Id">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@Model.Id">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                }
+            </div>
+
+            <!-- Image Gallery with Zoom -->
+            @if (Model.Images.Any())
+            {
+                <div class="mb-4">
+                    @if (Model.Images.Count == 1)
+                    {
+                        <img src="@Model.Images.First().ImageUrl" 
+                             class="img-fluid rounded shadow gallery-image-clickable" 
+                             alt="@Model.Images.First().AltText" 
+                             style="max-height: 400px; width: 100%; object-fit: cover; cursor: pointer;"
+                             data-image-index="0"
+                             data-image-url="@Model.Images.First().ImageUrl" />
+                    }
+                    else
+                    {
+                        <!-- Carousel for multiple images -->
+                        <div id="imageCarousel" class="carousel slide shadow rounded" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                @for (int i = 0; i < Model.Images.Count; i++)
+                                {
+                                    <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                                }
+                            </div>
+                            <div class="carousel-inner">
+                                @for (int i = 0; i < Model.Images.Count; i++)
+                                {
+                                    var image = Model.Images[i];
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="@image.ImageUrl" 
+                                             class="d-block w-100 gallery-image-clickable" 
+                                             alt="@image.AltText" 
+                                             style="height: 400px; object-fit: cover; cursor: pointer;"
+                                             data-image-index="@i"
+                                             data-image-url="@image.ImageUrl" />
+                                    </div>
+                                }
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+
+                        <!-- Thumbnail Gallery -->
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            @for (int i = 0; i < Model.Images.Count; i++)
+                            {
+                                var image = Model.Images[i];
+                                <img src="@image.ImageUrl" 
+                                     class="img-thumbnail gallery-thumbnail-clickable" 
+                                     alt="@image.AltText" 
+                                     style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                                     data-bs-target="#imageCarousel" 
+                                     data-bs-slide-to="@i"
+                                     data-image-index="@i"
+                                     data-image-url="@image.ImageUrl" />
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            
+            <!-- Image Gallery Modal -->
+            <div id="imageGalleryModal" class="image-gallery-modal">
+                <span class="image-gallery-close">&times;</span>
+                <div class="image-gallery-content">
+                    <img id="galleryMainImage" src="" alt="Gallery Image" />
+                    <div class="image-gallery-nav image-gallery-prev" id="galleryPrev">&#10094;</div>
+                    <div class="image-gallery-nav image-gallery-next" id="galleryNext">&#10095;</div>
+                    <div class="image-gallery-counter" id="galleryCounter"></div>
+                </div>
+            </div>
+            else
+            {
+                <div class="mb-4">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-image fa-3x mb-2"></i>
+                            <p>No images available</p>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Description
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text" style="white-space: pre-line;">@Model.Description</p>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Category:</dt>
+                                <dd class="col-sm-8">
+                                    <i class="@Model.CategoryIconClass me-1"></i>
+                                    <a asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.CategoryName</a>
+                                </dd>
+                                
+                                <dt class="col-sm-4">Condition:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="@Model.ConditionBadgeClass">@Model.ConditionDisplay</span>
+                                </dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.Location))
+                                {
+                                    <dt class="col-sm-4">Location:</dt>
+                                    <dd class="col-sm-8">
+                                        <i class="fas fa-map-marker-alt me-1"></i>@Model.Location
+                                    </dd>
+                                }
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Posted:</dt>
+                                <dd class="col-sm-8">@Model.CreatedAt.ToString("MMM dd, yyyy") (@Model.TimeAgo)</dd>
+                                
+                                @if (Model.UpdatedAt.HasValue)
+                                {
+                                    <dt class="col-sm-4">Updated:</dt>
+                                    <dd class="col-sm-8">@Model.UpdatedAt.Value.ToString("MMM dd, yyyy")</dd>
+                                }
+                                
+                                <dt class="col-sm-4">Views:</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fas fa-eye me-1"></i>@Model.ViewCount view@(Model.ViewCount == 1 ? "" : "s")
+                                </dd>
+
+                                @if (Model.DaysUntilExpiration > 0)
+                                {
+                                    <dt class="col-sm-4">Expires:</dt>
+                                    <dd class="col-sm-8 @(Model.DaysUntilExpiration <= 7 ? "text-warning" : "")">
+                                        @Model.ExpiresAt.ToString("MMM dd, yyyy")
+                                        @if (Model.DaysUntilExpiration <= 7)
+                                        {
+                                            <small>(in @Model.DaysUntilExpiration day@(Model.DaysUntilExpiration == 1 ? "" : "s"))</small>
+                                        }
+                                    </dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Price and Actions -->
+            <div class="card mb-4 border-primary">
+                <div class="card-body text-center">
+                    <h3 class="text-primary mb-3">@Model.FormattedPrice</h3>
+                    
+                    @if (Model.CanContact)
+                    {
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Chat" asp-action="StartConversation" asp-route-advertisementId="@Model.Id" 
+                               class="btn btn-success btn-lg">
+                                <i class="fas fa-comments me-2"></i>Message Seller
+                            </a>
+                            <button class="btn btn-outline-primary mb-2" type="button" onclick="showContactInfo()">
+                                <i class="fas fa-phone me-2"></i>Show Contact Info
+                            </button>
+                            <!-- Quick Order Button (for testing reviews) -->
+                            <button class="btn btn-warning btn-sm w-100" type="button" onclick="createQuickOrder(@Model.Id)">
+                                <i class="fas fa-shopping-cart me-2"></i>Quick Buy (Test Reviews)
+                            </button>
+                            @if (Model.CanFavorite)
+                            {
+                                <button class="btn btn-outline-danger" type="button" id="favoriteBtn" onclick="toggleFavorite(@Model.Id)">
+                                    <i class="@(Model.IsFavorited ? "fas" : "far") fa-heart me-2"></i>
+                                    @(Model.IsFavorited ? "Remove from Favorites" : "Add to Favorites")
+                                </button>
+                            }
+                        </div>
+                    }
+                    else if (SignInManager.IsSignedIn(User) && Model.CanEdit)
+                    {
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i>Edit Advertisement
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Advertisement
+                            </a>
+                        </div>
+                    }
+                    else if (!SignInManager.IsSignedIn(User))
+                    {
+                        <div class="alert alert-info">
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign in to Contact
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Seller Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Seller Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-user-circle fa-3x text-muted"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">@Model.SellerName</h6>
+                            <div class="text-muted small">
+                                @if (Model.SellerRatingCount > 0)
+                                {
+                                    <div class="mb-1">
+                                        @for (int i = 1; i <= fullStars; i++)
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        @if (hasHalfStar)
+                                        {
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        }
+                                        @for (int i = 1; i <= emptyStars; i++)
+                                        {
+                                            <i class="far fa-star text-muted"></i>
+                                        }
+                                        <span class="ms-1">@Model.SellerRating.ToString("F1") (@Model.SellerRatingCount review@(Model.SellerRatingCount == 1 ? "" : "s"))</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mb-1">
+                                        <span class="text-muted">No reviews yet</span>
+                                    </div>
+                                }
+                                <div>Member since @Model.SellerMemberSince.ToString("MMM yyyy")</div>
+                                @if (!string.IsNullOrEmpty(Model.SellerLocation))
+                                {
+                                    <div><i class="fas fa-map-marker-alt me-1"></i>@Model.SellerLocation</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.SellerBio))
+                    {
+                        <p class="small text-muted">@Model.SellerBio</p>
+                    }
+                    
+                    @if (Model.CanContact)
+                    {
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary btn-sm" type="button">
+                                <i class="fas fa-user me-1"></i>View Profile
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Safety Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0 ps-3">
+                        <li>Meet in a public place</li>
+                        <li>Bring a friend if possible</li>
+                        <li>Inspect the item before paying</li>
+                        <li>Use secure payment methods</li>
+                        <li>Trust your instincts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Items Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4 class="mb-3">Similar Items in @Model.CategoryName</h4>
+            <div class="text-muted">
+                <a asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="btn btn-outline-primary">
+                    <i class="fas fa-search me-1"></i>Browse More @Model.CategoryName Items
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .img-thumbnail:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .carousel-item img {
+        border-radius: 0.375rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function showContactInfo() {
+            alert('Contact information would be displayed here after proper verification.');
+        }
+
+        async function createQuickOrder(advertisementId) {
+            if (!confirm('Create a test order for this item? This will allow you to test the review system.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('@Url.Action("QuickCreate", "Orders")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: `advertisementId=${advertisementId}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Order created successfully! Order Number: ${result.orderNumber}`);
+                    // Redirect to reviews pending page
+                    window.location.href = '@Url.Action("Pending", "Reviews")';
+                } else {
+                    alert('Failed to create order: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error creating order:', error);
+                alert('An error occurred while creating the order.');
+            }
+        }
+
+        // Thumbnail gallery functionality
+        // Image Gallery Modal with Zoom
+        const galleryImages = @Html.Raw(Json.Serialize(Model.Images.Select(img => img.ImageUrl).ToList()));
+        let currentGalleryIndex = 0;
+        let isZoomed = false;
+        
+        const modal = document.getElementById('imageGalleryModal');
+        const modalImg = document.getElementById('galleryMainImage');
+        const closeBtn = document.querySelector('.image-gallery-close');
+        const prevBtn = document.getElementById('galleryPrev');
+        const nextBtn = document.getElementById('galleryNext');
+        const counter = document.getElementById('galleryCounter');
+        
+        // Open modal when clicking on images
+        document.querySelectorAll('.gallery-image-clickable, .gallery-thumbnail-clickable').forEach(img => {
+            img.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-image-index'));
+                openGallery(index);
+            });
+        });
+        
+        function openGallery(index) {
+            if (galleryImages.length === 0) return;
+            currentGalleryIndex = index;
+            updateGalleryImage();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeGallery() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            isZoomed = false;
+            modalImg.classList.remove('zoomed');
+        }
+        
+        function updateGalleryImage() {
+            if (currentGalleryIndex >= 0 && currentGalleryIndex < galleryImages.length) {
+                modalImg.src = galleryImages[currentGalleryIndex];
+                counter.textContent = `${currentGalleryIndex + 1} / ${galleryImages.length}`;
+                isZoomed = false;
+                modalImg.classList.remove('zoomed');
+            }
+        }
+        
+        function nextImage() {
+            if (galleryImages.length > 0) {
+                currentGalleryIndex = (currentGalleryIndex + 1) % galleryImages.length;
+                updateGalleryImage();
+            }
+        }
+        
+        function prevImage() {
+            if (galleryImages.length > 0) {
+                currentGalleryIndex = (currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length;
+                updateGalleryImage();
+            }
+        }
+        
+        // Event listeners
+        closeBtn.addEventListener('click', closeGallery);
+        nextBtn.addEventListener('click', nextImage);
+        prevBtn.addEventListener('click', prevImage);
+        
+        // Zoom on click
+        modalImg.addEventListener('click', function() {
+            isZoomed = !isZoomed;
+            if (isZoomed) {
+                this.classList.add('zoomed');
+            } else {
+                this.classList.remove('zoomed');
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (modal.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeGallery();
+                } else if (e.key === 'ArrowRight') {
+                    nextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    prevImage();
+                }
+            }
+        });
+        
+        // Close on background click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeGallery();
+            }
+        });
+        
+        // Thumbnail carousel navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.img-thumbnail[data-bs-slide-to]');
+            thumbnails.forEach(thumb => {
+                thumb.addEventListener('click', function() {
+                    const slideIndex = this.getAttribute('data-bs-slide-to');
+                    const carousel = bootstrap.Carousel.getInstance(document.getElementById('imageCarousel'));
+                    if (carousel) {
+                        carousel.to(parseInt(slideIndex));
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,448 @@
+@model SecondHandGoods.Web.Models.Admin.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+<!-- Dashboard Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                </h1>
+                <p class="text-muted mb-0">Welcome to the SecondHandGoods administration panel</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+                <a asp-action="Statistics" class="btn btn-primary">
+                    <i class="fas fa-chart-bar me-1"></i>Full Statistics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row mb-4">
+    <!-- Users Card -->
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 metric-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="metric-icon bg-primary text-white">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="metric-value">@Model.TotalUsers.ToString("N0")</div>
+                        <div class="metric-label">Total Users</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up text-success me-1"></i>
+                            +@Model.NewUsersThisWeek in the last week
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-primary" 
+                             style="width: @((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100)%"></div>
+                    </div>
+                    <small class="text-muted">@Model.ActiveUsers active users (@((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100):F1)%)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advertisements Card -->
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 metric-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="metric-icon bg-success text-white">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="metric-value">@Model.TotalAdvertisements.ToString("N0")</div>
+                        <div class="metric-label">Total Ads</div>
+                        <div class="metric-change">
+                            <i class="fas fa-arrow-up text-success me-1"></i>
+                            +@Model.NewAdsThisWeek in the last week
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: @((Model.ActiveAdvertisements / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100)%"></div>
+                    </div>
+                    <small class="text-muted">@Model.ActiveAdvertisements active ads (@((Model.ActiveAdvertisements / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100):F1)%)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Card -->
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 metric-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="metric-icon bg-info text-white">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="metric-value">@Model.TotalOrders.ToString("N0")</div>
+                        <div class="metric-label">Total Orders</div>
+                        <div class="metric-change">
+                            <i class="fas fa-percentage text-info me-1"></i>
+                            @Model.OrderCompletionRate.ToString("F1")% completion rate
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-info" 
+                             style="width: @((Model.CompletedOrders / (double)Math.Max(Model.TotalOrders, 1)) * 100)%"></div>
+                    </div>
+                    <small class="text-muted">@Model.CompletedOrders completed orders</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Card -->
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 metric-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="metric-icon bg-warning text-dark">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="metric-value">@Model.TotalRevenue.ToString("C")</div>
+                        <div class="metric-label">Total Revenue</div>
+                        <div class="metric-change">
+                            <i class="fas fa-star text-warning me-1"></i>
+                            @Model.AverageRating.ToString("F1") avg rating
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">From @Model.CompletedOrders completed transactions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Metrics -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom-0">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>Platform Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments text-primary"></i>
+                            </div>
+                            <div class="stat-value">@Model.TotalMessages.ToString("N0")</div>
+                            <div class="stat-label">Messages</div>
+                            <small class="text-muted">@Model.MessagesToday today</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-star text-success"></i>
+                            </div>
+                            <div class="stat-value">@Model.TotalReviews.ToString("N0")</div>
+                            <div class="stat-label">Reviews</div>
+                            <small class="text-muted">@Model.ReportedReviewsCount reported</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check text-info"></i>
+                            </div>
+                            <div class="stat-value">@Model.ActiveUsers.ToString("N0")</div>
+                            <div class="stat-label">Active Users</div>
+                            <small class="text-muted">@((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100):F1% of total</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line text-warning"></i>
+                            </div>
+                            <div class="stat-value">@Model.ConversionRate.ToString("F1")%</div>
+                            <div class="stat-label">Conversion</div>
+                            <small class="text-muted">Ads sold rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-th-large me-2 text-success"></i>Categories Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.AdsByCategory.Any())
+                {
+                    @foreach (var category in Model.AdsByCategory.Take(5))
+                    {
+                        var percentage = (category.Value / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100;
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small">@category.Key</span>
+                                <span class="badge bg-light text-dark">@category.Value</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: @percentage%"></div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center">No category data available</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities and Alerts -->
+<div class="row">
+    <!-- Recent Users -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus me-2 text-primary"></i>Recent Users
+                    </h5>
+                    <a asp-action="Users" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentUsers.Any())
+                {
+                    @foreach (var user in Model.RecentUsers)
+                    {
+                        <div class="list-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium">@user.Title</div>
+                                    <small class="text-muted">@user.Description</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="@user.StatusBadgeClass">@user.Status</span>
+                                    <div class="small text-muted">@user.TimeAgo</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-3 text-center text-muted">No recent user activity</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Advertisements -->
+    <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tags me-2 text-success"></i>Recent Ads
+                    </h5>
+                    <a asp-action="Advertisements" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentAds.Any())
+                {
+                    @foreach (var ad in Model.RecentAds)
+                    {
+                        <div class="list-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium">@ad.Title</div>
+                                    <small class="text-muted">by @ad.UserName • @ad.Description</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="@ad.StatusBadgeClass">@ad.Status</span>
+                                    <div class="small text-muted">@ad.TimeAgo</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-3 text-center text-muted">No recent advertisements</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts and Action Items -->
+@if (Model.ReportedReviews.Any() || Model.UnapprovedReviews > 0)
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning border-0 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">Attention Required</h5>
+                        <p class="mb-2">There are items that need your immediate attention:</p>
+                        <ul class="mb-0">
+                            @if (Model.ReportedReviews.Any())
+                            {
+                                <li><strong>@Model.ReportedReviews.Count</strong> reported reviews need moderation</li>
+                            }
+                            @if (Model.UnapprovedReviews > 0)
+                            {
+                                <li><strong>@Model.UnapprovedReviews</strong> reviews pending approval</li>
+                            }
+                        </ul>
+                    </div>
+                    <div>
+                        <a asp-controller="Reviews" asp-action="Manage" class="btn btn-warning">
+                            <i class="fas fa-tasks me-1"></i>Review Items
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+.metric-card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.metric-change {
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.stat-item {
+    padding: 1rem 0;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.list-item {
+    padding: 1rem;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background-color: #f8f9fa;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard every 5 minutes
+        setTimeout(function() {
+            window.location.reload();
+        }, 300000);
+
+        // Add smooth hover effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.metric-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)';
+                });
+            });
+        });
+    </script>
+}

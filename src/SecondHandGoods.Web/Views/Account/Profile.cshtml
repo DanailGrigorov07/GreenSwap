@@ -1,0 +1,173 @@
+@model SecondHandGoods.Web.Models.Account.ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h5 class="card-title">@Model.FirstName @Model.LastName</h5>
+                <p class="text-muted">@Model.Email</p>
+                
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <p class="mb-2">
+                        <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                        @Model.Location
+                    </p>
+                }
+                
+                <div class="row text-center mt-3">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h6 class="text-primary mb-1">@Model.SellerRating.ToString("F1")</h6>
+                            <small class="text-muted">Rating</small>
+                            <div>
+                                @{
+                                    var fullStars = (int)Model.SellerRating;
+                                    var hasHalfStar = (Model.SellerRating - fullStars) >= 0.5m;
+                                }
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= fullStars)
+                                    {
+                                        <i class="fas fa-star text-warning"></i>
+                                    }
+                                    else if (i == fullStars + 1 && hasHalfStar)
+                                    {
+                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="far fa-star text-muted"></i>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-info mb-1">@Model.RatingCount</h6>
+                        <small class="text-muted">Reviews</small>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Member since @Model.FormattedMemberSince
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                
+                <form asp-action="Profile" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email Address</label>
+                        <input asp-for="Email" class="form-control" readonly disabled>
+                        <small class="form-text text-muted">Email address cannot be changed</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label">
+                                <i class="fas fa-user me-1"></i>First Name
+                            </label>
+                            <input asp-for="FirstName" class="form-control" placeholder="First name">
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label">
+                                <i class="fas fa-user me-1"></i>Last Name
+                            </label>
+                            <input asp-for="LastName" class="form-control" placeholder="Last name">
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Location" class="form-label">
+                            <i class="fas fa-map-marker-alt me-1"></i>Location
+                        </label>
+                        <input asp-for="Location" class="form-control" placeholder="City, State">
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Bio" class="form-label">
+                            <i class="fas fa-info-circle me-1"></i>Bio
+                        </label>
+                        <textarea asp-for="Bio" class="form-control" rows="4" 
+                                  placeholder="Tell other users about yourself, your interests, or what types of items you typically sell..."></textarea>
+                        <span asp-validation-for="Bio" class="text-danger"></span>
+                        <small class="form-text text-muted">A good bio helps build trust with potential buyers and sellers</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Home
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Account Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="text-primary mb-1">0</h5>
+                            <small class="text-muted">Active Ads</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="text-success mb-1">0</h5>
+                            <small class="text-muted">Items Sold</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-info mb-1">0</h5>
+                        <small class="text-muted">Favorites</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

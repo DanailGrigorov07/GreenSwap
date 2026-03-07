@@ -1,0 +1,377 @@
+@model SecondHandGoods.Web.Models.Ads.AdvertisementListViewModel
+@{
+    ViewData["Title"] = Model.IsUserAds ? "My Advertisements" : (string.IsNullOrEmpty(Model.CurrentCategoryName) ? "All Advertisements" : $"{Model.CurrentCategoryName} - Advertisements");
+}
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1 class="h3 mb-1">
+                        @if (Model.IsUserAds)
+                        {
+                            <text><i class="fas fa-user-tag me-2"></i>My Advertisements</text>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.CurrentCategoryName))
+                        {
+                            <text><i class="fas fa-tag me-2"></i>@Model.CurrentCategoryName</text>
+                        }
+                        else
+                        {
+                            <text><i class="fas fa-shopping-bag me-2"></i>All Advertisements</text>
+                        }
+                    </h1>
+                    <p class="text-muted mb-0">
+                        @if (Model.TotalCount > 0)
+                        {
+                            <text>@Model.TotalCount.ToString("N0") item@(Model.TotalCount == 1 ? "" : "s") found</text>
+                        }
+                        else
+                        {
+                            <text>No items found</text>
+                        }
+                    </p>
+                </div>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Post Advertisement
+                        </a>
+                        @if (!Model.IsUserAds)
+                        {
+                            <a asp-action="MyAds" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-user-tag me-1"></i>My Ads
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" asp-action="@(Model.IsUserAds ? "MyAds" : "Index")">
+                        <input type="hidden" asp-for="Page" value="1" />
+                        
+                        <div class="row g-3">
+                            <!-- Search Term -->
+                            <div class="col-md-6 col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input asp-for="SearchTerm" class="form-control" placeholder="Search advertisements..." />
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-3 col-lg-2">
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                                </select>
+                            </div>
+
+                            <!-- Price Range -->
+                            <div class="col-md-3 col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="MinPrice" class="form-control" placeholder="Min" type="number" step="0.01" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-lg-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="MaxPrice" class="form-control" placeholder="Max" type="number" step="0.01" />
+                                </div>
+                            </div>
+
+                            <!-- Condition -->
+                            <div class="col-md-3 col-lg-2">
+                                <select asp-for="Condition" asp-items="Model.Conditions" class="form-select">
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Additional Filters Row -->
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input asp-for="Location" class="form-control" placeholder="Location" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <select asp-for="SortBy" asp-items="Model.SortOptions" class="form-select">
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input asp-for="PriceNegotiable" class="form-check-input" />
+                                    <label asp-for="PriceNegotiable" class="form-check-label">
+                                        Negotiable price only
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="fas fa-filter me-1"></i>Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="row">
+        @if (Model.Advertisements.Any())
+        {
+            @foreach (var ad in Model.Advertisements)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm advertisement-card">
+                        <!-- Image -->
+                        <div class="position-relative">
+                            <a asp-action="Details" asp-route-id="@ad.Id">
+                                <img src="@ad.MainImageUrl" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@ad.MainImageAlt" />
+                            </a>
+                            
+                            <!-- Status Badges -->
+                            <div class="position-absolute top-0 end-0 p-2">
+                                @if (ad.IsFeatured)
+                                {
+                                    <span class="badge bg-success mb-1">FEATURED</span>
+                                }
+                                @if (ad.IsSold)
+                                {
+                                    <span class="badge bg-danger">SOLD</span>
+                                }
+                            </div>
+                            
+                            <!-- Condition Badge -->
+                            <div class="position-absolute top-0 start-0 p-2">
+                                <span class="@ad.ConditionBadgeClass">@ad.ConditionDisplay</span>
+                            </div>
+                        </div>
+
+                        <div class="card-body d-flex flex-column">
+                            <!-- Title -->
+                            <h5 class="card-title">
+                                <a asp-action="Details" asp-route-id="@ad.Id" class="text-decoration-none text-dark">
+                                    @ad.Title
+                                </a>
+                            </h5>
+
+                            <!-- Description -->
+                            <p class="card-text text-muted small flex-grow-1">@ad.Description</p>
+
+                            <!-- Price -->
+                            <div class="mb-2">
+                                <h6 class="text-primary mb-0">@ad.FormattedPrice</h6>
+                            </div>
+
+                            <!-- Category and Location -->
+                            <div class="small text-muted mb-2">
+                                <i class="@ad.CategoryIconClass me-1"></i>@ad.CategoryName
+                                @if (!string.IsNullOrEmpty(ad.Location))
+                                {
+                                    <span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i>@ad.Location</span>
+                                }
+                            </div>
+
+                            <!-- Seller Info -->
+                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                <div>
+                                    <i class="fas fa-user me-1"></i>@ad.UserName
+                                    @if (ad.UserRating > 0)
+                                    {
+                                        <span class="ms-1">
+                                            <i class="fas fa-star text-warning"></i>@ad.UserRating.ToString("F1")
+                                        </span>
+                                    }
+                                </div>
+                                <div>
+                                    @ad.TimeAgo
+                                </div>
+                            </div>
+
+                            <!-- View Count -->
+                            <div class="mt-2 small text-muted">
+                                <i class="fas fa-eye me-1"></i>@ad.ViewCount view@(ad.ViewCount == 1 ? "" : "s")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted mb-3">No advertisements found</h4>
+                    @if (Model.IsUserAds)
+                    {
+                        <p class="text-muted mb-4">You haven't posted any advertisements yet.</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Post Your First Advertisement
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-4">Try adjusting your search criteria or browse different categories.</p>
+                        <a asp-action="Index" class="btn btn-outline-primary">
+                            <i class="fas fa-refresh me-1"></i>Clear Filters
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Advertisements pagination">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous -->
+                        <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                            <a class="page-link" 
+                               asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-searchTerm="@Model.SearchTerm"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-minPrice="@Model.MinPrice"
+                               asp-route-maxPrice="@Model.MaxPrice"
+                               asp-route-condition="@Model.Condition"
+                               asp-route-location="@Model.Location"
+                               asp-route-priceNegotiable="@Model.PriceNegotiable"
+                               asp-route-sortBy="@Model.SortBy">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        @{
+                            var startPage = Math.Max(1, Model.Page - 2);
+                            var endPage = Math.Min(Model.TotalPages, Model.Page + 2);
+                        }
+
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" 
+                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-route-page="1"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-minPrice="@Model.MinPrice"
+                                   asp-route-maxPrice="@Model.MaxPrice"
+                                   asp-route-condition="@Model.Condition"
+                                   asp-route-location="@Model.Location"
+                                   asp-route-priceNegotiable="@Model.PriceNegotiable"
+                                   asp-route-sortBy="@Model.SortBy">1</a>
+                            </li>
+                            @if (startPage > 2)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link" 
+                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-route-page="@i"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-minPrice="@Model.MinPrice"
+                                   asp-route-maxPrice="@Model.MaxPrice"
+                                   asp-route-condition="@Model.Condition"
+                                   asp-route-location="@Model.Location"
+                                   asp-route-priceNegotiable="@Model.PriceNegotiable"
+                                   asp-route-sortBy="@Model.SortBy">@i</a>
+                            </li>
+                        }
+
+                        @if (endPage < Model.TotalPages)
+                        {
+                            @if (endPage < Model.TotalPages - 1)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" 
+                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-route-page="@Model.TotalPages"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-categoryId="@Model.CategoryId"
+                                   asp-route-minPrice="@Model.MinPrice"
+                                   asp-route-maxPrice="@Model.MaxPrice"
+                                   asp-route-condition="@Model.Condition"
+                                   asp-route-location="@Model.Location"
+                                   asp-route-priceNegotiable="@Model.PriceNegotiable"
+                                   asp-route-sortBy="@Model.SortBy">@Model.TotalPages</a>
+                            </li>
+                        }
+
+                        <!-- Next -->
+                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                            <a class="page-link" 
+                               asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-searchTerm="@Model.SearchTerm"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-minPrice="@Model.MinPrice"
+                               asp-route-maxPrice="@Model.MaxPrice"
+                               asp-route-condition="@Model.Condition"
+                               asp-route-location="@Model.Location"
+                               asp-route-priceNegotiable="@Model.PriceNegotiable"
+                               asp-route-sortBy="@Model.SortBy">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .advertisement-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    
+    .advertisement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .card-img-top {
+        transition: transform 0.3s ease;
+    }
+    
+    .advertisement-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+</style>

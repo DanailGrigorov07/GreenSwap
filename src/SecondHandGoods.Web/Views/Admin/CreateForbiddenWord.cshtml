@@ -1,0 +1,400 @@
+@model SecondHandGoods.Web.Models.Admin.CreateEditForbiddenWordViewModel
+
+@{
+    ViewData["Title"] = Model.Id > 0 ? "Edit Forbidden Word" : "Create Forbidden Word";
+    ViewData["ShowAdminNavigation"] = true;
+    var isEdit = Model.Id > 0;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas @(isEdit ? "fa-edit" : "fa-plus") me-2"></i>@(isEdit ? "Edit" : "Create") Forbidden Word
+                </h1>
+                <p class="text-muted mb-0">@(isEdit ? "Update" : "Add") a word or phrase for content moderation</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="ForbiddenWords" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog me-2"></i>Word Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="@(isEdit ? "EditForbiddenWord" : "CreateForbiddenWord")" id="wordForm">
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+
+                    <!-- Word Input -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label asp-for="Word" class="form-label">
+                                Forbidden Word/Phrase <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Word" class="form-control" placeholder="Enter the word or phrase to moderate" autofocus />
+                            <span asp-validation-for="Word" class="text-danger"></span>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This is the word or phrase that will trigger moderation actions.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Severity" class="form-label">
+                                Severity Level <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Severity" class="form-select" asp-items="Model.SeverityOptions">
+                            </select>
+                            <span asp-validation-for="Severity" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Category and Replacement -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Category" class="form-label">Category</label>
+                            <input asp-for="Category" class="form-control" list="categoryList" placeholder="Optional category for organization" />
+                            <datalist id="categoryList">
+                                @foreach (var category in Model.CategorySuggestions)
+                                {
+                                    <option value="@category"></option>
+                                }
+                            </datalist>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                            <div class="form-text">Group similar words together for easier management.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Replacement" class="form-label">Replacement Text</label>
+                            <input asp-for="Replacement" class="form-control" placeholder="Optional replacement (e.g., ***)" />
+                            <span asp-validation-for="Replacement" class="text-danger"></span>
+                            <div class="form-text">Text to replace the forbidden word with (if left empty, uses asterisks).</div>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Options -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label class="form-label">Moderation Settings</label>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input asp-for="IsBlocked" class="form-check-input" />
+                                                <label asp-for="IsBlocked" class="form-check-label">
+                                                    Block Content
+                                                </label>
+                                            </div>
+                                            <div class="form-text">
+                                                If checked, content containing this word will be blocked or modified. 
+                                                If unchecked, content will only be flagged for review.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input asp-for="IsExactMatch" class="form-check-input" />
+                                                <label asp-for="IsExactMatch" class="form-check-label">
+                                                    Exact Match Only
+                                                </label>
+                                            </div>
+                                            <div class="form-text">
+                                                If checked, only exact word matches are detected (with word boundaries). 
+                                                Otherwise, partial matches within other words are detected.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input asp-for="IsActive" class="form-check-input" />
+                                                <label asp-for="IsActive" class="form-check-label">
+                                                    Active
+                                                </label>
+                                            </div>
+                                            <div class="form-text">
+                                                Only active words are used for content moderation.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Notes -->
+                    <div class="mb-4">
+                        <label asp-for="AdminNotes" class="form-label">Admin Notes</label>
+                        <textarea asp-for="AdminNotes" class="form-control" rows="3" 
+                                  placeholder="Optional internal notes about this forbidden word..."></textarea>
+                        <span asp-validation-for="AdminNotes" class="text-danger"></span>
+                        <div class="form-text">
+                            These notes are only visible to administrators and help explain why this word was added.
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a asp-action="ForbiddenWords" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="button" class="btn btn-outline-info" id="testWordBtn">
+                            <i class="fas fa-vial me-1"></i>Test Word
+                        </button>
+                        <button type="submit" class="btn btn-@(isEdit ? "warning" : "success")">
+                            <i class="fas fa-@(isEdit ? "save" : "plus") me-1"></i>@(isEdit ? "Update" : "Create") Word
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Configuration Guide
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Severity Levels</h6>
+                        <ul class="small">
+                            <li><strong>Low:</strong> Warning only, content remains visible</li>
+                            <li><strong>Medium:</strong> Content flagged for manual review</li>
+                            <li><strong>High:</strong> Content automatically blocked</li>
+                            <li><strong>Critical:</strong> Content blocked + user activity logged</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cogs me-2 text-info"></i>Match Types</h6>
+                        <ul class="small">
+                            <li><strong>Exact Match:</strong> "bad" matches only "bad" (whole word)</li>
+                            <li><strong>Partial Match:</strong> "bad" matches "badly", "badger", etc.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-shield-alt me-2 text-success"></i>Actions</h6>
+                        <ul class="small">
+                            <li><strong>Block Content:</strong> Prevents publication or modifies content</li>
+                            <li><strong>Flag Only:</strong> Content published but marked for review</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-lightbulb me-2 text-warning"></i>Best Practices</h6>
+                        <ul class="small">
+                            <li>Use exact match for common words to avoid false positives</li>
+                            <li>Start with "Flag Only" for new words to test effectiveness</li>
+                            <li>Group related words in categories for better organization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-vial me-2"></i>Test Forbidden Word
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Test Content</label>
+                    <textarea id="testContent" class="form-control" rows="4" 
+                              placeholder="Enter some text to test how this forbidden word would be handled...">This is a sample text that might contain inappropriate content.</textarea>
+                </div>
+                
+                <div id="testResults" style="display: none;">
+                    <h6>Test Results</h6>
+                    <div class="alert alert-info">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Original:</strong>
+                                <div id="originalText" class="font-monospace small"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>After Moderation:</strong>
+                                <div id="moderatedText" class="font-monospace small"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="testStatus"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="runTestBtn">
+                    <i class="fas fa-play me-1"></i>Run Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-check-label {
+    font-weight: 500;
+}
+
+.card {
+    border-radius: 8px;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.font-monospace {
+    font-family: 'Courier New', Courier, monospace;
+}
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle test button
+            document.getElementById('testWordBtn').addEventListener('click', function() {
+                const modal = new bootstrap.Modal(document.getElementById('testModal'));
+                modal.show();
+            });
+
+            // Handle run test
+            document.getElementById('runTestBtn').addEventListener('click', runTest);
+
+            // Form validation
+            const form = document.getElementById('wordForm');
+            form.addEventListener('submit', function(e) {
+                const wordInput = document.getElementById('Word');
+                if (!wordInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Please enter a forbidden word.');
+                    wordInput.focus();
+                }
+            });
+
+            // Auto-suggest severity based on word characteristics
+            const wordInput = document.getElementById('Word');
+            const severitySelect = document.getElementById('Severity');
+            
+            wordInput.addEventListener('blur', function() {
+                if (this.value) {
+                    // Simple heuristic to suggest severity
+                    const word = this.value.toLowerCase().trim();
+                    if (word.length < 4) {
+                        // Short words might be more problematic
+                        if (severitySelect.value === '2') { // If still default
+                            severitySelect.value = '3'; // Suggest High
+                        }
+                    }
+                }
+            });
+        });
+
+        function runTest() {
+            const testContent = document.getElementById('testContent').value;
+            const word = document.getElementById('Word').value;
+            const isExactMatch = document.getElementById('IsExactMatch').checked;
+            const replacement = document.getElementById('Replacement').value || '***';
+            
+            if (!word.trim()) {
+                alert('Please enter a forbidden word first.');
+                return;
+            }
+
+            if (!testContent.trim()) {
+                alert('Please enter some test content.');
+                return;
+            }
+
+            // Simple client-side simulation
+            let moderated = testContent;
+            let detected = false;
+            
+            try {
+                if (isExactMatch) {
+                    // Word boundary match
+                    const regex = new RegExp('\\b' + escapeRegExp(word) + '\\b', 'gi');
+                    if (regex.test(testContent)) {
+                        detected = true;
+                        moderated = testContent.replace(regex, replacement);
+                    }
+                } else {
+                    // Partial match
+                    const regex = new RegExp(escapeRegExp(word), 'gi');
+                    if (regex.test(testContent)) {
+                        detected = true;
+                        moderated = testContent.replace(regex, replacement);
+                    }
+                }
+
+                // Show results
+                document.getElementById('originalText').textContent = testContent;
+                document.getElementById('moderatedText').textContent = moderated;
+                
+                const statusDiv = document.getElementById('testStatus');
+                if (detected) {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Match Found:</strong> The forbidden word "${word}" was detected and would be replaced.
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>No Match:</strong> The forbidden word "${word}" was not found in the test content.
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('testResults').style.display = 'block';
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Test Error:</strong> ${error.message}
+                    </div>
+                `;
+                document.getElementById('testResults').style.display = 'block';
+            }
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

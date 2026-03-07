@@ -1,0 +1,336 @@
+@using System.Security.Claims
+@model SecondHandGoods.Web.Models.Reviews.UserReviewsViewModel
+@{
+    ViewData["Title"] = $"Reviews for {Model.UserName}";
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">User Reviews</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- User Info & Rating Summary -->
+    <div class="row mb-5">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h4 class="mb-2">@Model.UserName</h4>
+                    <p class="text-muted mb-3">Member since @Model.MemberSince.ToString("MMM yyyy")</p>
+                    
+                    <!-- Overall Rating -->
+                    <div class="mb-4">
+                        <div class="display-6 text-primary mb-2">@Model.FormattedOverallRating</div>
+                        <div class="fs-4 text-warning mb-2">@Model.OverallStarDisplay</div>
+                        <p class="text-muted">Based on @Model.TotalReviews review@(Model.TotalReviews == 1 ? "" : "s")</p>
+                    </div>
+
+                    <!-- Rating Breakdown -->
+                    @if (Model.TotalReviews > 0)
+                    {
+                        <div class="rating-breakdown">
+                            <h6 class="mb-3">Rating Breakdown</h6>
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                var count = Model.RatingBreakdown.GetValueOrDefault(i, 0);
+                                var percentage = Model.RatingPercentages[i];
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="me-2" style="min-width: 60px;">
+                                        <small>@i star@(i == 1 ? "" : "s")</small>
+                                    </div>
+                                    <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" 
+                                             style="width: @percentage%"
+                                             role="progressbar" 
+                                             aria-valuenow="@percentage" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                    <div style="min-width: 30px;">
+                                        <small class="text-muted">@count</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Filters and Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" asp-route-userId="@Model.UserId">
+                        <input type="hidden" name="page" value="1" />
+                        
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Filter by Type</label>
+                                <select name="filterByType" class="form-select">
+                                    <option value="">All Reviews</option>
+                                    <option value="1" selected="@(Model.FilterByType == ReviewType.BuyerToSeller)">As Seller</option>
+                                    <option value="2" selected="@(Model.FilterByType == ReviewType.SellerToBuyer)">As Buyer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Filter by Rating</label>
+                                <select name="filterByRating" class="form-select">
+                                    <option value="">All Ratings</option>
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <option value="@i" selected="@(Model.FilterByRating == i)">@i Star@(i == 1 ? "" : "s")</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Sort By</label>
+                                <select name="sortBy" class="form-select">
+                                    <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                                    <option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest First</option>
+                                    <option value="rating-high" selected="@(Model.SortBy == "rating-high")">Highest Rating</option>
+                                    <option value="rating-low" selected="@(Model.SortBy == "rating-low")">Lowest Rating</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Reviews List -->
+            @if (Model.Reviews.Any())
+            {
+                <div class="reviews-list">
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="card border-0 shadow-sm mb-4 review-card">
+                            <div class="card-body">
+                                <!-- Review Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">@review.ReviewerName</h6>
+                                            <small class="text-muted">@review.TimeAgo • @review.ReviewTypeDisplay</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Rating -->
+                                    <div class="text-end">
+                                        <div class="@review.RatingClass fs-5 mb-1">@review.StarDisplay</div>
+                                        <small class="text-muted">@review.Rating.ToString() star@(review.Rating == 1 ? "" : "s")</small>
+                                    </div>
+                                </div>
+
+                                <!-- Review Content -->
+                                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                {
+                                    <div class="review-comment mb-3">
+                                        <p class="mb-0">@review.Comment</p>
+                                    </div>
+                                }
+
+                                <!-- Transaction Info -->
+                                <div class="transaction-info bg-light rounded p-3 mb-3">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <img src="@review.AdvertisementImageUrl" 
+                                                 alt="@review.AdvertisementTitle" 
+                                                 class="rounded"
+                                                 style="width: 60px; height: 60px; object-fit: cover;" />
+                                        </div>
+                                        <div class="col">
+                                            <h6 class="mb-1">@review.AdvertisementTitle</h6>
+                                            <div class="small text-muted">
+                                                <span>Order: @review.OrderNumber</span>
+                                                <span class="mx-2">•</span>
+                                                <span>Price: @review.FormattedPrice</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Review Actions -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        @if (review.IsReported)
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Reported
+                                            </span>
+                                        }
+                                    </div>
+                                    <div>
+                                        @if (SignInManager.IsSignedIn(User) && User.FindFirstValue(ClaimTypes.NameIdentifier) != review.ReviewerId)
+                                        {
+                                            <button class="btn btn-outline-danger btn-sm" 
+                                                    onclick="reportReview(@review.Id)">
+                                                <i class="fas fa-flag me-1"></i>Report
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Reviews pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                                <a class="page-link" 
+                                   asp-route-userId="@Model.UserId"
+                                   asp-route-page="@(Model.Page - 1)"
+                                   asp-route-filterByType="@Model.FilterByType"
+                                   asp-route-filterByRating="@Model.FilterByRating"
+                                   asp-route-sortBy="@Model.SortBy">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+
+                            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                            {
+                                <li class="page-item @(i == Model.Page ? "active" : "")">
+                                    <a class="page-link" 
+                                       asp-route-userId="@Model.UserId"
+                                       asp-route-page="@i"
+                                       asp-route-filterByType="@Model.FilterByType"
+                                       asp-route-filterByRating="@Model.FilterByRating"
+                                       asp-route-sortBy="@Model.SortBy">@i</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                                <a class="page-link" 
+                                   asp-route-userId="@Model.UserId"
+                                   asp-route-page="@(Model.Page + 1)"
+                                   asp-route-filterByType="@Model.FilterByType"
+                                   asp-route-filterByRating="@Model.FilterByRating"
+                                   asp-route-sortBy="@Model.SortBy">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <!-- No Reviews -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-star fa-4x text-muted mb-4"></i>
+                        <h5 class="text-muted mb-3">No reviews found</h5>
+                        <p class="text-muted mb-0">
+                            @if (Model.FilterByType.HasValue || Model.FilterByRating.HasValue)
+                            {
+                                <text>Try adjusting your filters to see more reviews.</text>
+                            }
+                            else
+                            {
+                                <text>This user hasn't received any reviews yet.</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .review-card {
+        transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+
+    .review-comment {
+        font-style: italic;
+        color: #444;
+        line-height: 1.6;
+    }
+
+    .transaction-info {
+        border-left: 4px solid #0d6efd;
+    }
+
+    .rating-breakdown .progress {
+        background-color: #f8f9fa;
+    }
+
+    .star-rating {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        async function reportReview(reviewId) {
+            if (!confirm('Are you sure you want to report this review as inappropriate?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('@Url.Action("Report")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `reviewId=${reviewId}&reason=Inappropriate content`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Review reported successfully. Our moderation team will review it.');
+                    location.reload();
+                } else {
+                    alert('Failed to report review: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error reporting review:', error);
+                alert('An error occurred while reporting the review.');
+            }
+        }
+
+        // Auto-submit form when filters change
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterForm = document.querySelector('form');
+            const selects = filterForm.querySelectorAll('select');
+            
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    // Reset to first page when filters change
+                    document.querySelector('input[name="page"]').value = '1';
+                    filterForm.submit();
+                });
+            });
+        });
+    </script>
+}

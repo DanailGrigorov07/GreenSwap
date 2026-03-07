@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Second Hand Goods</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SecondHandGoods.Web.styles.css" asp-append-version="true" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-store me-2"></i>Second Hand Goods
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-shopping-bag me-1"></i>Browse
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Ads" asp-action="Index">
+                                        <i class="fas fa-list me-2"></i>All Items
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">
+                                        <i class="fas fa-th-large me-2"></i>Categories
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Popular Categories</h6></li>
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Browse" asp-route-id="1">
+                                        <i class="fas fa-laptop me-2"></i>Electronics
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Browse" asp-route-id="2">
+                                        <i class="fas fa-car me-2"></i>Vehicles
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Browse" asp-route-id="3">
+                                        <i class="fas fa-home me-2"></i>Home & Garden
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Search" asp-action="Advanced">
+                                        <i class="fas fa-search-plus me-2"></i>Advanced Search
+                                    </a></li>
+                                </ul>
+                            </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Ads" asp-action="Create">
+                                    <i class="fas fa-plus me-1"></i>Post Ad
+                                </a>
+                            </li>
+                        }
+                        </ul>
+                        
+                        <!-- Quick Search Widget -->
+                        <div class="d-none d-lg-flex me-3 align-items-center gap-2">
+                            <form asp-controller="Ads" asp-action="Index" method="get" class="d-flex">
+                                <input name="searchTerm" type="search" class="form-control form-control-sm me-2" 
+                                       placeholder="Quick search..." aria-label="Search" style="min-width: 200px;">
+                                <button class="btn btn-outline-primary btn-sm" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                            <!-- Dark Mode Toggle -->
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggle" title="Toggle Dark Mode">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </div>
+
+                        <ul class="navbar-nav">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i>@User.Identity!.Name
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                        <i class="fas fa-user-edit me-2"></i>Profile
+                                    </a></li>
+                                        <li><a class="dropdown-item" asp-controller="Ads" asp-action="MyAds">
+                                            <i class="fas fa-user-tag me-2"></i>My Ads
+                                        </a></li>
+                                        <li><a class="dropdown-item" asp-controller="Chat" asp-action="Index">
+                                            <i class="fas fa-comments me-2"></i>Messages
+                                            <span id="navUnreadBadge" class="badge bg-danger ms-1" style="display: none;"></span>
+                                        </a></li>
+                                        <li><a class="dropdown-item" asp-controller="Reviews" asp-action="Pending">
+                                            <i class="fas fa-star me-2"></i>Reviews
+                                            <span id="navPendingReviewsBadge" class="badge bg-warning text-dark ms-1" style="display: none;"></span>
+                                        </a></li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                            <i class="fas fa-cog me-2"></i>Admin Panel
+                                        </a></li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Admin Navigation Bar (only shown on admin pages) -->
+    @if (ViewData["ShowAdminNavigation"] != null && (bool)ViewData["ShowAdminNavigation"] && User.IsInRole("Admin"))
+    {
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-2">
+            <div class="container-fluid">
+                <div class="navbar-nav">
+                    <a class="navbar-brand me-4" href="#" style="font-size: 1rem;">
+                        <i class="fas fa-shield-alt me-2"></i>Administration
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="Index">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Users" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="Users">
+                        <i class="fas fa-users me-1"></i>Users
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Advertisements" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="Advertisements">
+                        <i class="fas fa-tags me-1"></i>Advertisements
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Statistics" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="Statistics">
+                        <i class="fas fa-chart-bar me-1"></i>Statistics
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Moderation" || ViewContext.RouteData.Values["Action"]?.ToString() == "ForbiddenWords" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="Moderation">
+                        <i class="fas fa-shield-alt me-1"></i>Moderation
+                    </a>
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "SiteAds" || ViewContext.RouteData.Values["Action"]?.ToString() == "EditSiteAd" ? "active" : "")" 
+                       asp-controller="Admin" asp-action="SiteAds">
+                        <i class="fas fa-ad me-1"></i>Site Ads
+                    </a>
+                </div>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        <i class="fas fa-user-shield me-1"></i>Admin: @User.Identity!.Name
+                    </span>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-arrow-left me-1"></i>Exit Admin
+                    </a>
+                </div>
+            </div>
+        </nav>
+    }
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer Content: User Ads Carousel and Paid Ads -->
+    @await Html.PartialAsync("_FooterContent")
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Second Hand Goods
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        (function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const html = document.documentElement;
+            
+            // Get saved theme or default to light
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-theme', currentTheme);
+            updateThemeIcon(currentTheme);
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+            
+            function updateThemeIcon(theme) {
+                if (themeIcon) {
+                    themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        })();
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

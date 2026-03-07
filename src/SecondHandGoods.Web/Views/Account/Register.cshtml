@@ -1,0 +1,131 @@
+@model SecondHandGoods.Web.Models.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
+                    <h3>Join Our Community</h3>
+                    <p class="text-muted">Create your account to start buying and selling</p>
+                </div>
+
+                <form asp-action="Register" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label">
+                                <i class="fas fa-user me-1"></i>First Name
+                            </label>
+                            <input asp-for="FirstName" class="form-control" placeholder="First name" autofocus>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label">
+                                <i class="fas fa-user me-1"></i>Last Name
+                            </label>
+                            <input asp-for="LastName" class="form-control" placeholder="Last name">
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">
+                            <i class="fas fa-envelope me-1"></i>Email
+                        </label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter your email address">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Location" class="form-label">
+                            <i class="fas fa-map-marker-alt me-1"></i>Location (Optional)
+                        </label>
+                        <input asp-for="Location" class="form-control" placeholder="City, State">
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                        <small class="form-text text-muted">This helps buyers know your general area</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">
+                            <i class="fas fa-lock me-1"></i>Password
+                        </label>
+                        <input asp-for="Password" class="form-control" placeholder="Create a strong password">
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <small class="form-text text-muted">Must be at least 8 characters with uppercase, lowercase, and numbers</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label">
+                            <i class="fas fa-lock me-1"></i>Confirm Password
+                        </label>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat your password">
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="AgreeToTerms" class="form-check-input">
+                            <label asp-for="AgreeToTerms" class="form-check-label">
+                                I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                            </label>
+                            <span asp-validation-for="AgreeToTerms" class="text-danger d-block"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-plus me-1"></i>Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="mb-0">Already have an account?</p>
+                    <a asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="btn btn-link">
+                        <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Welcome to Second Hand Goods</h6>
+                <p>By creating an account, you agree to:</p>
+                <ul>
+                    <li>Provide accurate information about items you sell</li>
+                    <li>Treat other users with respect and courtesy</li>
+                    <li>Not list prohibited or illegal items</li>
+                    <li>Communicate honestly about item condition and availability</li>
+                    <li>Complete transactions as agreed upon</li>
+                </ul>
+                <p><strong>Safety:</strong> Always meet in public places for transactions and trust your instincts.</p>
+                <p><strong>Privacy:</strong> We protect your personal information and will never share it without permission.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,616 @@
+@model SecondHandGoods.Web.Models.Admin.AdminUserManagementViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas fa-users me-2"></i>User Management
+                </h1>
+                <p class="text-muted mb-0">Manage platform users and their permissions</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-danger" id="bulkActionBtn" style="display: none;">
+                    <i class="fas fa-tasks me-1"></i>Bulk Actions
+                </button>
+                <a asp-action="Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.TotalUsers.ToString("N0")</div>
+                        <div>Total Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.ActiveUsersCount.ToString("N0")</div>
+                        <div>Active Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-shield fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.AdminUsersCount.ToString("N0")</div>
+                        <div>Admin Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-times fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-4 fw-bold">@Model.InactiveUsersCount.ToString("N0")</div>
+                        <div>Inactive Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Filters and Search
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" asp-action="Users" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="searchTerm" value="@Model.SearchTerm" 
+                                   class="form-control" placeholder="Search by name or email...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select name="isActive" class="form-select">
+                                <option value="">All Users</option>
+                                <option value="true" selected="@(Model.IsActive == true)">Active Only</option>
+                                <option value="false" selected="@(Model.IsActive == false)">Inactive Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-select" asp-items="Model.RoleOptions">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Sort By</label>
+                            <select name="sortBy" class="form-select" asp-items="Model.SortOptions">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid gap-1">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Apply
+                                </button>
+                                <a href="@Url.Action("Users")" class="btn btn-outline-secondary btn-sm">Clear</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Filters (Collapsible) -->
+                    <div class="collapse mt-3" id="advancedFilters">
+                        <hr>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Registered After</label>
+                                <input type="date" name="registeredAfter" value="@Model.RegisteredAfter?.ToString("yyyy-MM-dd")" 
+                                       class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Registered Before</label>
+                                <input type="date" name="registeredBefore" value="@Model.RegisteredBefore?.ToString("yyyy-MM-dd")" 
+                                       class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Min Rating</label>
+                                <input type="number" name="minRating" value="@Model.MinRating" 
+                                       class="form-control" min="0" max="5" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-link p-0" data-bs-toggle="collapse" 
+                                data-bs-target="#advancedFilters" aria-expanded="false">
+                            <i class="fas fa-chevron-down me-1"></i>Advanced Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Users (@Model.TotalUsers.ToString("N0"))
+                    </h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-check-label me-2">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                        Select All
+                    </label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" disabled id="bulkActionsDropdown">
+                            Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-action="activate">
+                                <i class="fas fa-user-check me-2 text-success"></i>Activate Selected
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-action="deactivate">
+                                <i class="fas fa-user-times me-2 text-warning"></i>Deactivate Selected
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" data-action="delete">
+                                <i class="fas fa-trash me-2"></i>Delete Selected
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Users.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th width="40">
+                                        <input type="checkbox" id="selectAllHeader" class="form-check-input">
+                                    </th>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                    <th>Role</th>
+                                    <th>Activity</th>
+                                    <th>Statistics</th>
+                                    <th width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.Users)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="form-check-input user-checkbox" 
+                                                   value="@user.Id" data-user-name="@user.FullName">
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-initial bg-primary text-white rounded-circle me-3"
+                                                     style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                    @user.FirstName.Substring(0, 1).ToUpper()@user.LastName.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">@user.FullName</div>
+                                                    <small class="text-muted">@user.Email</small>
+                                                    @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                                                    {
+                                                        <br><small class="text-muted">@user.PhoneNumber</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span class="@user.StatusBadgeClass">@user.StatusText</span>
+                                                @if (!user.EmailConfirmed)
+                                                {
+                                                    <br><small class="badge bg-warning text-dark mt-1">Email Not Verified</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="@user.RoleBadgeClass">@user.PrimaryRole</span>
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                <div><strong>Member:</strong> @user.MemberSince</div>
+                                                <div><strong>Last Login:</strong> @user.LastActivity</div>
+                                                @if (user.SellerRating > 0)
+                                                {
+                                                    <div>
+                                                        <strong>Rating:</strong> 
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            if (i <= user.SellerRating)
+                                                            {
+                                                                <i class="fas fa-star text-warning"></i>
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="far fa-star text-muted"></i>
+                                                            }
+                                                        }
+                                                        (@user.SellerRating.ToString("F1"))
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                <div><strong>Ads:</strong> @user.TotalAds (@user.ActiveAds active, @user.SoldAds sold)</div>
+                                                <div><strong>Orders:</strong> @user.TotalOrders</div>
+                                                <div><strong>Reviews:</strong> @user.TotalReviews</div>
+                                                <div><strong>Messages:</strong> @user.TotalMessages</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                        data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    @if (user.IsActive)
+                                                    {
+                                                        <li><a class="dropdown-item user-action" href="#" 
+                                                               data-user-id="@user.Id" data-action="deactivate">
+                                                            <i class="fas fa-user-times me-2 text-warning"></i>Deactivate
+                                                        </a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li><a class="dropdown-item user-action" href="#" 
+                                                               data-user-id="@user.Id" data-action="activate">
+                                                            <i class="fas fa-user-check me-2 text-success"></i>Activate
+                                                        </a></li>
+                                                    }
+                                                    
+                                                    @if (user.PrimaryRole != "Admin")
+                                                    {
+                                                        <li><a class="dropdown-item user-action" href="#" 
+                                                               data-user-id="@user.Id" data-action="promote">
+                                                            <i class="fas fa-user-shield me-2 text-info"></i>Promote to Admin
+                                                        </a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li><a class="dropdown-item user-action" href="#" 
+                                                               data-user-id="@user.Id" data-action="demote">
+                                                            <i class="fas fa-user me-2 text-secondary"></i>Remove Admin
+                                                        </a></li>
+                                                    }
+                                                    
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item user-action text-danger" href="#" 
+                                                           data-user-id="@user.Id" data-action="delete">
+                                                        <i class="fas fa-trash me-2"></i>Delete User
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No users found</h5>
+                        <p class="text-muted">Try adjusting your search criteria.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="User pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPrevious)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page - 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            }
+
+            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="?page=@i&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">@i</a>
+                </li>
+            }
+
+            @if (Model.HasNext)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page + 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            }
+        </ul>
+        <div class="text-center text-muted">
+            Showing page @Model.Page of @Model.TotalPages (@Model.TotalUsers.ToString("N0") total users)
+        </div>
+    </nav>
+}
+
+<!-- User Action Modal -->
+<div class="modal fade" id="userActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm User Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="actionConfirmText"></p>
+                <div class="mb-3">
+                    <label class="form-label">Reason (optional)</label>
+                    <textarea id="actionReason" class="form-control" rows="3" 
+                              placeholder="Enter a reason for this action..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-initial {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+    border-top: 1px solid #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0,123,255,.075);
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+
+@section Scripts {
+    <script>
+        let selectedAction = null;
+        let selectedUserId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle individual user actions
+            document.querySelectorAll('.user-action').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const userId = this.dataset.userId;
+                    const action = this.dataset.action;
+                    const userName = this.closest('tr').querySelector('.user-checkbox').dataset.userName;
+                    
+                    showActionModal(userId, action, userName);
+                });
+            });
+
+            // Handle bulk selection
+            const selectAllCheckboxes = document.querySelectorAll('#selectAll, #selectAllHeader');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+
+            selectAllCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    userCheckboxes.forEach(cb => cb.checked = isChecked);
+                    selectAllCheckboxes.forEach(cb => cb.checked = isChecked);
+                    updateBulkActionsState();
+                });
+            });
+
+            userCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateBulkActionsState);
+            });
+
+            // Handle bulk actions
+            document.querySelectorAll('[data-action]').forEach(link => {
+                if (link.classList.contains('user-action')) return; // Skip individual actions
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.dataset.action;
+                    const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'));
+                    
+                    if (selectedUsers.length === 0) {
+                        alert('Please select users first.');
+                        return;
+                    }
+                    
+                    const userNames = selectedUsers.map(cb => cb.dataset.userName).join(', ');
+                    showBulkActionModal(selectedUsers.map(cb => cb.value), action, userNames);
+                });
+            });
+
+            // Handle action confirmation
+            document.getElementById('confirmActionBtn').addEventListener('click', confirmAction);
+        });
+
+        function updateBulkActionsState() {
+            const selectedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+            
+            bulkActionsDropdown.disabled = selectedCount === 0;
+            
+            // Update select all checkboxes state
+            const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
+            const selectAllCheckboxes = document.querySelectorAll('#selectAll, #selectAllHeader');
+            
+            selectAllCheckboxes.forEach(cb => {
+                cb.checked = selectedCount === totalCheckboxes;
+                cb.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+            });
+        }
+
+        function showActionModal(userId, action, userName) {
+            selectedAction = action;
+            selectedUserId = userId;
+            
+            const actionTexts = {
+                'activate': `activate user "${userName}"`,
+                'deactivate': `deactivate user "${userName}"`,
+                'promote': `promote user "${userName}" to Admin`,
+                'demote': `remove Admin role from user "${userName}"`,
+                'delete': `delete user "${userName}"`
+            };
+            
+            document.getElementById('actionConfirmText').textContent = 
+                `Are you sure you want to ${actionTexts[action]}?`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('userActionModal'));
+            modal.show();
+        }
+
+        function showBulkActionModal(userIds, action, userNames) {
+            selectedAction = action;
+            selectedUserId = userIds;
+            
+            const actionTexts = {
+                'activate': 'activate the selected users',
+                'deactivate': 'deactivate the selected users',
+                'delete': 'delete the selected users'
+            };
+            
+            document.getElementById('actionConfirmText').innerHTML = 
+                `Are you sure you want to ${actionTexts[action]}?<br><br><strong>Selected users:</strong><br>${userNames}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('userActionModal'));
+            modal.show();
+        }
+
+        async function confirmAction() {
+            const reason = document.getElementById('actionReason').value;
+            const isBulk = Array.isArray(selectedUserId);
+            
+            try {
+                let response;
+                
+                if (isBulk) {
+                    response = await fetch('@Url.Action("BulkAction")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            selectedIds: selectedUserId.map(id => parseInt(id, 10)),
+                            action: selectedAction,
+                            reason: reason,
+                            entityType: 'users'
+                        })
+                    });
+                } else {
+                    response = await fetch('@Url.Action("UserAction")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            userId: selectedUserId,
+                            action: selectedAction,
+                            reason: reason
+                        })
+                    });
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error performing action:', error);
+                alert('An error occurred while performing the action.');
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('userActionModal'));
+            modal.hide();
+        }
+    </script>
+}

@@ -1,0 +1,432 @@
+@model SecondHandGoods.Web.Models.Reviews.CreateReviewViewModel
+@{
+    ViewData["Title"] = Model.ReviewTypeDisplay;
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Pending">Pending Reviews</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Leave Review</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Main Review Card -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-star me-2"></i>@Model.ReviewTypeDisplay
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Transaction Summary -->
+                    <div class="transaction-summary bg-light rounded p-4 mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-receipt me-2"></i>Transaction Summary
+                        </h6>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <img src="@Model.AdvertisementImageUrl" 
+                                     alt="@Model.AdvertisementTitle" 
+                                     class="rounded shadow-sm"
+                                     style="width: 100px; height: 100px; object-fit: cover;" />
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-2">@Model.AdvertisementTitle</h5>
+                                <div class="row g-2 small">
+                                    <div class="col-md-6">
+                                        <strong>Order:</strong> @Model.OrderNumber
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Price:</strong> @Model.FormattedPrice
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Completed:</strong> @Model.OrderCompletedDate.ToString("MMM dd, yyyy")
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>@(Model.ReviewType == ReviewType.BuyerToSeller ? "Seller" : "Buyer"):</strong> @Model.ReviewedUserName
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    <form asp-action="Create" method="post">
+                        <input asp-for="OrderId" type="hidden" />
+                        <input asp-for="ReviewedUserId" type="hidden" />
+                        <input asp-for="ReviewType" type="hidden" />
+
+                        <!-- Rating Selection -->
+                        <div class="mb-4">
+                            <label asp-for="Rating" class="form-label h6">
+                                <i class="fas fa-star text-warning me-2"></i>How would you rate your experience?
+                            </label>
+                            <div class="rating-input">
+                                <div class="star-rating-input d-flex align-items-center gap-3">
+                                    <div class="stars-container">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <label class="star-label" data-rating="@i">
+                                                <input type="radio" asp-for="Rating" value="@i" class="d-none star-input" />
+                                                <i class="fas fa-star star-icon" data-rating="@i"></i>
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="rating-text">
+                                        <span id="ratingText" class="fw-bold text-primary">Select a rating</span>
+                                        <small class="d-block text-muted" id="ratingDescription"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Rating" class="text-danger"></span>
+                        </div>
+
+                        <!-- Comment Section -->
+                        <div class="mb-4">
+                            <label asp-for="Comment" class="form-label h6">
+                                <i class="fas fa-comment me-2"></i>Share your experience (Optional)
+                            </label>
+                            <textarea asp-for="Comment" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Tell others about your experience with @Model.ReviewedUserName. Was the communication good? Was the item as described? Any other feedback?"
+                                      maxlength="1000"></textarea>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span asp-validation-for="Comment" class="text-danger"></span>
+                                <small class="text-muted">
+                                    <span id="charCount">0</span>/1000 characters
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Quick Comment Templates -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">
+                                <i class="fas fa-lightbulb me-2"></i>Quick Comments
+                                <small class="text-muted">(Click to use)</small>
+                            </h6>
+                            <div class="row g-2">
+                                @if (Model.ReviewType == ReviewType.BuyerToSeller)
+                                {
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-success btn-sm w-100 template-btn" 
+                                                data-template="Great seller! Item exactly as described and fast response to messages.">
+                                            <i class="fas fa-thumbs-up me-1"></i>Excellent Experience
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-info btn-sm w-100 template-btn" 
+                                                data-template="Good transaction. Item was as expected and seller was helpful.">
+                                            <i class="fas fa-handshake me-1"></i>Smooth Transaction
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 template-btn" 
+                                                data-template="Professional seller with quick delivery. Would recommend!">
+                                            <i class="fas fa-shipping-fast me-1"></i>Fast & Professional
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-warning btn-sm w-100 template-btn" 
+                                                data-template="Item had minor issues but seller was responsive and helpful.">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Minor Issues
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-success btn-sm w-100 template-btn" 
+                                                data-template="Excellent buyer! Payment was prompt and communication was clear.">
+                                            <i class="fas fa-thumbs-up me-1"></i>Great Buyer
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-info btn-sm w-100 template-btn" 
+                                                data-template="Smooth transaction with professional buyer. Highly recommended!">
+                                            <i class="fas fa-handshake me-1"></i>Professional Buyer
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 template-btn" 
+                                                data-template="Quick payment and easy to work with. Would sell to again!">
+                                            <i class="fas fa-dollar-sign me-1"></i>Quick Payment
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-warning btn-sm w-100 template-btn" 
+                                                data-template="Transaction completed but had some communication delays.">
+                                            <i class="fas fa-clock me-1"></i>Some Delays
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Review Guidelines -->
+                        <div class="alert alert-info mb-4">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>Review Guidelines
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>Be honest and fair in your review</li>
+                                <li>Focus on the transaction experience</li>
+                                <li>Avoid personal attacks or inappropriate language</li>
+                                <li>Reviews cannot be edited once submitted</li>
+                            </ul>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a asp-action="Pending" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transaction-summary {
+        border-left: 4px solid #0d6efd;
+    }
+
+    .star-rating-input {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+    }
+
+    .stars-container {
+        display: flex;
+        gap: 5px;
+    }
+
+    .star-label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .star-icon {
+        font-size: 2rem;
+        color: #e9ecef;
+        transition: all 0.2s ease;
+    }
+
+    .star-icon:hover,
+    .star-icon.active {
+        color: #ffc107;
+        transform: scale(1.1);
+    }
+
+    .template-btn {
+        transition: all 0.2s ease;
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .template-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    #ratingText {
+        font-size: 1.2rem;
+    }
+
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-radius: 0;
+    }
+
+    /* Animation for form submission */
+    .submitting {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .submitting .btn {
+        position: relative;
+    }
+
+    .submitting .btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingInputs = document.querySelectorAll('.star-input');
+            const starIcons = document.querySelectorAll('.star-icon');
+            const ratingText = document.getElementById('ratingText');
+            const ratingDescription = document.getElementById('ratingDescription');
+            const commentTextarea = document.querySelector('#Comment');
+            const charCount = document.getElementById('charCount');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.querySelector('form');
+
+            const ratingTexts = {
+                1: { text: '1 Star - Poor', description: 'Very unsatisfied with the experience' },
+                2: { text: '2 Stars - Fair', description: 'Below expectations' },
+                3: { text: '3 Stars - Good', description: 'Met expectations' },
+                4: { text: '4 Stars - Very Good', description: 'Exceeded expectations' },
+                5: { text: '5 Stars - Excellent', description: 'Outstanding experience' }
+            };
+
+            // Initialize star rating
+            function updateStarDisplay(rating) {
+                starIcons.forEach((star, index) => {
+                    const starRating = index + 1;
+                    star.classList.toggle('active', starRating <= rating);
+                });
+
+                if (rating > 0) {
+                    ratingText.textContent = ratingTexts[rating].text;
+                    ratingDescription.textContent = ratingTexts[rating].description;
+                } else {
+                    ratingText.textContent = 'Select a rating';
+                    ratingDescription.textContent = '';
+                }
+            }
+
+            // Handle star clicks
+            starIcons.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    const rating = index + 1;
+                    ratingInputs[index].checked = true;
+                    updateStarDisplay(rating);
+                });
+
+                // Hover effects
+                star.addEventListener('mouseenter', function() {
+                    const rating = index + 1;
+                    updateStarDisplay(rating);
+                });
+            });
+
+            // Reset hover effect
+            document.querySelector('.stars-container').addEventListener('mouseleave', function() {
+                const checkedInput = document.querySelector('.star-input:checked');
+                const currentRating = checkedInput ? parseInt(checkedInput.value) : 0;
+                updateStarDisplay(currentRating);
+            });
+
+            // Character counter
+            commentTextarea.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+                
+                if (this.value.length > 950) {
+                    charCount.classList.add('text-warning');
+                } else if (this.value.length >= 1000) {
+                    charCount.classList.remove('text-warning');
+                    charCount.classList.add('text-danger');
+                } else {
+                    charCount.classList.remove('text-warning', 'text-danger');
+                }
+            });
+
+            // Template buttons
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const template = this.dataset.template;
+                    if (commentTextarea.value.trim()) {
+                        if (confirm('This will replace your current comment. Continue?')) {
+                            commentTextarea.value = template;
+                        }
+                    } else {
+                        commentTextarea.value = template;
+                    }
+                    commentTextarea.dispatchEvent(new Event('input'));
+                    commentTextarea.focus();
+                });
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                const rating = document.querySelector('.star-input:checked');
+                
+                if (!rating) {
+                    e.preventDefault();
+                    alert('Please select a rating before submitting your review.');
+                    return;
+                }
+
+                // Add loading state
+                form.classList.add('submitting');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+                submitBtn.disabled = true;
+
+                // Prevent double submission
+                setTimeout(() => {
+                    form.querySelector('button[type="submit"]').style.pointerEvents = 'none';
+                }, 100);
+            });
+
+            // Initialize character count
+            charCount.textContent = commentTextarea.value.length;
+
+            // Auto-focus on rating when page loads
+            setTimeout(() => {
+                document.querySelector('.star-icon').focus();
+            }, 500);
+        });
+
+        // Keyboard navigation for stars
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement.classList.contains('star-icon')) {
+                const stars = Array.from(document.querySelectorAll('.star-icon'));
+                const currentIndex = stars.indexOf(document.activeElement);
+                
+                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    e.preventDefault();
+                    stars[currentIndex - 1].focus();
+                } else if (e.key === 'ArrowRight' && currentIndex < stars.length - 1) {
+                    e.preventDefault();
+                    stars[currentIndex + 1].focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    document.activeElement.click();
+                }
+            }
+        });
+    </script>
+}

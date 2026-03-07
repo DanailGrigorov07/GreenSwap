@@ -1,0 +1,484 @@
+@model SecondHandGoods.Web.Models.Search.AdvancedSearchViewModel
+@{
+    ViewData["Title"] = "Advanced Search";
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1 class="display-6 mb-3">
+            <i class="fas fa-search-plus text-primary me-3"></i>Advanced Search
+        </h1>
+        <p class="lead text-muted">
+            Find exactly what you're looking for with detailed search criteria
+        </p>
+    </div>
+
+    <div class="row">
+        <!-- Search Form -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>Search Criteria
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Advanced" method="post">
+                        <input asp-for="Page" type="hidden" value="1" />
+
+                        <!-- Keywords -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-keyboard me-2"></i>Keywords & Category
+                                </h6>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="Keywords" class="form-label">Search Keywords</label>
+                                <input asp-for="Keywords" class="form-control form-control-lg" 
+                                       placeholder="What are you looking for?" />
+                                <span asp-validation-for="Keywords" class="text-danger"></span>
+                                <small class="form-text text-muted">Search in titles and descriptions</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="CategoryId" class="form-label">Category</label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-dollar-sign me-2"></i>Price Range
+                                </h6>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MinPrice" class="form-label">@Html.DisplayNameFor(m => m.MinPrice)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="MinPrice" class="form-control" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="MinPrice" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MaxPrice" class="form-label">@Html.DisplayNameFor(m => m.MaxPrice)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="MaxPrice" class="form-control" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="MaxPrice" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check">
+                                    <input asp-for="PriceNegotiableOnly" class="form-check-input" />
+                                    <label asp-for="PriceNegotiableOnly" class="form-check-label">
+                                        Only negotiable prices
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item Condition -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-star me-2"></i>Item Condition
+                                </h6>
+                            </div>
+                            <div class="col-12">
+                                <div class="row">
+                                    @{
+                                        var conditionOptions = Model.GetConditionOptions();
+                                    }
+                                    @foreach (var condition in conditionOptions)
+                                    {
+                                        <div class="col-md-6 col-lg-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="Conditions" 
+                                                       value="@((int)condition.Value)"
+                                                       id="condition_@((int)condition.Value)"
+                                                       @(condition.IsSelected ? "checked" : "") />
+                                                <label class="form-check-label" for="condition_@((int)condition.Value)">
+                                                    @condition.Text
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location and Date -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location & Date
+                                </h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Location" class="form-label">@Html.DisplayNameFor(m => m.Location)</label>
+                                <input asp-for="Location" class="form-control" placeholder="City, State" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PostedBeforeTime" class="form-label">@Html.DisplayNameFor(m => m.PostedBeforeTime)</label>
+                                <select asp-for="PostedBeforeTime" class="form-select">
+                                    <option value="none">All Time (No Filter)</option>
+                                    <option value="30min">Last 30 Minutes</option>
+                                    <option value="1hr">Last Hour</option>
+                                    <option value="6hr">Last 6 Hours</option>
+                                    <option value="24hr">Last 24 Hours</option>
+                                    <option value="2days">Last 2 Days</option>
+                                    <option value="4days">Last 4 Days</option>
+                                    <option value="1week">Last Week</option>
+                                    <option value="1month">Last Month</option>
+                                    <option value="1year">Last Year</option>
+                                </select>
+                                <span asp-validation-for="PostedBeforeTime" class="text-danger"></span>
+                                <small class="form-text text-muted">Show only items posted within the selected time period</small>
+                            </div>
+                        </div>
+
+                        <!-- Seller & Additional Filters -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user-check me-2"></i>Seller & Additional Filters
+                                </h6>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MinSellerRating" class="form-label">@Html.DisplayNameFor(m => m.MinSellerRating)</label>
+                                <select asp-for="MinSellerRating" class="form-select">
+                                    <option value="">Any Rating</option>
+                                    <option value="4.5">4.5+ Stars</option>
+                                    <option value="4.0">4.0+ Stars</option>
+                                    <option value="3.5">3.5+ Stars</option>
+                                    <option value="3.0">3.0+ Stars</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check">
+                                    <input asp-for="HasImages" class="form-check-input" />
+                                    <label asp-for="HasImages" class="form-check-label">
+                                        @Html.DisplayNameFor(m => m.HasImages)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check">
+                                    <input asp-for="FeaturedOnly" class="form-check-input" />
+                                    <label asp-for="FeaturedOnly" class="form-check-label">
+                                        @Html.DisplayNameFor(m => m.FeaturedOnly)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-sort me-2"></i>Sort Results
+                                </h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SortBy" class="form-label">Sort By</label>
+                                <select asp-for="SortBy" asp-items="Model.SortOptions" class="form-select">
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a asp-controller="Ads" asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Simple Search
+                                </a>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-warning me-2" onclick="clearForm()">
+                                    <i class="fas fa-eraser me-1"></i>Clear All
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-search me-1"></i>Search Items
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar with Quick Searches and Tips -->
+        <div class="col-lg-4">
+            <!-- Quick Search Suggestions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightning-bolt me-2"></i>Quick Searches
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Ads" asp-action="Index" asp-route-priceNegotiable="true" 
+                           class="btn btn-outline-primary btn-sm text-start">
+                            <i class="fas fa-handshake me-2"></i>Negotiable Prices
+                        </a>
+                        <a asp-controller="Ads" asp-action="Index" asp-route-condition="1" 
+                           class="btn btn-outline-success btn-sm text-start">
+                            <i class="fas fa-star me-2"></i>New Items Only
+                        </a>
+                        <a asp-controller="Ads" asp-action="Index" asp-route-maxPrice="100" 
+                           class="btn btn-outline-info btn-sm text-start">
+                            <i class="fas fa-tag me-2"></i>Under $100
+                        </a>
+                        <a asp-controller="Ads" asp-action="Index" asp-route-sortBy="popular" 
+                           class="btn btn-outline-warning btn-sm text-start">
+                            <i class="fas fa-fire me-2"></i>Popular Items
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Tips -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Search Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0 ps-3">
+                        <li class="mb-2">Use specific keywords like brand names or model numbers</li>
+                        <li class="mb-2">Try different combinations if you don't find results</li>
+                        <li class="mb-2">Filter by condition to find exactly what you need</li>
+                        <li class="mb-2">Set up price alerts for items in your budget</li>
+                        <li class="mb-0">Check seller ratings for reliable transactions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Popular Categories -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-fire me-2"></i>Popular Categories
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <a asp-controller="Categories" asp-action="Browse" asp-route-id="1" 
+                               class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-laptop me-1"></i>Electronics
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="Categories" asp-action="Browse" asp-route-id="2" 
+                               class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-car me-1"></i>Vehicles
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="Categories" asp-action="Browse" asp-route-id="3" 
+                               class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="Categories" asp-action="Browse" asp-route-id="4" 
+                               class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                <i class="fas fa-tshirt me-1"></i>Fashion
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="fas fa-th-large me-1"></i>View All Categories
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    @if (Model.HasSearched)
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-list me-2"></i>Search Results
+                            </h5>
+                            <small class="text-muted">@Model.GetSearchSummary()</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary fs-6">
+                                @Model.TotalResults.ToString("N0") item@(Model.TotalResults == 1 ? "" : "s") found
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Results.Any())
+                        {
+                            <!-- Results Grid -->
+                            <div class="row g-4">
+                                @foreach (var ad in Model.Results)
+                                {
+                                    <div class="col-xl-4 col-lg-6 col-md-6">
+                                        <div class="card h-100 border-0 shadow-sm advertisement-card">
+                                            <!-- Image -->
+                                            <div class="position-relative">
+                                                <a asp-controller="Ads" asp-action="Details" asp-route-id="@ad.Id">
+                                                    <img src="@ad.MainImageUrl" class="card-img-top" 
+                                                         style="height: 180px; object-fit: cover;" 
+                                                         alt="@ad.MainImageAlt" />
+                                                </a>
+                                                
+                                                <!-- Status badges -->
+                                                <div class="position-absolute top-0 end-0 p-2">
+                                                    @if (ad.IsFeatured)
+                                                    {
+                                                        <span class="badge bg-warning text-dark">FEATURED</span>
+                                                    }
+                                                </div>
+                                                
+                                                <!-- Condition badge -->
+                                                <div class="position-absolute top-0 start-0 p-2">
+                                                    <span class="@ad.ConditionBadgeClass">@ad.ConditionDisplay</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-body d-flex flex-column">
+                                                <!-- Title -->
+                                                <h6 class="card-title">
+                                                    <a asp-controller="Ads" asp-action="Details" asp-route-id="@ad.Id" 
+                                                       class="text-decoration-none text-dark">
+                                                        @ad.Title
+                                                    </a>
+                                                </h6>
+
+                                                <!-- Price -->
+                                                <div class="mb-2">
+                                                    <h6 class="text-primary mb-0">@ad.FormattedPrice</h6>
+                                                </div>
+
+                                                <!-- Category and Location -->
+                                                <div class="small text-muted mb-2">
+                                                    <i class="@ad.CategoryIconClass me-1"></i>@ad.CategoryName
+                                                    @if (!string.IsNullOrEmpty(ad.Location))
+                                                    {
+                                                        <span class="ms-2">
+                                                            <i class="fas fa-map-marker-alt me-1"></i>@ad.Location
+                                                        </span>
+                                                    }
+                                                </div>
+
+                                                <!-- Seller and time -->
+                                                <div class="d-flex justify-content-between align-items-center small text-muted mt-auto">
+                                                    <div>
+                                                        <i class="fas fa-user me-1"></i>@ad.UserName
+                                                        @if (ad.UserRating > 0)
+                                                        {
+                                                            <span class="ms-1">
+                                                                <i class="fas fa-star text-warning"></i>@ad.UserRating.ToString("F1")
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <div>@ad.TimeAgo</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Pagination for results -->
+                            @if (Model.TotalPages > 1)
+                            {
+                                <nav aria-label="Search results pagination" class="mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                                            <button class="page-link" type="button" onclick="searchPage(@(Model.Page - 1))">
+                                                <i class="fas fa-chevron-left"></i> Previous
+                                            </button>
+                                        </li>
+                                        @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                                        {
+                                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                                <button class="page-link" type="button" onclick="searchPage(@i)">@i</button>
+                                            </li>
+                                        }
+                                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                                            <button class="page-link" type="button" onclick="searchPage(@(Model.Page + 1))">
+                                                Next <i class="fas fa-chevron-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
+                        }
+                        else
+                        {
+                            <!-- No results -->
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                                <h5 class="text-muted mb-3">No items found</h5>
+                                <p class="text-muted mb-4">
+                                    Try adjusting your search criteria or browse different categories.
+                                </p>
+                                <button type="button" class="btn btn-outline-primary" onclick="clearForm()">
+                                    <i class="fas fa-eraser me-1"></i>Clear Filters
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        function clearForm() {
+            document.querySelector('form').reset();
+            // Clear any selected checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        function searchPage(page) {
+            document.querySelector('input[name="Page"]').value = page;
+            document.querySelector('form').submit();
+        }
+
+        // Enhanced form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-populate max price when min price is entered
+            const minPriceInput = document.querySelector('input[name="MinPrice"]');
+            const maxPriceInput = document.querySelector('input[name="MaxPrice"]');
+            
+            minPriceInput?.addEventListener('blur', function() {
+                if (this.value && !maxPriceInput.value) {
+                    // Suggest a max price that's 3x the minimum
+                    const suggested = parseFloat(this.value) * 3;
+                    maxPriceInput.placeholder = `e.g., $${suggested.toFixed(2)}`;
+                }
+            });
+
+        });
+    </script>
+}

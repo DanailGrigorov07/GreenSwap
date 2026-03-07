@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Second Hand Goods - Buy & Sell Marketplace";
+}
+
+<!-- Hero Section -->
+<div class="bg-primary text-white py-5 mb-5 rounded">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-4">
+            <i class="fas fa-store me-3"></i>Second Hand Goods
+        </h1>
+        <p class="lead mb-4">
+            Your trusted marketplace for buying and selling quality pre-owned items
+        </p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-light btn-lg">
+                            <i class="fas fa-th-large me-2"></i>Browse Categories
+                        </a>
+                        <a asp-controller="Ads" asp-action="Create" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-plus me-2"></i>Sell Something
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Start Browsing
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Join Free
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-handshake fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Safe Trading</h5>
+                <p class="card-text text-muted">
+                    Built-in messaging system and user ratings help ensure safe and reliable transactions.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-tags fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Great Deals</h5>
+                <p class="card-text text-muted">
+                    Find quality second-hand items at fantastic prices from trusted sellers in your area.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-recycle fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Eco-Friendly</h5>
+                <p class="card-text text-muted">
+                    Give items a second life and reduce waste by buying and selling pre-owned goods.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Search Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-center mb-3">
+                    <i class="fas fa-search me-2"></i>What are you looking for?
+                </h3>
+                <form asp-controller="Ads" asp-action="Index" method="get">
+                    <div class="input-group input-group-lg">
+                        <input type="text" name="searchTerm" class="form-control" 
+                               placeholder="Search for electronics, furniture, vehicles, and more..." 
+                               id="homeSearch" />
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a asp-controller="Categories" asp-action="Index" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-th-large me-1"></i>Browse Categories
+                        </a>
+                        <a asp-controller="Search" asp-action="Advanced" class="btn btn-outline-secondary">
+                            <i class="fas fa-sliders-h me-1"></i>Advanced Search
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Categories Preview -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-fire me-2"></i>Popular Categories
+        </h2>
+        <p class="text-center text-muted mb-4">Quick access to our most active categories</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-controller="Categories" asp-action="Browse" asp-route-id="1" asp-route-slug="electronics" 
+           class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 category-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-laptop fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Electronics</h6>
+                    <small class="text-muted">Phones, Laptops, Gaming</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-controller="Categories" asp-action="Browse" asp-route-id="2" asp-route-slug="vehicles" 
+           class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 category-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-car fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Vehicles</h6>
+                    <small class="text-muted">Cars, Bikes, Parts</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-controller="Categories" asp-action="Browse" asp-route-id="3" asp-route-slug="home-garden" 
+           class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 category-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Home & Garden</h6>
+                    <small class="text-muted">Furniture, Appliances</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-controller="Categories" asp-action="Browse" asp-route-id="4" asp-route-slug="fashion-beauty" 
+           class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 category-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-tshirt fa-2x text-primary mb-2"></i>
+                    <h6 class="card-title">Fashion</h6>
+                    <small class="text-muted">Clothing, Accessories</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- View All Categories Button -->
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <a asp-controller="Categories" asp-action="Index" class="btn btn-primary btn-lg">
+            <i class="fas fa-th-large me-2"></i>View All Categories
+        </a>
+    </div>
+</div>
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    <!-- CTA Section for non-authenticated users -->
+    <div class="bg-light rounded p-5 mt-5 text-center">
+        <h3 class="mb-3">Ready to Get Started?</h3>
+        <p class="text-muted mb-4">
+            Join our community of buyers and sellers today. It's completely free!
+        </p>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus me-2"></i>Create Free Account
+        </a>
+    </div>
+}
+
+<style>
+    .category-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+</style>

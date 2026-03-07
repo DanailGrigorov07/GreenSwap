@@ -1,0 +1,8 @@
+@model SecondHandGoods.Web.Models.Admin.CreateEditForbiddenWordViewModel
+
+@{
+    ViewData["Title"] = "Edit Forbidden Word";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+@await Html.PartialAsync("CreateForbiddenWord", Model)

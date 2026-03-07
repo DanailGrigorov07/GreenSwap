@@ -1,0 +1,676 @@
+@model SecondHandGoods.Web.Models.Admin.AdminAdManagementViewModel
+
+@{
+    ViewData["Title"] = "Advertisement Management";
+    ViewData["ShowAdminNavigation"] = true;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0 text-primary">
+                    <i class="fas fa-tags me-2"></i>Advertisement Management
+                </h1>
+                <p class="text-muted mb-0">Manage and moderate platform advertisements</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-danger" id="bulkActionBtn" style="display: none;">
+                    <i class="fas fa-tasks me-1"></i>Bulk Actions
+                </button>
+                <a asp-action="Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tags fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-5 fw-bold">@Model.TotalAds.ToString("N0")</div>
+                        <div class="small">Total Ads</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-5 fw-bold">@Model.ActiveAdsCount.ToString("N0")</div>
+                        <div class="small">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-handshake fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-5 fw-bold">@Model.SoldAdsCount.ToString("N0")</div>
+                        <div class="small">Sold</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-star fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-5 fw-bold">@Model.FeaturedAdsCount.ToString("N0")</div>
+                        <div class="small">Featured</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2-4 col-md-4 col-sm-6 mb-3">
+        <div class="card border-0 bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fs-5 fw-bold">@Model.ExpiredAdsCount.ToString("N0")</div>
+                        <div class="small">Expired</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Filters and Search
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" asp-action="Advertisements" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="searchTerm" value="@Model.SearchTerm" 
+                                   class="form-control" placeholder="Search titles or descriptions...">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Category</label>
+                            <select name="categoryId" class="form-select" asp-items="@(new List<SelectListItem> { new() { Value = "", Text = "All Categories" } }.Concat(Model.Categories))">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select name="isActive" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="true" selected="@(Model.IsActive == true)">Active Only</option>
+                                <option value="false" selected="@(Model.IsActive == false)">Inactive Only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Condition</label>
+                            <select name="condition" class="form-select" asp-items="Model.ConditionOptions">
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Sort By</label>
+                            <select name="sortBy" class="form-select" asp-items="Model.SortOptions">
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid gap-1">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <a href="@Url.Action("Advertisements")" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Filters (Collapsible) -->
+                    <div class="collapse mt-3" id="advancedFilters">
+                        <hr>
+                        <div class="row g-3">
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input type="checkbox" name="isSold" value="true" 
+                                           checked="@(Model.IsSold == true)" class="form-check-input" id="soldOnly">
+                                    <label class="form-check-label" for="soldOnly">Sold Only</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input type="checkbox" name="isFeatured" value="true" 
+                                           checked="@(Model.IsFeatured == true)" class="form-check-input" id="featuredOnly">
+                                    <label class="form-check-label" for="featuredOnly">Featured Only</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Min Price</label>
+                                <input type="number" name="minPrice" value="@Model.MinPrice" 
+                                       class="form-control" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Max Price</label>
+                                <input type="number" name="maxPrice" value="@Model.MaxPrice" 
+                                       class="form-control" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Posted After</label>
+                                <input type="date" name="postedAfter" value="@Model.PostedAfter?.ToString("yyyy-MM-dd")" 
+                                       class="form-control">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Posted Before</label>
+                                <input type="date" name="postedBefore" value="@Model.PostedBefore?.ToString("yyyy-MM-dd")" 
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-link p-0" data-bs-toggle="collapse" 
+                                data-bs-target="#advancedFilters" aria-expanded="false">
+                            <i class="fas fa-chevron-down me-1"></i>Advanced Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advertisement List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Advertisements (@Model.TotalAds.ToString("N0"))
+                    </h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-check-label me-2">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                        Select All
+                    </label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown" disabled id="bulkActionsDropdown">
+                            Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-action="activate">
+                                <i class="fas fa-check-circle me-2 text-success"></i>Activate Selected
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-action="deactivate">
+                                <i class="fas fa-times-circle me-2 text-warning"></i>Deactivate Selected
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-action="feature">
+                                <i class="fas fa-star me-2 text-info"></i>Feature Selected
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-action="unfeature">
+                                <i class="far fa-star me-2 text-secondary"></i>Remove Feature
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" data-action="delete">
+                                <i class="fas fa-trash me-2"></i>Delete Selected
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Advertisements.Any())
+                {
+                    <div class="row g-0">
+                        @foreach (var ad in Model.Advertisements)
+                        {
+                            <div class="col-12">
+                                <div class="d-flex align-items-start border-bottom p-3 ad-item">
+                                    <div class="flex-shrink-0 me-3">
+                                        <input type="checkbox" class="form-check-input ad-checkbox me-2" 
+                                               value="@ad.Id" data-ad-title="@ad.Title">
+                                        <img src="@ad.MainImageUrl" alt="@ad.Title" 
+                                             class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <h6 class="mb-1 fw-bold">
+                                                    <a href="@Url.Action("Details", "Ads", new { id = ad.Id })" 
+                                                       target="_blank" class="text-decoration-none">
+                                                        @ad.Title
+                                                    </a>
+                                                </h6>
+                                                <p class="text-muted small mb-2">@ad.TruncatedDescription</p>
+                                                <div class="d-flex align-items-center gap-3 small text-muted">
+                                                    <span>
+                                                        @if (!string.IsNullOrEmpty(ad.CategoryIconClass))
+                                                        {
+                                                            <i class="@ad.CategoryIconClass me-1"></i>
+                                                        }
+                                                        @ad.CategoryName
+                                                    </span>
+                                                    <span>
+                                                        <i class="fas fa-eye me-1"></i>@ad.ViewCount views
+                                                    </span>
+                                                    <span>
+                                                        <i class="fas fa-images me-1"></i>@ad.ImageCount images
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div class="text-end text-lg-start">
+                                                    <div class="fs-5 fw-bold text-success mb-1">@ad.FormattedPrice</div>
+                                                    <div class="small text-muted">
+                                                        <div><strong>Condition:</strong> @ad.ConditionDisplay</div>
+                                                        <div><strong>Posted:</strong> @ad.PostedAgo</div>
+                                                        @if (ad.DaysUntilExpiration > 0)
+                                                        {
+                                                            <div><strong>Expires:</strong> @ad.DaysUntilExpiration days</div>
+                                                        }
+                                                        else if (ad.DaysUntilExpiration == 0)
+                                                        {
+                                                            <div class="text-warning"><strong>Expires:</strong> Today</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="text-danger"><strong>Status:</strong> Expired</div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div class="text-end">
+                                                    <div class="mb-2">
+                                                        <span class="@ad.StatusBadgeClass">@ad.StatusText</span>
+                                                        @if (ad.IsFeatured)
+                                                        {
+                                                            <span class="badge bg-warning text-dark ms-1">FEATURED</span>
+                                                        }
+                                                    </div>
+                                                    <div class="small text-muted mb-2">
+                                                        <div><strong>Seller:</strong> @ad.UserName</div>
+                                                        <div><strong>Rating:</strong> @ad.UserRating.ToString("F1") ⭐</div>
+                                                        @if (ad.MessageCount > 0)
+                                                        {
+                                                            <div><strong>Messages:</strong> @ad.MessageCount</div>
+                                                        }
+                                                        @if (ad.OrderCount > 0)
+                                                        {
+                                                            <div><strong>Orders:</strong> @ad.OrderCount</div>
+                                                        }
+                                                    </div>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                                data-bs-toggle="dropdown">
+                                                            Actions
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="@Url.Action("Details", "Ads", new { id = ad.Id })" target="_blank">
+                                                                <i class="fas fa-external-link-alt me-2"></i>View Details
+                                                            </a></li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            @if (ad.IsActive && !ad.IsSold)
+                                                            {
+                                                                <li><a class="dropdown-item ad-action" href="#" 
+                                                                       data-ad-id="@ad.Id" data-action="deactivate">
+                                                                    <i class="fas fa-times-circle me-2 text-warning"></i>Deactivate
+                                                                </a></li>
+                                                            }
+                                                            else if (!ad.IsSold)
+                                                            {
+                                                                <li><a class="dropdown-item ad-action" href="#" 
+                                                                       data-ad-id="@ad.Id" data-action="activate">
+                                                                    <i class="fas fa-check-circle me-2 text-success"></i>Activate
+                                                                </a></li>
+                                                            }
+                                                            
+                                                            @if (ad.IsActive && !ad.IsSold)
+                                                            {
+                                                                @if (!ad.IsFeatured)
+                                                                {
+                                                                    <li><a class="dropdown-item ad-action" href="#" 
+                                                                           data-ad-id="@ad.Id" data-action="feature">
+                                                                        <i class="fas fa-star me-2 text-warning"></i>Feature
+                                                                    </a></li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li><a class="dropdown-item ad-action" href="#" 
+                                                                           data-ad-id="@ad.Id" data-action="unfeature">
+                                                                        <i class="far fa-star me-2 text-secondary"></i>Remove Feature
+                                                                    </a></li>
+                                                                }
+                                                            }
+                                                            
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li><a class="dropdown-item ad-action text-danger" href="#" 
+                                                                   data-ad-id="@ad.Id" data-action="delete">
+                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                            </a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No advertisements found</h5>
+                        <p class="text-muted">Try adjusting your search criteria.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Advertisement pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPrevious)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page - 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            }
+
+            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="?page=@i&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">@i</a>
+                </li>
+            }
+
+            @if (Model.HasNext)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=@(Model.Page + 1)&@Context.Request.QueryString.Value?.Replace("page=" + Model.Page, "")">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            }
+        </ul>
+        <div class="text-center text-muted">
+            Showing page @Model.Page of @Model.TotalPages (@Model.TotalAds.ToString("N0") total advertisements)
+        </div>
+    </nav>
+}
+
+<!-- Ad Action Modal -->
+<div class="modal fade" id="adActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Advertisement Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="actionConfirmText"></p>
+                <div class="mb-3">
+                    <label class="form-label">Reason (optional)</label>
+                    <textarea id="actionReason" class="form-control" rows="3" 
+                              placeholder="Enter a reason for this action..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Admin Notes (internal)</label>
+                    <textarea id="adminNotes" class="form-control" rows="2" 
+                              placeholder="Internal notes for this action..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.col-lg-2-4 {
+    flex: 0 0 20%;
+    max-width: 20%;
+}
+
+@@media (max-width: 991px) {
+    .col-lg-2-4 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@@media (max-width: 575px) {
+    .col-lg-2-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.ad-item:hover {
+    background-color: rgba(0,123,255,.075);
+}
+
+.ad-item img {
+    border: 2px solid #dee2e6;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+
+@section Scripts {
+    <script>
+        let selectedAction = null;
+        let selectedAdId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle individual ad actions
+            document.querySelectorAll('.ad-action').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const adId = this.dataset.adId;
+                    const action = this.dataset.action;
+                    const adTitle = this.closest('.ad-item').querySelector('.ad-checkbox').dataset.adTitle;
+                    
+                    showActionModal(adId, action, adTitle);
+                });
+            });
+
+            // Handle bulk selection
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const adCheckboxes = document.querySelectorAll('.ad-checkbox');
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                adCheckboxes.forEach(cb => cb.checked = isChecked);
+                updateBulkActionsState();
+            });
+
+            adCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateBulkActionsState);
+            });
+
+            // Handle bulk actions
+            document.querySelectorAll('[data-action]').forEach(link => {
+                if (link.classList.contains('ad-action')) return; // Skip individual actions
+                
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.dataset.action;
+                    const selectedAds = Array.from(document.querySelectorAll('.ad-checkbox:checked'));
+                    
+                    if (selectedAds.length === 0) {
+                        alert('Please select advertisements first.');
+                        return;
+                    }
+                    
+                    const adTitles = selectedAds.map(cb => cb.dataset.adTitle).slice(0, 3).join(', ');
+                    const moreThan3 = selectedAds.length > 3 ? ` and ${selectedAds.length - 3} more` : '';
+                    showBulkActionModal(selectedAds.map(cb => parseInt(cb.value)), action, adTitles + moreThan3);
+                });
+            });
+
+            // Handle action confirmation
+            document.getElementById('confirmActionBtn').addEventListener('click', confirmAction);
+        });
+
+        function updateBulkActionsState() {
+            const selectedCount = document.querySelectorAll('.ad-checkbox:checked').length;
+            const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            bulkActionsDropdown.disabled = selectedCount === 0;
+            
+            const totalCheckboxes = document.querySelectorAll('.ad-checkbox').length;
+            selectAllCheckbox.checked = selectedCount === totalCheckboxes;
+            selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+        }
+
+        function showActionModal(adId, action, adTitle) {
+            selectedAction = action;
+            selectedAdId = adId;
+            
+            const actionTexts = {
+                'activate': `activate advertisement "${adTitle}"`,
+                'deactivate': `deactivate advertisement "${adTitle}"`,
+                'feature': `feature advertisement "${adTitle}"`,
+                'unfeature': `remove featuring from advertisement "${adTitle}"`,
+                'delete': `delete advertisement "${adTitle}"`
+            };
+            
+            document.getElementById('actionConfirmText').textContent = 
+                `Are you sure you want to ${actionTexts[action]}?`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('adActionModal'));
+            modal.show();
+        }
+
+        function showBulkActionModal(adIds, action, adTitles) {
+            selectedAction = action;
+            selectedAdId = adIds;
+            
+            const actionTexts = {
+                'activate': 'activate the selected advertisements',
+                'deactivate': 'deactivate the selected advertisements',
+                'feature': 'feature the selected advertisements',
+                'unfeature': 'remove featuring from the selected advertisements',
+                'delete': 'delete the selected advertisements'
+            };
+            
+            document.getElementById('actionConfirmText').innerHTML = 
+                `Are you sure you want to ${actionTexts[action]}?<br><br><strong>Selected advertisements:</strong><br>${adTitles}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('adActionModal'));
+            modal.show();
+        }
+
+        async function confirmAction() {
+            const reason = document.getElementById('actionReason').value;
+            const adminNotes = document.getElementById('adminNotes').value;
+            const isBulk = Array.isArray(selectedAdId);
+            
+            try {
+                let response;
+                
+                if (isBulk) {
+                    response = await fetch('@Url.Action("BulkAction")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            selectedIds: selectedAdId,
+                            action: selectedAction,
+                            reason: reason,
+                            entityType: 'ads'
+                        })
+                    });
+                } else {
+                    response = await fetch('@Url.Action("AdAction")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            adId: parseInt(selectedAdId),
+                            action: selectedAction,
+                            reason: reason,
+                            adminNotes: adminNotes
+                        })
+                    });
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error performing action:', error);
+                alert('An error occurred while performing the action.');
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('adActionModal'));
+            modal.hide();
+        }
+    </script>
+}

@@ -1,0 +1,415 @@
+@model SecondHandGoods.Web.Models.Ads.CreateAdvertisementViewModel
+@{
+    ViewData["Title"] = "Post Advertisement";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="h3 mb-2">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>Post Your Advertisement
+                </h1>
+                <p class="text-muted">Share your item with our community of buyers</p>
+            </div>
+
+            <!-- Form -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                                </h5>
+                            </div>
+                            
+                            <!-- Title -->
+                            <div class="col-12 mb-3">
+                                <label asp-for="Title" class="form-label">
+                                    <i class="fas fa-heading me-1"></i>@Html.DisplayNameFor(m => m.Title) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Title" class="form-control" placeholder="e.g., iPhone 13 Pro - Excellent Condition" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                                <small class="form-text text-muted">Make it descriptive and specific to attract buyers</small>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                <label asp-for="Description" class="form-label">
+                                    <i class="fas fa-align-left me-1"></i>@Html.DisplayNameFor(m => m.Description) <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="5" 
+                                          placeholder="Describe your item in detail. Include condition, age, original price, reason for selling, etc."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <small class="form-text text-muted">Detailed descriptions help buyers make informed decisions</small>
+                            </div>
+
+                            <!-- Category and Condition -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CategoryId" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>@Html.DisplayNameFor(m => m.CategoryId) <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select">
+                                    <option value="">Select a category</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Condition" class="form-label">
+                                    <i class="fas fa-star me-1"></i>@Html.DisplayNameFor(m => m.Condition) <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Condition" asp-items="Model.Conditions" class="form-select">
+                                    <option value="">Select condition</option>
+                                </select>
+                                <span asp-validation-for="Condition" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-dollar-sign me-2"></i>Pricing
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Price" class="form-label">
+                                    <i class="fas fa-money-bill-wave me-1"></i>@Html.DisplayNameFor(m => m.Price) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Price" class="form-control" placeholder="0.00" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                                <small class="form-text text-muted">Set a competitive price to attract buyers</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3" id="negotiableContainer">
+                                <label class="form-label">&nbsp;</label> <!-- Spacer for alignment -->
+                                <!-- Checkbox for most categories -->
+                                <div class="form-check" id="negotiableCheckbox">
+                                    <input asp-for="IsPriceNegotiable" class="form-check-input" type="checkbox" id="IsPriceNegotiableCheckbox" />
+                                    <label asp-for="IsPriceNegotiable" class="form-check-label" for="IsPriceNegotiableCheckbox">
+                                        <i class="fas fa-handshake me-1"></i>@Html.DisplayNameFor(m => m.IsPriceNegotiable)
+                                    </label>
+                                </div>
+                                <!-- Text box for specific categories (Vehicles, etc.) -->
+                                <div id="negotiableTextBox" style="display: none;">
+                                    <label for="NegotiableText" class="form-label">
+                                        <i class="fas fa-handshake me-1"></i>Negotiation Details (Optional)
+                                    </label>
+                                    <input type="text" class="form-control" id="NegotiableText" name="NegotiableText" 
+                                           placeholder="e.g., Open to offers, Trade considered, etc." maxlength="200" />
+                                    <small class="form-text text-muted">Describe your negotiation preferences</small>
+                                </div>
+                                <small class="form-text text-muted" id="negotiableHint">Allow buyers to make offers</small>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location
+                                </h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="Location" class="form-label">
+                                    <i class="fas fa-location-dot me-1"></i>@Html.DisplayNameFor(m => m.Location)
+                                </label>
+                                <input asp-for="Location" class="form-control" placeholder="e.g., New York, NY" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                                <small class="form-text text-muted">Help buyers know your general area. Will use your profile location if left empty.</small>
+                            </div>
+                        </div>
+
+                        <!-- Images -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-images me-2"></i>Images
+                                </h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label asp-for="Images" class="form-label">
+                                    <i class="fas fa-camera me-1"></i>@Html.DisplayNameFor(m => m.Images)
+                                </label>
+                                <input asp-for="Images" class="form-control" type="file" multiple accept="image/jpeg,image/jpg,image/png,image/webp" />
+                                <span asp-validation-for="Images" class="text-danger"></span>
+                                <small class="form-text text-muted">
+                                    <strong>Tips for great photos:</strong><br>
+                                    • Upload up to 20 images (JPEG, PNG, WebP, max 10MB each)<br>
+                                    • Use good lighting and multiple angles<br>
+                                    • Show any flaws or wear honestly<br>
+                                    • You can reorder images and select the main image after uploading
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview Area with Reordering -->
+                        <div class="row mb-4" id="imagePreviewArea" style="display: none;">
+                            <div class="col-12">
+                                <h6>Image Preview (Drag to reorder, click to set as main):</h6>
+                                <div class="sortable-image-list" id="imagePreviewContainer">
+                                </div>
+                                <input type="hidden" id="mainImageIndex" name="MainImageIndex" value="0" />
+                                <input type="hidden" id="imageOrder" name="ImageOrder" />
+                            </div>
+                        </div>
+
+                        <!-- Terms and Submit -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Posting Guidelines:</strong><br>
+                                    • Be honest about item condition<br>
+                                    • Use clear, representative photos<br>
+                                    • Respond promptly to buyer inquiries<br>
+                                    • Meet in safe, public locations
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-1"></i>Post Advertisement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Categories that should use text box for negotiable (Vehicles = 2, Home & Garden = 3)
+            const textBoxCategories = [2, 3]; // Vehicles and Home & Garden
+            
+            const categorySelect = document.querySelector('select[name="CategoryId"]');
+            const negotiableCheckbox = document.getElementById('negotiableCheckbox');
+            const negotiableTextBox = document.getElementById('negotiableTextBox');
+            const negotiableHint = document.getElementById('negotiableHint');
+            const isPriceNegotiableInput = document.getElementById('IsPriceNegotiableCheckbox');
+            
+            function updateNegotiableField() {
+                const selectedCategoryId = parseInt(categorySelect.value);
+                if (textBoxCategories.includes(selectedCategoryId)) {
+                    negotiableCheckbox.style.display = 'none';
+                    negotiableTextBox.style.display = 'block';
+                    negotiableHint.textContent = 'Describe your negotiation preferences (e.g., "Open to offers", "Trade considered")';
+                    // Set checkbox to true when using text box
+                    if (isPriceNegotiableInput) {
+                        isPriceNegotiableInput.checked = true;
+                    }
+                } else {
+                    negotiableCheckbox.style.display = 'block';
+                    negotiableTextBox.style.display = 'none';
+                    negotiableHint.textContent = 'Allow buyers to make offers';
+                }
+            }
+            
+            categorySelect.addEventListener('change', updateNegotiableField);
+            updateNegotiableField(); // Initial check
+            const fileInput = document.querySelector('input[type="file"][multiple]');
+            const previewArea = document.getElementById('imagePreviewArea');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const mainImageIndexInput = document.getElementById('mainImageIndex');
+            const imageOrderInput = document.getElementById('imageOrder');
+            let uploadedImages = [];
+            let mainImageIndex = 0;
+            
+            // Initialize Sortable for image reordering
+            let sortable = null;
+            
+            fileInput.addEventListener('change', function() {
+                previewContainer.innerHTML = '';
+                uploadedImages = [];
+                
+                if (this.files.length > 0) {
+                    previewArea.style.display = 'block';
+                    mainImageIndex = 0;
+                    mainImageIndexInput.value = '0';
+                    
+                    Array.from(this.files).forEach((file, index) => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const imageData = {
+                                    file: file,
+                                    url: e.target.result,
+                                    index: uploadedImages.length
+                                };
+                                uploadedImages.push(imageData);
+                                
+                                const div = document.createElement('div');
+                                div.className = 'sortable-image-item';
+                                div.dataset.index = imageData.index;
+                                div.innerHTML = `
+                                    <img src="${e.target.result}" alt="Preview ${imageData.index + 1}">
+                                    <span class="image-badge">${imageData.index + 1}</span>
+                                    <div class="image-actions">
+                                        <button type="button" class="btn btn-primary btn-sm set-main-btn" 
+                                                data-index="${imageData.index}" 
+                                                title="Set as main image"
+                                                ${imageData.index === 0 ? 'style="display:none;"' : ''}>
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm remove-image-btn" 
+                                                data-index="${imageData.index}" 
+                                                title="Remove image">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    ${imageData.index === 0 ? '<span class="image-badge" style="background-color: #28a745;">Main</span>' : ''}
+                                `;
+                                previewContainer.appendChild(div);
+                                
+                                // If this is the last image, initialize sortable
+                                if (uploadedImages.length === Array.from(fileInput.files).filter(f => f.type.startsWith('image/')).length) {
+                                    initializeSortable();
+                                    attachEventListeners();
+                                    updateImageOrder();
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                } else {
+                    previewArea.style.display = 'none';
+                }
+            });
+            
+            function initializeSortable() {
+                if (sortable) {
+                    sortable.destroy();
+                }
+                
+                sortable = Sortable.create(previewContainer, {
+                    animation: 150,
+                    handle: '.sortable-image-item',
+                    onEnd: function(evt) {
+                        updateImageOrder();
+                        updateImageNumbers();
+                    }
+                });
+            }
+            
+            function attachEventListeners() {
+                // Set main image buttons
+                document.querySelectorAll('.set-main-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const newMainIndex = parseInt(this.dataset.index);
+                        setMainImage(newMainIndex);
+                    });
+                });
+                
+                // Remove image buttons
+                document.querySelectorAll('.remove-image-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const indexToRemove = parseInt(this.dataset.index);
+                        removeImage(indexToRemove);
+                    });
+                });
+            }
+            
+            function setMainImage(newMainIndex) {
+                // Remove old main badge
+                document.querySelectorAll('.sortable-image-item').forEach(item => {
+                    const badges = item.querySelectorAll('.image-badge');
+                    badges.forEach(badge => {
+                        if (badge.textContent === 'Main') {
+                            badge.remove();
+                        }
+                    });
+                    const setMainBtn = item.querySelector('.set-main-btn');
+                    if (setMainBtn) {
+                        setMainBtn.style.display = 'block';
+                    }
+                });
+                
+                // Add new main badge
+                const newMainItem = document.querySelector(`.sortable-image-item[data-index="${newMainIndex}"]`);
+                if (newMainItem) {
+                    const mainBadge = document.createElement('span');
+                    mainBadge.className = 'image-badge';
+                    mainBadge.style.backgroundColor = '#28a745';
+                    mainBadge.textContent = 'Main';
+                    newMainItem.appendChild(mainBadge);
+                    
+                    const setMainBtn = newMainItem.querySelector('.set-main-btn');
+                    if (setMainBtn) {
+                        setMainBtn.style.display = 'none';
+                    }
+                }
+                
+                mainImageIndex = newMainIndex;
+                mainImageIndexInput.value = newMainIndex.toString();
+            }
+            
+            function removeImage(indexToRemove) {
+                const item = document.querySelector(`.sortable-image-item[data-index="${indexToRemove}"]`);
+                if (item) {
+                    item.remove();
+                    uploadedImages = uploadedImages.filter(img => img.index !== indexToRemove);
+                    
+                    // Update indices
+                    document.querySelectorAll('.sortable-image-item').forEach((item, idx) => {
+                        item.dataset.index = idx;
+                        const setMainBtn = item.querySelector('.set-main-btn');
+                        const removeBtn = item.querySelector('.remove-image-btn');
+                        if (setMainBtn) setMainBtn.dataset.index = idx;
+                        if (removeBtn) removeBtn.dataset.index = idx;
+                    });
+                    
+                    updateImageNumbers();
+                    updateImageOrder();
+                    
+                    // If removed image was main, set first as main
+                    if (indexToRemove === mainImageIndex) {
+                        if (uploadedImages.length > 0) {
+                            setMainImage(0);
+                        }
+                    } else if (indexToRemove < mainImageIndex) {
+                        mainImageIndex--;
+                        mainImageIndexInput.value = mainImageIndex.toString();
+                    }
+                }
+            }
+            
+            function updateImageNumbers() {
+                document.querySelectorAll('.sortable-image-item').forEach((item, index) => {
+                    const badge = item.querySelector('.image-badge:not([style*="background-color"])');
+                    if (badge) {
+                        badge.textContent = (index + 1).toString();
+                    }
+                });
+            }
+            
+            function updateImageOrder() {
+                const order = Array.from(previewContainer.children).map(item => 
+                    parseInt(item.dataset.index)
+                );
+                imageOrderInput.value = order.join(',');
+            }
+        });
+    </script>
+}
