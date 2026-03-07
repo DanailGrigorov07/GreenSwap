@@ -328,7 +328,7 @@ namespace SecondHandGoods.Web.Controllers
                     return Challenge();
 
                 // Get negotiable text if provided (for specific categories)
-                var negotiableText = Request.Form["NegotiableText"].FirstOrDefault();
+                var negotiableText = GetFormValue("NegotiableText");
                 var isNegotiable = model.IsPriceNegotiable;
                 var description = model.Description.Trim();
                 
@@ -424,8 +424,8 @@ namespace SecondHandGoods.Web.Controllers
                 if (model.Images != null && model.Images.Count > 0)
                 {
                     // Get main image index and order from form
-                    var mainImageIndexStr = Request.Form["MainImageIndex"].FirstOrDefault();
-                    var imageOrderStr = Request.Form["ImageOrder"].FirstOrDefault();
+                    var mainImageIndexStr = GetFormValue("MainImageIndex");
+                    var imageOrderStr = GetFormValue("ImageOrder");
                     int mainImageIndex = 0;
                     List<int> imageOrder = new();
                     
@@ -998,6 +998,23 @@ namespace SecondHandGoods.Web.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to delete image file: {ImageUrl}", imageUrl);
+            }
+        }
+
+        /// <summary>
+        /// Safely get a form value (returns null when form is not available, e.g. in unit tests).
+        /// </summary>
+        private string? GetFormValue(string key)
+        {
+            if (HttpContext?.Request == null || !HttpContext.Request.HasFormContentType)
+                return null;
+            try
+            {
+                return HttpContext.Request.Form[key].FirstOrDefault();
+            }
+            catch
+            {
+                return null;
             }
         }
 
