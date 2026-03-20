@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SecondHandGoods.Data;
@@ -11,6 +12,7 @@ namespace SecondHandGoods.Web.Controllers
     /// <summary>
     /// Controller for enhanced search functionality, autocomplete, and suggestions
     /// </summary>
+    [AllowAnonymous]
     public class SearchController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using SecondHandGoods.Data;
 using SecondHandGoods.Data.Entities;
@@ -15,6 +16,7 @@ namespace SecondHandGoods.Web.Controllers
     /// Administrative controller for platform management
     /// </summary>
     [Authorize(Roles = "Admin")]
+    [DisableRateLimiting]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -274,6 +276,7 @@ namespace SecondHandGoods.Web.Controllers
                         EmailConfirmed = user.EmailConfirmed,
                         CreatedAt = user.CreatedAt,
                         LastLoginAt = null, // LastLoginAt property not implemented yet
+                        LockoutEnd = user.LockoutEnd,
                         SellerRating = user.SellerRating,
                         Roles = userRoles.ToList(),
                         TotalAds = userStats.TotalAds,
@@ -556,6 +559,12 @@ namespace SecondHandGoods.Web.Controllers
                         // Soft delete by deactivating
                         user.IsActive = false;
                         await _userManager.UpdateAsync(user);
+                        break;
+
+                    case "unlock":
+                        // Unlock account immediately and reset failed login counter.
+                        await _userManager.SetLockoutEndDateAsync(user, null);
+                        await _userManager.ResetAccessFailedCountAsync(user);
                         break;
 
                     default:

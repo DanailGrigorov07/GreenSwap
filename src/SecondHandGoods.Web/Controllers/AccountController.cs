@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SecondHandGoods.Data.Entities;
 using SecondHandGoods.Web.Models.Account;
 
@@ -47,6 +48,7 @@ namespace SecondHandGoods.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("login")]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -73,13 +75,14 @@ namespace SecondHandGoods.Web.Controllers
             if (result.Succeeded)
             {
                 _logger.LogInformation("User {Email} logged in.", model.Email);
-                return LocalRedirect(returnUrl ?? "/");
+                return RedirectToLocal(returnUrl);
             }
 
             if (result.IsLockedOut)
             {
                 _logger.LogWarning("User account {Email} is locked out.", model.Email);
-                ModelState.AddModelError("", "Account locked due to multiple failed login attempts. Please try again later.");
+                ViewData["LockoutMessage"] = "Your account is temporarily locked due to multiple failed login attempts. Please try again later, or contact an administrator.";
+                ModelState.AddModelError("", "Account locked due to multiple failed login attempts.");
                 return View(model);
             }
 
@@ -110,6 +113,7 @@ namespace SecondHandGoods.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("register")]
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -150,7 +154,7 @@ namespace SecondHandGoods.Web.Controllers
                 
                 _logger.LogInformation("User {Email} registered and signed in.", model.Email);
                 
-                return LocalRedirect(returnUrl ?? "/");
+                return RedirectToLocal(returnUrl);
             }
 
             // Add errors to model state
@@ -252,6 +256,16 @@ namespace SecondHandGoods.Web.Controllers
             }
 
             return View(model);
+        }
+
+        /// <summary>
+        /// Only redirect to local URLs to prevent open redirect attacks (returnUrl must be app-relative or same-origin).
+        /// </summary>
+        private IActionResult RedirectToLocal(string? returnUrl)
+        {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
+            return RedirectToAction("Index", "Home");
         }
     }
 }

@@ -251,6 +251,10 @@
                                         <td>
                                             <div>
                                                 <span class="@user.StatusBadgeClass">@user.StatusText</span>
+                                                @if (user.IsLockedOut)
+                                                {
+                                                    <br><small class="badge bg-danger mt-1">Locked out</small>
+                                                }
                                                 @if (!user.EmailConfirmed)
                                                 {
                                                     <br><small class="badge bg-warning text-dark mt-1">Email Not Verified</small>
@@ -326,6 +330,14 @@
                                                         <li><a class="dropdown-item user-action" href="#" 
                                                                data-user-id="@user.Id" data-action="demote">
                                                             <i class="fas fa-user me-2 text-secondary"></i>Remove Admin
+                                                        </a></li>
+                                                    }
+
+                                                    @if (user.IsLockedOut)
+                                                    {
+                                                        <li><a class="dropdown-item user-action" href="#"
+                                                               data-user-id="@user.Id" data-action="unlock">
+                                                            <i class="fas fa-unlock me-2 text-success"></i>Unlock Account
                                                         </a></li>
                                                     }
                                                     
@@ -533,6 +545,7 @@
                 'deactivate': `deactivate user "${userName}"`,
                 'promote': `promote user "${userName}" to Admin`,
                 'demote': `remove Admin role from user "${userName}"`,
+                'unlock': `unlock account for "${userName}"`,
                 'delete': `delete user "${userName}"`
             };
             

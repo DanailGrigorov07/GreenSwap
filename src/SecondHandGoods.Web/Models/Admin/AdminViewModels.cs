@@ -182,6 +182,7 @@ namespace SecondHandGoods.Web.Models.Admin
         public bool EmailConfirmed { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
+        public DateTimeOffset? LockoutEnd { get; set; }
         public decimal SellerRating { get; set; }
         public List<string> Roles { get; set; } = new();
 
@@ -241,6 +242,11 @@ namespace SecondHandGoods.Web.Models.Admin
         /// User status text
         /// </summary>
         public string StatusText => IsActive ? "Active" : "Inactive";
+
+        /// <summary>
+        /// Indicates whether the account is currently locked out.
+        /// </summary>
+        public bool IsLockedOut => LockoutEnd.HasValue && LockoutEnd.Value > DateTimeOffset.UtcNow;
 
         /// <summary>
         /// Primary role display

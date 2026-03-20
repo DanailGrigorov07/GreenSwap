@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SecondHandGoods.Web.Controllers;
@@ -5,6 +6,7 @@ namespace SecondHandGoods.Web.Controllers;
 /// <summary>
 /// Serves custom error pages (404 Not Found and 500 Server Error).
 /// </summary>
+[AllowAnonymous]
 public class ErrorController : Controller
 {
     private readonly ILogger<ErrorController> _logger;

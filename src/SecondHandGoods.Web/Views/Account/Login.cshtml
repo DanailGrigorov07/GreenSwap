@@ -13,6 +13,13 @@
                     <p class="text-muted">Sign in to your account</p>
                 </div>
 
+                @if (ViewData["LockoutMessage"] != null)
+                {
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-1"></i>@ViewData["LockoutMessage"]
+                    </div>
+                }
+
                 <form asp-action="Login" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     

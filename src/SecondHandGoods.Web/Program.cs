@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using SecondHandGoods.Data;
 using SecondHandGoods.Data.Configuration;
@@ -6,6 +8,8 @@ using SecondHandGoods.Data.Constants;
 using SecondHandGoods.Data.Entities;
 using SecondHandGoods.Data.Extensions;
 using SecondHandGoods.Services;
+using SecondHandGoods.Web.Middleware;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,10 +46,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
 });
 
+var isDevelopment = builder.Environment.IsDevelopment();
+
 // Add ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    // Password settings
+    // Same password rules in all environments (admin + demo seeds use simple passwords; users can still choose stronger passwords).
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
@@ -54,7 +60,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredUniqueChars = 0;
 
     // Lockout settings
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(25);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 
@@ -63,13 +69,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true;
 
     // Sign in settings
-    options.SignIn.RequireConfirmedEmail = false; // Set to true in production
+    options.SignIn.RequireConfirmedEmail = false; // Enable in production when email flow is configured
     options.SignIn.RequireConfirmedPhoneNumber = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Configure Identity cookies
+// Require authenticated user by default; use [AllowAnonymous] on public endpoints
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// Configure Identity cookies (tighter in non-Development)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -78,7 +92,53 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = isDevelopment
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+});
+
+// Rate limiting (brute-force / abuse resistance)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    options.AddPolicy("register", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10)
+            }));
+
+    // Global per-IP limit; exclude SignalR hub (long-lived connections / frequent pings). Admin uses [DisableRateLimiting].
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        if (httpContext.Request.Path.StartsWithSegments("/chathub"))
+            return RateLimitPartition.GetNoLimiter("signalr");
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 400,
+                Window = TimeSpan.FromMinutes(1)
+            });
+    });
 });
 
 // Add SignalR for real-time chat
@@ -111,6 +171,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSecurityHeaders();
+app.UseRateLimiter();
 
 // Custom error pages for 404 (Not Found) and 500 (Server Error) and other status codes
 app.UseStatusCodePagesWithReExecute("/Error/Index", "?statusCode={0}");

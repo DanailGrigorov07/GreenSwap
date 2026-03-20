@@ -31,7 +31,7 @@ jobs:
       run: dotnet build SecondHandGoods.sln --no-restore --configuration Release --verbosity minimal
       
     - name: Run tests
-      run: dotnet test SecondHandGoods.sln --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+      run: dotnet test SecondHandGoods.sln --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" --settings tests/coverage.runsettings
       
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
@@ -60,7 +60,7 @@ jobs:
       run: dotnet build SecondHandGoods.sln --no-restore --configuration Release --verbosity minimal
       
     - name: Run unit tests
-      run: dotnet test tests/SecondHandGoods.Tests/SecondHandGoods.Tests.csproj --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+      run: dotnet test tests/SecondHandGoods.Tests/SecondHandGoods.Tests.csproj --no-build --configuration Release --verbosity minimal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" --settings tests/coverage.runsettings
       
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2

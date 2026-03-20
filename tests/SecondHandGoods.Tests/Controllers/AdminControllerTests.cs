@@ -161,6 +161,48 @@ namespace SecondHandGoods.Tests.Controllers
             Assert.NotNull(viewResult.Model);
         }
 
+        [Fact]
+        public async Task UserAction_Unlock_ShouldUnlockUserAndReturnSuccessJson()
+        {
+            // Arrange
+            var user = new ApplicationUser
+            {
+                Id = "locked-user",
+                UserName = "locked",
+                Email = "locked@test.com",
+                FirstName = "Locked",
+                LastName = "User",
+                LockoutEnd = DateTimeOffset.UtcNow.AddMinutes(5),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _userManagerMock.Setup(m => m.FindByIdAsync("locked-user"))
+                .ReturnsAsync(user);
+            _userManagerMock.Setup(m => m.SetLockoutEndDateAsync(user, null))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(m => m.ResetAccessFailedCountAsync(user))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var model = new Web.Models.Admin.AdminUserActionViewModel
+            {
+                UserId = "locked-user",
+                Action = "unlock",
+                Reason = "Manual unlock by admin"
+            };
+
+            // Act
+            var result = await _controller.UserAction(model);
+
+            // Assert
+            var jsonResult = Assert.IsType<JsonResult>(result);
+            Assert.NotNull(jsonResult.Value);
+            var payload = jsonResult.Value!.ToString();
+            Assert.Contains("success = True", payload);
+            _userManagerMock.Verify(m => m.SetLockoutEndDateAsync(user, null), Times.Once);
+            _userManagerMock.Verify(m => m.ResetAccessFailedCountAsync(user), Times.Once);
+        }
+
         public void Dispose()
         {
             _context?.Dispose();

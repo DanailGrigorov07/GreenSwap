@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SecondHandGoods.Data;
@@ -10,6 +11,7 @@ namespace SecondHandGoods.Web.Controllers
     /// <summary>
     /// Controller for category browsing and category-specific functionality
     /// </summary>
+    [AllowAnonymous]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -36,6 +36,7 @@ namespace SecondHandGoods.Web.Controllers
         /// <param name="filterByType">Filter by review type</param>
         /// <param name="filterByRating">Filter by rating</param>
         /// <param name="sortBy">Sort option</param>
+        [AllowAnonymous]
         public async Task<IActionResult> UserReviews(
             string userId, 
             int page = 1, 
@@ -372,6 +373,7 @@ namespace SecondHandGoods.Web.Controllers
         /// <summary>
         /// Get review statistics for a user (API endpoint)
         /// </summary>
+        [AllowAnonymous]
         public async Task<IActionResult> Stats(string userId)
         {
             try

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>
+            [SecondHandGoods.Services]*
+            ,[SecondHandGoods.Data.Entities]*
+            ,[SecondHandGoods.Web.Controllers.AccountController]*
+            ,[SecondHandGoods.Web.Controllers.AdsController]*
+            ,[SecondHandGoods.Web.Controllers.AdminController]*
+            ,[SecondHandGoods.Web.Controllers.ReviewsController]*
+          </Include>
+          <ExcludeByFile>
+            **/Migrations/*.cs
+            ,**/Views/**/*.cshtml
+            ,**/Program.cs
+          </ExcludeByFile>
+          <ExcludeByAttribute>
+            Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute
+          </ExcludeByAttribute>
+          <SkipAutoProps>true</SkipAutoProps>
+          <UseSourceLink>false</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

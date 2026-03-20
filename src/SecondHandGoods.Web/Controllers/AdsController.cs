@@ -45,6 +45,7 @@ namespace SecondHandGoods.Web.Controllers
         /// <summary>
         /// Display list of advertisements with search and filtering
         /// </summary>
+        [AllowAnonymous]
         public async Task<IActionResult> Index(AdvertisementListViewModel model)
         {
             try
@@ -200,6 +201,7 @@ namespace SecondHandGoods.Web.Controllers
         /// <summary>
         /// Display advertisement details
         /// </summary>
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             try
