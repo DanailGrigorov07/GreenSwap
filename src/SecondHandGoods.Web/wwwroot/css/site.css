@@ -22,6 +22,14 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Main nav: logo in upper-left (replaces former shop icon) */
+.site-navbar-logo {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
 /* Dark Mode Styles */
 [data-theme="dark"] {
   background-color: #1a1a1a;
