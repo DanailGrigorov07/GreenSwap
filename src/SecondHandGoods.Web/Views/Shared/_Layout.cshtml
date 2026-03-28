@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" id="themeColorMeta" />
     <script>
         (function () {
@@ -43,13 +43,15 @@
                     <img src="~/images/greenswap-logo.png" alt="" width="40" height="40" class="site-navbar-logo flex-shrink-0" asp-append-version="true" />
                     <span class="fw-semibold">GreenSwap</span>
                 </a>
-                <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none js-theme-toggle ms-auto me-2" title="Toggle dark mode" aria-label="Toggle dark mode">
-                    <i class="fas fa-moon js-theme-icon"></i>
-                </button>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarCollapse" aria-controls="mainNavbarCollapse"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <div class="d-flex align-items-center gap-2 ms-auto flex-shrink-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none js-theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon js-theme-icon"></i>
+                    </button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarCollapse" aria-controls="mainNavbarCollapse"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
                 <div class="navbar-collapse collapse" id="mainNavbarCollapse">
                     <div class="d-lg-none w-100 px-2 pt-2 pb-2 border-bottom">
                         <form asp-controller="Ads" asp-action="Index" method="get" class="d-flex gap-2">
@@ -59,7 +61,7 @@
                             </button>
                         </form>
                     </div>
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 flex-grow-1">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 flex-lg-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="fas fa-home me-1"></i>Home
