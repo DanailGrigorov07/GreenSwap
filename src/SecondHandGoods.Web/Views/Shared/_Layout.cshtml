@@ -3,6 +3,29 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" id="themeColorMeta" />
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (t !== 'dark' && t !== 'light') t = 'light';
+                document.documentElement.setAttribute('data-theme', t);
+                var m = document.getElementById('themeColorMeta');
+                if (m) m.setAttribute('content', t === 'dark' ? '#1a1a1a' : '#ffffff');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <style>
+        html[data-theme="dark"],
+        html[data-theme="dark"] body {
+            background-color: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+        html[data-theme="dark"] { color-scheme: dark; }
+        html[data-theme="light"] { color-scheme: light; }
+    </style>
     <title>@ViewData["Title"] - GreenSwap</title>
     <link rel="icon" type="image/png" href="~/images/greenswap-logo.png" asp-append-version="true" />
     <link rel="apple-touch-icon" href="~/images/greenswap-logo.png" asp-append-version="true" />
@@ -208,26 +231,29 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
-    <!-- Dark Mode Toggle Script -->
+    <!-- Dark Mode Toggle Script (theme is already applied in &lt;head&gt; to avoid flash) -->
     <script>
         (function() {
             const themeToggle = document.getElementById('themeToggle');
             const themeIcon = document.getElementById('themeIcon');
+            const themeColorMeta = document.getElementById('themeColorMeta');
             const html = document.documentElement;
-            
-            // Get saved theme or default to light
             const currentTheme = localStorage.getItem('theme') || 'light';
-            html.setAttribute('data-theme', currentTheme);
             updateThemeIcon(currentTheme);
-            
-            themeToggle.addEventListener('click', function() {
-                const currentTheme = html.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                html.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateThemeIcon(newTheme);
-            });
-            
+            function setThemeColorMeta(theme) {
+                if (themeColorMeta) themeColorMeta.setAttribute('content', theme === 'dark' ? '#1a1a1a' : '#ffffff');
+            }
+            setThemeColorMeta(currentTheme);
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const t = html.getAttribute('data-theme') || 'light';
+                    const newTheme = t === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    updateThemeIcon(newTheme);
+                    setThemeColorMeta(newTheme);
+                });
+            }
             function updateThemeIcon(theme) {
                 if (themeIcon) {
                     themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';

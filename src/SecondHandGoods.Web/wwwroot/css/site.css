@@ -19,7 +19,8 @@ html {
 
 body {
   margin-bottom: 60px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Avoid animating background on load/navigation — it amplified light flash before dark theme applied */
+  transition: color 0.2s ease;
 }
 
 /* Main nav: logo in upper-left (replaces former shop icon) */
