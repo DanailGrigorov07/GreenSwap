@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 namespace SecondHandGoods.Data.Entities
 {
     /// <summary>
-    /// Extended user entity for the Second Hand Goods platform
+    /// Extended user entity for the GreenSwap platform
     /// </summary>
     public class ApplicationUser : IdentityUser
     {

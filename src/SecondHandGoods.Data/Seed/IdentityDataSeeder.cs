@@ -81,12 +81,31 @@ namespace SecondHandGoods.Data.Seed
         {
             logger.LogInformation("Seeding admin user...");
             
-            const string adminEmail = "admin@secondhandgoods.com";
+            const string adminEmail = "admin@greenswap.com";
+            const string legacyAdminEmail = "admin@secondhandgoods.com";
             const string adminUserName = "admin";
             const string adminPassword = "Admin123!"; // In production, use a secure password from configuration
             
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
-            
+            if (adminUser == null)
+            {
+                var legacyUser = await userManager.FindByEmailAsync(legacyAdminEmail);
+                if (legacyUser != null)
+                {
+                    var emailResult = await userManager.SetEmailAsync(legacyUser, adminEmail);
+                    if (emailResult.Succeeded)
+                    {
+                        logger.LogInformation("Migrated admin email from {Legacy} to {Email}", legacyAdminEmail, adminEmail);
+                        adminUser = legacyUser;
+                    }
+                    else
+                    {
+                        logger.LogError("Failed to migrate admin email. Errors: {Errors}",
+                            string.Join(", ", emailResult.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+
             if (adminUser == null)
             {
                 adminUser = new ApplicationUser
@@ -129,7 +148,7 @@ namespace SecondHandGoods.Data.Seed
             }
             else
             {
-                logger.LogDebug("Admin user already exists: {Email}", adminEmail);
+                logger.LogDebug("Admin user already exists: {Email}", adminUser.Email);
                 
                 // Ensure admin user has Admin role
                 if (!await userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin))

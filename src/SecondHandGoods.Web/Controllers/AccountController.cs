@@ -59,7 +59,7 @@ namespace SecondHandGoods.Web.Controllers
             }
 
             // Find user by email first (login form uses email field; Identity's PasswordSignInAsync(userName, ...) looks up by UserName).
-            // The seeded admin has UserName = "admin" and Email = "admin@secondhandgoods.com", so we must resolve by email and sign in with the user object.
+            // The seeded admin has UserName = "admin" and Email = "admin@greenswap.com", so we must resolve by email and sign in with the user object.
             var user = await _userManager.FindByEmailAsync(model.Email);
             Microsoft.AspNetCore.Identity.SignInResult result;
             if (user != null)

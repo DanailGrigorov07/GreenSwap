@@ -5,7 +5,7 @@ using SecondHandGoods.Data.Entities;
 namespace SecondHandGoods.Data
 {
     /// <summary>
-    /// Application database context for Second Hand Goods platform
+    /// Application database context for GreenSwap platform
     /// </summary>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

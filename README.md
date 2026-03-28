@@ -1,6 +1,6 @@
-# SecondHandGoods - Educational Trading Platform
+# GreenSwap - Educational Trading Platform
 
-A comprehensive web-based platform for publishing, searching, and purchasing second-hand goods, similar to OLX/Bazar.bg. Built with modern .NET technologies following clean architecture principles.
+A comprehensive web-based platform for publishing, searching, and purchasing pre-owned items, similar to OLX/Bazar.bg. Built with modern .NET technologies following clean architecture principles.
 
 ## 🚀 Technology Stack
 
@@ -108,7 +108,7 @@ SecondHandGoods/
 6. Navigate to `http://localhost:5036` (see `launchSettings.json` for other profiles)
 
 ### Demo Accounts
-- **Admin**: `admin@secondhandgoods.com` / `Admin123!`
+- **Admin**: `admin@greenswap.com` / `Admin123!` (existing databases may still have the legacy `admin@secondhandgoods.com` until the app migrates it on startup)
 - **Demo Users**: 
   - `john.demo@example.com` / `Demo123!`
   - `sarah.demo@example.com` / `Demo123!`
