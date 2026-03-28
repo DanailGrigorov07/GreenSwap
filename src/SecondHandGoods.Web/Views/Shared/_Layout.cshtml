@@ -37,18 +37,29 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center gap-2 me-auto py-1" asp-area="" asp-controller="Home" asp-action="Index" title="GreenSwap home">
+                <a class="navbar-brand d-flex align-items-center gap-2 py-1" asp-area="" asp-controller="Home" asp-action="Index" title="GreenSwap home">
                     <img src="~/images/greenswap-logo.png" alt="" width="40" height="40" class="site-navbar-logo flex-shrink-0" asp-append-version="true" />
                     <span class="fw-semibold">GreenSwap</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none js-theme-toggle ms-auto me-2" title="Toggle dark mode" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon js-theme-icon"></i>
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarCollapse" aria-controls="mainNavbarCollapse"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse" id="mainNavbarCollapse">
+                    <div class="d-lg-none w-100 px-2 pt-2 pb-2 border-bottom">
+                        <form asp-controller="Ads" asp-action="Index" method="get" class="d-flex gap-2">
+                            <input name="searchTerm" type="search" class="form-control form-control-sm flex-grow-1" placeholder="Search listings..." aria-label="Search" />
+                            <button class="btn btn-outline-primary btn-sm flex-shrink-0" type="submit" title="Search">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="fas fa-home me-1"></i>Home
@@ -92,23 +103,22 @@
                             </li>
                         }
                         </ul>
-                        
-                        <!-- Quick Search Widget -->
-                        <div class="d-none d-lg-flex me-3 align-items-center gap-2">
+
+                        <!-- Desktop: quick search + theme (lg+) -->
+                        <div class="d-none d-lg-flex align-items-center gap-2 me-3 flex-shrink-0">
                             <form asp-controller="Ads" asp-action="Index" method="get" class="d-flex">
-                                <input name="searchTerm" type="search" class="form-control form-control-sm me-2" 
-                                       placeholder="Quick search..." aria-label="Search" style="min-width: 200px;">
-                                <button class="btn btn-outline-primary btn-sm" type="submit">
+                                <input name="searchTerm" type="search" class="form-control form-control-sm me-2"
+                                       placeholder="Quick search..." aria-label="Search" style="min-width: 180px; max-width: 280px;">
+                                <button class="btn btn-outline-primary btn-sm" type="submit" title="Search">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </form>
-                            <!-- Dark Mode Toggle -->
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="themeToggle" title="Toggle Dark Mode">
-                                <i class="fas fa-moon" id="themeIcon"></i>
+                            <button type="button" class="btn btn-outline-secondary btn-sm js-theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                                <i class="fas fa-moon js-theme-icon"></i>
                             </button>
                         </div>
 
-                        <ul class="navbar-nav">
+                        <ul class="navbar-nav mb-2 mb-lg-0">
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item dropdown">
@@ -234,31 +244,31 @@
     <!-- Dark Mode Toggle Script (theme is already applied in &lt;head&gt; to avoid flash) -->
     <script>
         (function() {
-            const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
             const themeColorMeta = document.getElementById('themeColorMeta');
             const html = document.documentElement;
             const currentTheme = localStorage.getItem('theme') || 'light';
-            updateThemeIcon(currentTheme);
             function setThemeColorMeta(theme) {
                 if (themeColorMeta) themeColorMeta.setAttribute('content', theme === 'dark' ? '#1a1a1a' : '#ffffff');
             }
-            setThemeColorMeta(currentTheme);
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    const t = html.getAttribute('data-theme') || 'light';
-                    const newTheme = t === 'dark' ? 'light' : 'dark';
-                    html.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
-                    updateThemeIcon(newTheme);
-                    setThemeColorMeta(newTheme);
+            function updateThemeIcons(theme) {
+                var icon = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                document.querySelectorAll('.js-theme-icon').forEach(function (el) {
+                    el.className = icon + ' js-theme-icon';
                 });
             }
-            function updateThemeIcon(theme) {
-                if (themeIcon) {
-                    themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                }
+            updateThemeIcons(currentTheme);
+            setThemeColorMeta(currentTheme);
+            function toggleTheme() {
+                var t = html.getAttribute('data-theme') || 'light';
+                var newTheme = t === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcons(newTheme);
+                setThemeColorMeta(newTheme);
             }
+            document.querySelectorAll('.js-theme-toggle').forEach(function (btn) {
+                btn.addEventListener('click', toggleTheme);
+            });
         })();
     </script>
     
