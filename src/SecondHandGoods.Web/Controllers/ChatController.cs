@@ -74,7 +74,7 @@ namespace SecondHandGoods.Web.Controllers
                         {
                             AdvertisementId = c.AdvertisementId,
                             AdvertisementTitle = ad?.Title ?? "",
-                            AdvertisementImageUrl = ad?.Images?.FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.svg",
+                            AdvertisementImageUrl = ad?.Images?.FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.jpg",
                             AdvertisementPrice = ad?.Price ?? 0,
                             IsAdvertisementActive = ad?.IsActive ?? false,
                             IsAdvertisementSold = ad?.IsSold ?? false,
@@ -191,7 +191,7 @@ namespace SecondHandGoods.Web.Controllers
                     AdvertisementId = advertisementId,
                     AdvertisementTitle = advertisement.Title,
                     AdvertisementImageUrl = advertisement.Images
-                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.svg",
+                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.jpg",
                     AdvertisementPrice = advertisement.Price,
                     AdvertisementLocation = advertisement.Location ?? "",
                     IsAdvertisementActive = advertisement.IsActive,

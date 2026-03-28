@@ -75,7 +75,7 @@ namespace SecondHandGoods.Web.Controllers
                             ImageUrl = a.Images
                                 .Where(img => img.IsMainImage)
                                 .Select(img => img.ImageUrl)
-                                .FirstOrDefault() ?? "/images/no-image.svg"
+                                .FirstOrDefault() ?? "/images/no-image.jpg"
                         })
                         .ToListAsync();
 
@@ -185,7 +185,7 @@ namespace SecondHandGoods.Web.Controllers
                         MainImageUrl = a.Images
                             .Where(img => img.IsMainImage)
                             .Select(img => img.ImageUrl)
-                            .FirstOrDefault() ?? "/images/no-image.svg",
+                            .FirstOrDefault() ?? "/images/no-image.jpg",
                         MainImageAlt = a.Images
                             .Where(img => img.IsMainImage)
                             .Select(img => img.AltText)

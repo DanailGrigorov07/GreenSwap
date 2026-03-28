@@ -396,7 +396,7 @@ namespace SecondHandGoods.Web.Controllers
                         UserName = a.User.FirstName + " " + a.User.LastName,
                         UserEmail = a.User.Email,
                         UserRating = a.User.SellerRating,
-                        MainImageUrl = a.Images.FirstOrDefault(i => i.IsMainImage)!.ImageUrl ?? "/images/no-image.svg",
+                        MainImageUrl = a.Images.FirstOrDefault(i => i.IsMainImage)!.ImageUrl ?? "/images/no-image.jpg",
                         ImageCount = a.Images.Count(),
                         MessageCount = _context.Messages.Count(m => m.AdvertisementId == a.Id && !m.IsDeleted),
                         OrderCount = _context.Orders.Count(o => o.AdvertisementId == a.Id)

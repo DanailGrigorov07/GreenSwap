@@ -120,7 +120,12 @@
             }
             else
             {
-                <div class="mb-4"></div>
+                <div class="mb-4">
+                    <img src="~/images/no-image-detail.jpg"
+                         class="img-fluid rounded shadow"
+                         alt="No photo for this listing"
+                         style="max-height: 400px; width: 100%; object-fit: cover;" />
+                </div>
             }
 
             <!-- Image Gallery Modal -->
@@ -254,7 +259,7 @@
                     }
                     else if (!SignInManager.IsSignedIn(User))
                     {
-                        <div class="alert alert-info">
+                        <div class="d-grid gap-2">
                             <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt me-2"></i>Sign in to Contact
                             </a>

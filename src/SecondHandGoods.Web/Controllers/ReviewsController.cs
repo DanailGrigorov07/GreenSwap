@@ -102,7 +102,7 @@ namespace SecondHandGoods.Web.Controllers
                         AdvertisementImageUrl = r.Order.Advertisement.Images
                             .Where(img => img.IsMainImage)
                             .Select(img => img.ImageUrl)
-                            .FirstOrDefault() ?? "/images/no-image.svg",
+                            .FirstOrDefault() ?? "/images/no-image.jpg",
                         FinalPrice = r.Order.FinalPrice
                     })
                     .ToListAsync();
@@ -177,7 +177,7 @@ namespace SecondHandGoods.Web.Controllers
                     AdvertisementId = order.AdvertisementId,
                     AdvertisementTitle = order.Advertisement.Title,
                     AdvertisementImageUrl = order.Advertisement.Images
-                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.svg",
+                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.jpg",
                     FinalPrice = order.FinalPrice,
                     OtherUserId = order.BuyerId == currentUserId ? order.SellerId : order.BuyerId,
                     OtherUserName = order.BuyerId == currentUserId 
@@ -253,7 +253,7 @@ namespace SecondHandGoods.Web.Controllers
                     OrderNumber = order.OrderNumber,
                     AdvertisementTitle = order.Advertisement.Title,
                     AdvertisementImageUrl = order.Advertisement.Images
-                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.svg",
+                        .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.jpg",
                     FinalPrice = order.FinalPrice,
                     ReviewedUserName = reviewedUser.FirstName + " " + reviewedUser.LastName,
                     OrderCompletedDate = order.CompletedAt!.Value
@@ -583,7 +583,7 @@ namespace SecondHandGoods.Web.Controllers
                 model.OrderNumber = order.OrderNumber;
                 model.AdvertisementTitle = order.Advertisement.Title;
                 model.AdvertisementImageUrl = order.Advertisement.Images
-                    .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.svg";
+                    .FirstOrDefault(img => img.IsMainImage)?.ImageUrl ?? "/images/no-image.jpg";
                 model.FinalPrice = order.FinalPrice;
                 model.ReviewedUserName = reviewedUser.FirstName + " " + reviewedUser.LastName;
                 model.OrderCompletedDate = order.CompletedAt!.Value;
