@@ -1,11 +1,21 @@
 html {
   font-size: 14px;
+  /* Reduce stray horizontal page scroll; scoped scroll (e.g. table-responsive) stays inside its own overflow */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
+}
+
+/* Responsive safety net: media fits viewport; notched phones get inset padding on body */
+img,
+video {
+  max-width: 100%;
+  height: auto;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -19,6 +29,8 @@ html {
 
 body {
   margin-bottom: 60px;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   /* Avoid animating background on load/navigation — it amplified light flash before dark theme applied */
   transition: color 0.2s ease;
 }
