@@ -37,6 +37,13 @@ body {
   transition: color 0.2s ease;
 }
 
+/* Avoid clipping the user dropdown when the collapsed navbar is open on small screens */
+@media (max-width: 991.98px) {
+  .navbar-expand-lg .navbar-collapse.collapse.show {
+    overflow: visible;
+  }
+}
+
 /* Main nav: logo in upper-left (replaces former shop icon) */
 .site-navbar-logo {
   display: block;
