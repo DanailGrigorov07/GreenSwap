@@ -197,17 +197,17 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <a asp-controller="Ads" asp-action="Index" class="btn btn-outline-secondary">
+                        <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-stretch align-items-md-center gap-3">
+                            <div class="w-100 w-md-auto">
+                                <a asp-controller="Ads" asp-action="Index" class="btn btn-outline-secondary w-100 w-md-auto">
                                     <i class="fas fa-arrow-left me-1"></i>Simple Search
                                 </a>
                             </div>
-                            <div>
-                                <button type="button" class="btn btn-outline-warning me-2" onclick="clearForm()">
+                            <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 w-100 w-md-auto justify-content-md-end">
+                                <button type="button" class="btn btn-outline-warning w-100 w-sm-auto" onclick="clearForm()">
                                     <i class="fas fa-eraser me-1"></i>Clear All
                                 </button>
-                                <button type="submit" class="btn btn-primary btn-lg">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 w-sm-auto">
                                     <i class="fas fa-search me-1"></i>Search Items
                                 </button>
                             </div>
@@ -316,14 +316,14 @@
         <div class="row mt-5">
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex flex-column flex-sm-row justify-content-sm-between align-items-stretch align-items-sm-center gap-2 gap-sm-3">
                         <div>
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-list me-2"></i>Search Results
                             </h5>
                             <small class="text-muted">@Model.GetSearchSummary()</small>
                         </div>
-                        <div>
+                        <div class="align-self-sm-end">
                             <span class="badge bg-primary fs-6">
                                 @Model.TotalResults.ToString("N0") item@(Model.TotalResults == 1 ? "" : "s") found
                             </span>
