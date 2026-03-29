@@ -481,6 +481,8 @@ namespace SecondHandGoods.Web.Controllers
                     })
                     .ToListAsync();
 
+                var reviewDayStart = DateTime.UtcNow.Date;
+                var reviewDayEnd = reviewDayStart.AddDays(1);
                 var model = new ReviewManagementViewModel
                 {
                     Reviews = reviews,
@@ -494,7 +496,8 @@ namespace SecondHandGoods.Web.Controllers
                     PageSize = pageSize,
                     ReportedReviewsCount = await _context.Reviews.CountAsync(r => r.IsReported),
                     UnapprovedReviewsCount = await _context.Reviews.CountAsync(r => !r.IsApproved),
-                    TotalReviewsToday = await _context.Reviews.CountAsync(r => r.CreatedAt.Date == DateTime.UtcNow.Date)
+                    TotalReviewsToday = await _context.Reviews.CountAsync(r =>
+                        r.CreatedAt >= reviewDayStart && r.CreatedAt < reviewDayEnd)
                 };
 
                 return View(model);

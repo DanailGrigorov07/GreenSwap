@@ -53,7 +53,7 @@
                         <div class="progress-bar bg-primary" 
                              style="width: @((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100)%"></div>
                     </div>
-                    <small class="text-muted">@Model.ActiveUsers active users (@((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100):F1)%)</small>
+                    <small class="text-muted">@Model.ActiveUsers active users (@(((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100).ToString("F1"))%)</small>
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
                         <div class="progress-bar bg-success" 
                              style="width: @((Model.ActiveAdvertisements / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100)%"></div>
                     </div>
-                    <small class="text-muted">@Model.ActiveAdvertisements active ads (@((Model.ActiveAdvertisements / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100):F1)%)</small>
+                    <small class="text-muted">@Model.ActiveAdvertisements active ads (@(((Model.ActiveAdvertisements / (double)Math.Max(Model.TotalAdvertisements, 1)) * 100).ToString("F1"))%)</small>
                 </div>
             </div>
         </div>
@@ -184,7 +184,7 @@
                             </div>
                             <div class="stat-value">@Model.ActiveUsers.ToString("N0")</div>
                             <div class="stat-label">Active Users</div>
-                            <small class="text-muted">@((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100):F1% of total</small>
+                            <small class="text-muted">@(((Model.ActiveUsers / (double)Math.Max(Model.TotalUsers, 1)) * 100).ToString("F1"))% of total</small>
                         </div>
                     </div>
                     <div class="col-md-3 col-6 mb-3">
@@ -220,7 +220,7 @@
                                 <span class="badge bg-light text-dark">@category.Value</span>
                             </div>
                             <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-success" style="width: @percentage%"></div>
+                                <div class="progress-bar bg-success" style="width: @(percentage)%"></div>
                             </div>
                         </div>
                     }

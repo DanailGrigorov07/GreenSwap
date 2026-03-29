@@ -44,46 +44,56 @@ namespace SecondHandGoods.Web.Controllers
         /// </summary>
         public async Task<IActionResult> Index()
         {
+            var model = new AdminDashboardViewModel();
+            var now = DateTime.UtcNow;
+            var todayStart = now.Date;
+            var todayEnd = todayStart.AddDays(1);
+            var weekStart = now.AddDays(-(int)now.DayOfWeek);
+
+            // Core metrics first — same counts as /Admin/Statistics (totals + active ads with expiry for dashboard cards).
             try
             {
-                var now = DateTime.UtcNow;
-                var todayStart = now.Date;
-                var weekStart = now.AddDays(-(int)now.DayOfWeek);
+                model.TotalUsers = await _context.Users.CountAsync();
+                model.ActiveUsers = await _context.Users.CountAsync(u => u.IsActive);
+                model.NewUsersToday = await _context.Users.CountAsync(u => u.CreatedAt >= todayStart && u.CreatedAt < todayEnd);
+                model.NewUsersThisWeek = await _context.Users.CountAsync(u => u.CreatedAt >= weekStart);
 
-                // Get platform statistics
-                var totalUsers = await _context.Users.CountAsync();
-                var activeUsers = await _context.Users.CountAsync(u => u.IsActive);
-                var newUsersToday = await _context.Users.CountAsync(u => u.CreatedAt.Date == todayStart);
-                var newUsersThisWeek = await _context.Users.CountAsync(u => u.CreatedAt >= weekStart);
+                model.TotalAdvertisements = await _context.Advertisements.CountAsync(a => !a.IsDeleted);
+                model.ActiveAdvertisements = await _context.Advertisements.CountAsync(a => a.IsActive && !a.IsDeleted && a.ExpiresAt > now);
+                model.SoldAdvertisements = await _context.Advertisements.CountAsync(a => a.IsSold);
+                model.NewAdsToday = await _context.Advertisements.CountAsync(a => a.CreatedAt >= todayStart && a.CreatedAt < todayEnd && !a.IsDeleted);
+                model.NewAdsThisWeek = await _context.Advertisements.CountAsync(a => a.CreatedAt >= weekStart && !a.IsDeleted);
 
-                var totalAds = await _context.Advertisements.CountAsync(a => !a.IsDeleted);
-                var activeAds = await _context.Advertisements.CountAsync(a => a.IsActive && !a.IsDeleted && a.ExpiresAt > now);
-                var soldAds = await _context.Advertisements.CountAsync(a => a.IsSold);
-                var newAdsToday = await _context.Advertisements.CountAsync(a => a.CreatedAt.Date == todayStart && !a.IsDeleted);
-                var newAdsThisWeek = await _context.Advertisements.CountAsync(a => a.CreatedAt >= weekStart && !a.IsDeleted);
-
-                var totalOrders = await _context.Orders.CountAsync();
-                var completedOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
-                var pendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
-                var totalRevenue = await _context.Orders
+                model.TotalOrders = await _context.Orders.CountAsync();
+                model.CompletedOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
+                model.PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
+                model.TotalRevenue = await _context.Orders
                     .Where(o => o.Status == OrderStatus.Completed)
-                    .SumAsync(o => o.FinalPrice);
+                    .SumAsync(o => (decimal?)o.FinalPrice) ?? 0m;
 
-                var totalReviews = await _context.Reviews.CountAsync();
-                var reportedReviews = await _context.Reviews.CountAsync(r => r.IsReported);
-                var unapprovedReviews = await _context.Reviews.CountAsync(r => !r.IsApproved);
-                var averageRating = await _context.Reviews.AverageAsync(r => (double?)r.Rating) ?? 0;
+                model.TotalReviews = await _context.Reviews.CountAsync();
+                model.ReportedReviewsCount = await _context.Reviews.CountAsync(r => r.IsReported);
+                model.UnapprovedReviews = await _context.Reviews.CountAsync(r => !r.IsApproved);
+                model.AverageRating = await _context.Reviews.AverageAsync(r => (decimal?)r.Rating) ?? 0m;
 
-                var totalMessages = await _context.Messages.CountAsync(m => !m.IsDeleted);
-                var messagesToday = await _context.Messages.CountAsync(m => m.SentAt.Date == todayStart && !m.IsDeleted);
+                model.TotalMessages = await _context.Messages.CountAsync(m => !m.IsDeleted);
+                model.MessagesToday = await _context.Messages.CountAsync(m => m.SentAt >= todayStart && m.SentAt < todayEnd && !m.IsDeleted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading admin dashboard metrics");
+                TempData["Error"] = "An error occurred while loading dashboard statistics.";
+                return View(model);
+            }
 
-                // Get recent activities
-                var recentUsers = await _context.Users
+            try
+            {
+                model.RecentUsers = await _context.Users
                     .OrderByDescending(u => u.CreatedAt)
                     .Take(5)
                     .Select(u => new AdminActivityViewModel
                     {
-                        Id = 0, // Not used for users
+                        Id = 0,
                         Title = u.FirstName + " " + u.LastName,
                         Description = u.Email,
                         UserName = u.FirstName + " " + u.LastName,
@@ -93,8 +103,16 @@ namespace SecondHandGoods.Web.Controllers
                         StatusBadgeClass = u.IsActive ? "badge bg-success" : "badge bg-danger"
                     })
                     .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading recent users on admin dashboard");
+                model.RecentUsers = new List<AdminActivityViewModel>();
+            }
 
-                var recentAds = await _context.Advertisements
+            try
+            {
+                model.RecentAds = await _context.Advertisements
                     .Include(a => a.User)
                     .Where(a => !a.IsDeleted)
                     .OrderByDescending(a => a.CreatedAt)
@@ -111,8 +129,16 @@ namespace SecondHandGoods.Web.Controllers
                         StatusBadgeClass = a.IsActive && !a.IsSold ? "badge bg-primary" : a.IsSold ? "badge bg-success" : "badge bg-secondary"
                     })
                     .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading recent ads on admin dashboard");
+                model.RecentAds = new List<AdminActivityViewModel>();
+            }
 
-                var recentOrders = await _context.Orders
+            try
+            {
+                model.RecentOrders = await _context.Orders
                     .Include(o => o.Advertisement)
                     .Include(o => o.Buyer)
                     .OrderByDescending(o => o.CreatedAt)
@@ -129,9 +155,16 @@ namespace SecondHandGoods.Web.Controllers
                         StatusBadgeClass = GetOrderStatusBadgeClass(o.Status)
                     })
                     .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading recent orders on admin dashboard");
+                model.RecentOrders = new List<AdminActivityViewModel>();
+            }
 
-                // Get reported reviews
-                var reportedReviewsList = await _context.Reviews
+            try
+            {
+                model.ReportedReviews = await _context.Reviews
                     .Include(r => r.Reviewer)
                     .Include(r => r.ReviewedUser)
                     .Include(r => r.Order)
@@ -157,50 +190,32 @@ namespace SecondHandGoods.Web.Controllers
                         AdvertisementTitle = r.Order.Advertisement.Title
                     })
                     .ToListAsync();
-
-                // Get ads by category breakdown
-                var adsByCategory = await _context.Advertisements
-                    .Include(a => a.Category)
-                    .Where(a => !a.IsDeleted)
-                    .GroupBy(a => a.Category.Name)
-                    .ToDictionaryAsync(g => g.Key, g => g.Count());
-
-                var model = new AdminDashboardViewModel
-                {
-                    TotalUsers = totalUsers,
-                    ActiveUsers = activeUsers,
-                    NewUsersToday = newUsersToday,
-                    NewUsersThisWeek = newUsersThisWeek,
-                    TotalAdvertisements = totalAds,
-                    ActiveAdvertisements = activeAds,
-                    SoldAdvertisements = soldAds,
-                    NewAdsToday = newAdsToday,
-                    NewAdsThisWeek = newAdsThisWeek,
-                    TotalOrders = totalOrders,
-                    CompletedOrders = completedOrders,
-                    PendingOrders = pendingOrders,
-                    TotalRevenue = totalRevenue,
-                    TotalReviews = totalReviews,
-                    ReportedReviewsCount = reportedReviews,
-                    UnapprovedReviews = unapprovedReviews,
-                    AverageRating = (decimal)averageRating,
-                    TotalMessages = totalMessages,
-                    MessagesToday = messagesToday,
-                    RecentUsers = recentUsers,
-                    RecentAds = recentAds,
-                    RecentOrders = recentOrders,
-                    ReportedReviews = reportedReviewsList,
-                    AdsByCategory = adsByCategory
-                };
-
-                return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading admin dashboard");
-                TempData["Error"] = "An error occurred while loading the dashboard.";
-                return View(new AdminDashboardViewModel());
+                _logger.LogError(ex, "Error loading reported reviews on admin dashboard");
+                model.ReportedReviews = new List<AdminReviewItemViewModel>();
             }
+
+            try
+            {
+                var adsForCategories = await _context.Advertisements
+                    .AsNoTracking()
+                    .Where(a => !a.IsDeleted)
+                    .Include(a => a.Category)
+                    .ToListAsync();
+
+                model.AdsByCategory = adsForCategories
+                    .GroupBy(a => a.Category.Name)
+                    .ToDictionary(g => g.Key, g => g.Count());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading ads-by-category breakdown on admin dashboard");
+                model.AdsByCategory = new Dictionary<string, int>();
+            }
+
+            return View(model);
         }
 
         /// <summary>
@@ -440,68 +455,92 @@ namespace SecondHandGoods.Web.Controllers
         /// </summary>
         public async Task<IActionResult> Statistics()
         {
+            var model = new AdminStatsViewModel();
+
+            // Load summary counts first. If category/top-user queries fail (common with nested aggregates on SQLite),
+            // we still show these numbers instead of replacing the whole page with zeros.
             try
             {
-                var model = new AdminStatsViewModel();
+                model.TotalUsers = await _context.Users.CountAsync();
+                model.ActiveUsers = await _context.Users.CountAsync(u => u.IsActive);
+                model.TotalAds = await _context.Advertisements.CountAsync(a => !a.IsDeleted);
+                model.ActiveAds = await _context.Advertisements.CountAsync(a => a.IsActive && !a.IsDeleted);
+                model.TotalOrders = await _context.Orders.CountAsync();
+                model.CompletedOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
+                model.TotalReviews = await _context.Reviews.CountAsync();
+                model.AverageRating = await _context.Reviews.AverageAsync(r => (decimal?)r.Rating) ?? 0m;
+                model.TotalMessages = await _context.Messages.CountAsync(m => !m.IsDeleted);
+                model.TotalRevenue = await _context.Orders.Where(o => o.Status == OrderStatus.Completed).SumAsync(o => (decimal?)o.FinalPrice) ?? 0m;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading general platform statistics");
+                TempData["Error"] = "An error occurred while loading platform statistics.";
+                return View(model);
+            }
 
-                // General platform stats
-                model.GeneralStats = new Dictionary<string, object>
-                {
-                    ["TotalUsers"] = await _context.Users.CountAsync(),
-                    ["ActiveUsers"] = await _context.Users.CountAsync(u => u.IsActive),
-                    ["TotalAds"] = await _context.Advertisements.CountAsync(a => !a.IsDeleted),
-                    ["ActiveAds"] = await _context.Advertisements.CountAsync(a => a.IsActive && !a.IsDeleted),
-                    ["TotalOrders"] = await _context.Orders.CountAsync(),
-                    ["CompletedOrders"] = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed),
-                    ["TotalReviews"] = await _context.Reviews.CountAsync(),
-                    ["AverageRating"] = await _context.Reviews.AverageAsync(r => (decimal?)r.Rating) ?? 0,
-                    ["TotalMessages"] = await _context.Messages.CountAsync(m => !m.IsDeleted),
-                    ["TotalRevenue"] = await _context.Orders.Where(o => o.Status == OrderStatus.Completed).SumAsync(o => o.FinalPrice)
-                };
-
-                // Category statistics
-                model.CategoryStats = await _context.Categories
+            try
+            {
+                var categories = await _context.Categories
+                    .AsNoTracking()
                     .Where(c => c.IsActive)
-                    .Select(c => new CategoryStatsItem
+                    .Include(c => c.Advertisements)
+                    .OrderBy(c => c.DisplayOrder)
+                    .ToListAsync();
+
+                model.CategoryStats = categories.Select(c =>
+                {
+                    var nonDeleted = c.Advertisements.Where(a => !a.IsDeleted).ToList();
+                    return new CategoryStatsItem
                     {
                         CategoryId = c.Id,
                         CategoryName = c.Name,
                         IconClass = c.IconClass,
-                        TotalAds = _context.Advertisements.Count(a => a.CategoryId == c.Id && !a.IsDeleted),
-                        ActiveAds = _context.Advertisements.Count(a => a.CategoryId == c.Id && a.IsActive && !a.IsDeleted),
-                        SoldAds = _context.Advertisements.Count(a => a.CategoryId == c.Id && a.IsSold),
-                        AveragePrice = _context.Advertisements.Where(a => a.CategoryId == c.Id && !a.IsDeleted).Average(a => (decimal?)a.Price) ?? 0,
-                        TotalViews = _context.Advertisements.Where(a => a.CategoryId == c.Id && !a.IsDeleted).Sum(a => (long?)a.ViewCount) ?? 0
-                    })
-                    .OrderByDescending(cs => cs.ActiveAds)
-                    .ToListAsync();
-
-                // Top users by activity
-                model.TopUsers = await _context.Users
-                    .Where(u => u.IsActive)
-                    .OrderByDescending(u => u.SellerRating)
-                    .Take(10)
-                    .Select(u => new UserActivityItem
-                    {
-                        UserId = u.Id,
-                        UserName = u.FirstName + " " + u.LastName,
-                        Email = u.Email,
-                        Rating = u.SellerRating,
-                        TotalAds = _context.Advertisements.Count(a => a.UserId == u.Id && !a.IsDeleted),
-                        TotalSales = _context.Orders.Count(o => o.SellerId == u.Id && o.Status == OrderStatus.Completed),
-                        TotalPurchases = _context.Orders.Count(o => o.BuyerId == u.Id && o.Status == OrderStatus.Completed),
-                        TotalRevenue = _context.Orders.Where(o => o.SellerId == u.Id && o.Status == OrderStatus.Completed).Sum(o => (decimal?)o.FinalPrice) ?? 0
-                    })
-                    .ToListAsync();
-
-                return View(model);
+                        TotalAds = nonDeleted.Count,
+                        ActiveAds = nonDeleted.Count(a => a.IsActive),
+                        SoldAds = nonDeleted.Count(a => a.IsSold),
+                        AveragePrice = nonDeleted.Count > 0 ? nonDeleted.Average(a => a.Price) : 0,
+                        TotalViews = nonDeleted.Sum(a => (long)a.ViewCount)
+                    };
+                }).OrderByDescending(cs => cs.ActiveAds).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading admin statistics page");
-                TempData["Error"] = "An error occurred while loading statistics.";
-                return View(new AdminStatsViewModel());
+                _logger.LogError(ex, "Error loading category statistics for admin");
+                model.CategoryStats = new List<CategoryStatsItem>();
             }
+
+            try
+            {
+                var topUsers = await _context.Users
+                    .AsNoTracking()
+                    .Where(u => u.IsActive)
+                    .OrderByDescending(u => u.SellerRating)
+                    .Take(10)
+                    .Include(u => u.Advertisements)
+                    .Include(u => u.SalesOrders)
+                    .Include(u => u.PurchaseOrders)
+                    .ToListAsync();
+
+                model.TopUsers = topUsers.Select(u => new UserActivityItem
+                {
+                    UserId = u.Id,
+                    UserName = u.FirstName + " " + u.LastName,
+                    Email = u.Email ?? string.Empty,
+                    Rating = u.SellerRating,
+                    TotalAds = u.Advertisements.Count(a => !a.IsDeleted),
+                    TotalSales = u.SalesOrders.Count(o => o.Status == OrderStatus.Completed),
+                    TotalPurchases = u.PurchaseOrders.Count(o => o.Status == OrderStatus.Completed),
+                    TotalRevenue = u.SalesOrders.Where(o => o.Status == OrderStatus.Completed).Sum(o => o.FinalPrice)
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading top users for admin statistics");
+                model.TopUsers = new List<UserActivityItem>();
+            }
+
+            return View(model);
         }
 
         /// <summary>
@@ -779,11 +818,12 @@ namespace SecondHandGoods.Web.Controllers
             {
                 var now = DateTime.UtcNow;
                 var todayStart = now.Date;
+                var todayEnd = todayStart.AddDays(1);
                 var weekStart = now.AddDays(-(int)now.DayOfWeek);
 
                 // Get moderation statistics
                 var totalModerations = await _context.ModerationLogs.CountAsync();
-                var moderationsToday = await _context.ModerationLogs.CountAsync(ml => ml.CreatedAt.Date == todayStart);
+                var moderationsToday = await _context.ModerationLogs.CountAsync(ml => ml.CreatedAt >= todayStart && ml.CreatedAt < todayEnd);
                 var moderationsThisWeek = await _context.ModerationLogs.CountAsync(ml => ml.CreatedAt >= weekStart);
                 var automaticActions = await _context.ModerationLogs.CountAsync(ml => ml.IsAutomatic);
                 var manualReviews = await _context.ModerationLogs.CountAsync(ml => !ml.IsAutomatic);

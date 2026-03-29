@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -79,13 +80,18 @@ namespace SecondHandGoods.Data.Extensions
                 // Seed paid ad slots (footer-1, footer-2, footer-3) if none exist
                 await SeedSiteAdSlotsAsync(context, logger);
                 
-                // Seed sample data (demo users and advertisements) - only in development
-                var environment = services.GetRequiredService<Microsoft.Extensions.Hosting.IHostEnvironment>();
-                if (environment.IsDevelopment())
+                // Sample/demo data: Development, or SQLite when SeedDemoData is true (default true for local .db demos)
+                var environment = services.GetRequiredService<IHostEnvironment>();
+                var configuration = services.GetRequiredService<IConfiguration>();
+                var isSqlite = context.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true;
+                var seedDemoFlag = configuration["Database:SeedDemoData"];
+                var seedDemoData = environment.IsDevelopment()
+                    || (isSqlite && (string.IsNullOrEmpty(seedDemoFlag) || (bool.TryParse(seedDemoFlag, out var sd) && sd)));
+                if (seedDemoData)
                 {
                     await SampleDataSeeder.SeedAsync(context, userManager, logger);
-                    // Extend expiration for any expired ads so listings stay visible in development
                     await ExtendExpiredAdsForDevelopmentAsync(context, logger);
+                    await SchoolProjectDemoSeeder.SeedAsync(context, logger);
                 }
                 
                 logger.LogInformation("Database seeding completed successfully.");

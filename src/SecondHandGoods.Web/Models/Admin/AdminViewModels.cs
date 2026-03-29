@@ -554,7 +554,19 @@ namespace SecondHandGoods.Web.Models.Admin
     /// </summary>
     public class AdminStatsViewModel
     {
-        public Dictionary<string, object> GeneralStats { get; set; } = new();
+        /// <summary>Summary counts for the overview cards (typed so the view does not rely on Dictionary boxing).</summary>
+        public int TotalUsers { get; set; }
+        public int ActiveUsers { get; set; }
+        public int TotalAds { get; set; }
+        /// <summary>Ads with IsActive &amp;&amp; !IsDeleted (same basis as TotalAds card totals; expiry not applied).</summary>
+        public int ActiveAds { get; set; }
+        public int TotalOrders { get; set; }
+        public int CompletedOrders { get; set; }
+        public int TotalReviews { get; set; }
+        public decimal AverageRating { get; set; }
+        public int TotalMessages { get; set; }
+        public decimal TotalRevenue { get; set; }
+
         public List<CategoryStatsItem> CategoryStats { get; set; } = new();
         public List<UserActivityItem> TopUsers { get; set; } = new();
         public List<PopularSearchItem> PopularSearches { get; set; } = new();

@@ -13,6 +13,13 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Treat connection strings that point at SQLite files (or in-memory) as SQLite even when ASPNETCORE_ENVIRONMENT is not Development.
+bool ConnectionStringLooksLikeSqlite(string? cs) =>
+    !string.IsNullOrEmpty(cs) && (
+        cs.Contains("Data Source=", StringComparison.OrdinalIgnoreCase) ||
+        cs.Contains("Filename=", StringComparison.OrdinalIgnoreCase) ||
+        cs.Contains("Mode=Memory", StringComparison.OrdinalIgnoreCase));
+
 // Configure database options
 builder.Services.Configure<DatabaseOptions>(
     builder.Configuration.GetSection(DatabaseOptions.SectionName));
@@ -24,8 +31,8 @@ var databaseOptions = builder.Configuration.GetSection(DatabaseOptions.SectionNa
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Use SQLite for cross-platform development
-    if (builder.Environment.IsDevelopment())
+    // SQLite for Development, or whenever the connection string is a SQLite file (e.g. Production with a local .db for demos)
+    if (builder.Environment.IsDevelopment() || ConnectionStringLooksLikeSqlite(databaseOptions.ConnectionString))
     {
         options.UseSqlite(databaseOptions.ConnectionString);
         
@@ -189,8 +196,9 @@ app.MapControllerRoute(
 // Configure SignalR Hub
 app.MapHub<SecondHandGoods.Web.Hubs.ChatHub>("/chathub");
 
-// Initialize database
-if (app.Environment.IsDevelopment())
+// Initialize database (required for SQLite demos; SQL Server deployments typically use migrations/CI instead)
+var dbOptionsAtStartup = app.Configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>() ?? new DatabaseOptions();
+if (app.Environment.IsDevelopment() || ConnectionStringLooksLikeSqlite(dbOptionsAtStartup.ConnectionString))
 {
     await app.InitializeDatabaseAsync();
     await app.SeedDatabaseAsync();

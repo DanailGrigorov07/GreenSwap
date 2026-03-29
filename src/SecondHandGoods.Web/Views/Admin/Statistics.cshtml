@@ -40,9 +40,9 @@
                         <i class="fas fa-users fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@Model.GeneralStats.GetValueOrDefault("TotalUsers", 0)</div>
+                        <div class="fs-4 fw-bold">@Model.TotalUsers.ToString("N0")</div>
                         <div class="small">Users</div>
-                        <div class="small opacity-75">@Model.GeneralStats.GetValueOrDefault("ActiveUsers", 0) active</div>
+                        <div class="small opacity-75">@Model.ActiveUsers.ToString("N0") active</div>
                     </div>
                 </div>
             </div>
@@ -56,9 +56,9 @@
                         <i class="fas fa-tags fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@Model.GeneralStats.GetValueOrDefault("TotalAds", 0)</div>
+                        <div class="fs-4 fw-bold">@Model.TotalAds.ToString("N0")</div>
                         <div class="small">Advertisements</div>
-                        <div class="small opacity-75">@Model.GeneralStats.GetValueOrDefault("ActiveAds", 0) active</div>
+                        <div class="small opacity-75">@Model.ActiveAds.ToString("N0") active</div>
                     </div>
                 </div>
             </div>
@@ -72,9 +72,9 @@
                         <i class="fas fa-shopping-cart fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@Model.GeneralStats.GetValueOrDefault("TotalOrders", 0)</div>
+                        <div class="fs-4 fw-bold">@Model.TotalOrders.ToString("N0")</div>
                         <div class="small">Orders</div>
-                        <div class="small opacity-75">@Model.GeneralStats.GetValueOrDefault("CompletedOrders", 0) completed</div>
+                        <div class="small opacity-75">@Model.CompletedOrders.ToString("N0") completed</div>
                     </div>
                 </div>
             </div>
@@ -88,9 +88,9 @@
                         <i class="fas fa-star fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@Model.GeneralStats.GetValueOrDefault("TotalReviews", 0)</div>
+                        <div class="fs-4 fw-bold">@Model.TotalReviews.ToString("N0")</div>
                         <div class="small">Reviews</div>
-                        <div class="small">@(((decimal)Model.GeneralStats.GetValueOrDefault("AverageRating", 0m)).ToString("F1")) avg</div>
+                        <div class="small">@Model.AverageRating.ToString("F1") avg</div>
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
                         <i class="fas fa-comments fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@Model.GeneralStats.GetValueOrDefault("TotalMessages", 0)</div>
+                        <div class="fs-4 fw-bold">@Model.TotalMessages.ToString("N0")</div>
                         <div class="small">Messages</div>
                         <div class="small opacity-75">Platform-wide</div>
                     </div>
@@ -120,7 +120,7 @@
                         <i class="fas fa-dollar-sign fa-2x"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <div class="fs-4 fw-bold">@(((decimal)Model.GeneralStats.GetValueOrDefault("TotalRevenue", 0m)).ToString("C"))</div>
+                        <div class="fs-4 fw-bold">@Model.TotalRevenue.ToString("C")</div>
                         <div class="small">Total Revenue</div>
                         <div class="small opacity-75">Transactions</div>
                     </div>
@@ -331,8 +331,8 @@
                         <span class="metric-label">User Engagement</span>
                         <span class="metric-value">
                             @{
-                                var totalUsers = (int)Model.GeneralStats.GetValueOrDefault("TotalUsers", 0);
-                                var activeUsers = (int)Model.GeneralStats.GetValueOrDefault("ActiveUsers", 0);
+                                var totalUsers = Model.TotalUsers;
+                                var activeUsers = Model.ActiveUsers;
                                 var engagementRate = totalUsers > 0 ? (double)activeUsers / totalUsers * 100 : 0;
                             }
                             @engagementRate.ToString("F1")%
@@ -349,8 +349,8 @@
                         <span class="metric-label">Ad Success Rate</span>
                         <span class="metric-value">
                             @{
-                                var totalAds = (int)Model.GeneralStats.GetValueOrDefault("TotalAds", 0);
-                                var completedOrders = (int)Model.GeneralStats.GetValueOrDefault("CompletedOrders", 0);
+                                var totalAds = Model.TotalAds;
+                                var completedOrders = Model.CompletedOrders;
                                 var successRate = totalAds > 0 ? (double)completedOrders / totalAds * 100 : 0;
                             }
                             @successRate.ToString("F1")%
@@ -367,8 +367,8 @@
                         <span class="metric-label">Platform Activity</span>
                         <span class="metric-value">
                             @{
-                                var totalMessages = (int)Model.GeneralStats.GetValueOrDefault("TotalMessages", 0);
-                                var totalReviews = (int)Model.GeneralStats.GetValueOrDefault("TotalReviews", 0);
+                                var totalMessages = Model.TotalMessages;
+                                var totalReviews = Model.TotalReviews;
                                 var activityScore = Math.Min(100, (totalMessages + totalReviews) / Math.Max(totalUsers, 1) * 10);
                             }
                             @activityScore.ToString("F0")
@@ -385,7 +385,7 @@
                         <span class="metric-label">Quality Score</span>
                         <span class="metric-value">
                             @{
-                                var avgRating = (decimal)Model.GeneralStats.GetValueOrDefault("AverageRating", 0m);
+                                var avgRating = Model.AverageRating;
                                 var qualityScore = avgRating > 0 ? (double)avgRating / 5 * 100 : 0;
                             }
                             @qualityScore.ToString("F1")%
@@ -402,7 +402,7 @@
                         <span class="metric-label">Revenue per User</span>
                         <span class="metric-value">
                             @{
-                                var totalRevenue = (decimal)Model.GeneralStats.GetValueOrDefault("TotalRevenue", 0m);
+                                var totalRevenue = Model.TotalRevenue;
                                 var revenuePerUser = totalUsers > 0 ? totalRevenue / totalUsers : 0;
                             }
                             @revenuePerUser.ToString("C")
