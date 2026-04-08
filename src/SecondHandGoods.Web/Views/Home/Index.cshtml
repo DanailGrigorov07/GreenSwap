@@ -2,96 +2,169 @@
     ViewData["Title"] = "GreenSwap - Buy & Sell Marketplace";
 }
 
-<!-- Hero Section -->
-<div class="bg-primary text-white py-5 mb-5 rounded">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-4 d-flex align-items-center justify-content-center flex-wrap gap-3">
-            <img src="~/images/greenswap-logo.png" alt="" width="72" height="72" class="flex-shrink-0" asp-append-version="true" />
-            <span>GreenSwap</span>
-        </h1>
-        <p class="lead mb-4">
-            Your trusted marketplace for buying and selling quality pre-owned items
-        </p>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a asp-controller="Categories" asp-action="Index" class="btn btn-light btn-lg">
-                            <i class="fas fa-th-large me-2"></i>Browse Categories
-                        </a>
-                        <a asp-controller="Ads" asp-action="Create" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-plus me-2"></i>Sell Something
-                        </a>
+<div class="gs-landing">
+    <!-- Hero -->
+    <section class="gs-hero">
+        <div class="container gs-hero-inner">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="~/images/greenswap-logo.png" alt="" width="40" height="40" class="rounded-2" asp-append-version="true" />
+                        <span class="fw-semibold">GreenSwap</span>
                     </div>
-                }
-                else
-                {
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a asp-controller="Categories" asp-action="Index" class="btn btn-light btn-lg">
-                            <i class="fas fa-search me-2"></i>Start Browsing
-                        </a>
-                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-user-plus me-2"></i>Join Free
-                        </a>
+
+                    <h1 class="gs-hero-title mb-3">
+                        The marketplace for your pre-owned items
+                    </h1>
+                    <p class="gs-hero-subtitle mb-4">
+                        Buy and sell locally with built-in messaging, ratings, and smart search. List your first item in minutes.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2 gap-sm-3 align-items-center">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <a asp-controller="Ads" asp-action="Create" class="btn btn-success btn-lg px-4">
+                                Sell something
+                            </a>
+                            <a asp-controller="Categories" asp-action="Index" class="btn btn-outline-dark btn-lg px-4">
+                                Browse listings
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg px-4">
+                                Get started for free
+                            </a>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-dark btn-lg px-4">
+                                Log in
+                            </a>
+                        }
                     </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Features Section -->
-<div class="row mb-5">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-handshake fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Safe Trading</h5>
-                <p class="card-text text-muted">
-                    Built-in messaging system and user ratings help ensure safe and reliable transactions.
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-tags fa-3x text-info mb-3"></i>
-                <h5 class="card-title">Great Deals</h5>
-                <p class="card-text text-muted">
-                    Find quality second-hand items at fantastic prices from trusted sellers in your area.
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-recycle fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Eco-Friendly</h5>
-                <p class="card-text text-muted">
-                    Give items a second life and reduce waste by buying and selling pre-owned goods.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+                    <div class="mt-4 gs-hero-note">
+                        Whatever you sell, make it easy to discover with GreenSwap.
+                    </div>
+                </div>
 
-<!-- Quick Search Section -->
-<div class="row mb-5">
-    <div class="col-12">
+                <div class="col-lg-6">
+                    <div class="gs-hero-art">
+                        <div class="gs-hero-orb" aria-hidden="true"></div>
+
+                        <div class="gs-hero-card gs-card-1">
+                            <div class="gs-hero-card-header">
+                                <span class="gs-dot"></span>
+                                <span class="gs-dot"></span>
+                                <span class="gs-dot"></span>
+                            </div>
+                            <div class="gs-hero-card-body">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="fw-semibold">New listing</div>
+                                    <span class="badge text-bg-success">Live</span>
+                                </div>
+                                <div class="gs-skeleton mb-2" style="width: 85%"></div>
+                                <div class="gs-skeleton mb-2" style="width: 70%"></div>
+                                <div class="gs-skeleton" style="width: 55%"></div>
+                                <div class="d-flex gap-2 mt-3">
+                                    <span class="badge text-bg-light border">Eco-friendly</span>
+                                    <span class="badge text-bg-light border">Local pickup</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gs-hero-card gs-card-2">
+                            <div class="gs-hero-card-body">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="fas fa-comments text-success"></i>
+                                    <span class="fw-semibold">Instant chat</span>
+                                </div>
+                                <div class="small text-muted">Message buyers and sellers in one place.</div>
+                            </div>
+                        </div>
+
+                        <div class="gs-hero-card gs-card-3">
+                            <div class="gs-hero-card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-semibold">Trusted ratings</div>
+                                        <div class="small text-muted">Trade with confidence.</div>
+                                    </div>
+                                    <div class="gs-stars" aria-hidden="true">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gs-hero-stamp">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Helps you to -->
+    <section class="container gs-helps py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="gs-section-title mb-2">GreenSwap helps you to:</h2>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="gs-help">
+                    <div class="gs-help-num">1</div>
+                    <h3 class="gs-help-title">Find great deals</h3>
+                    <p class="gs-help-text">
+                        Discover quality second-hand items nearby with fast search and helpful categories.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gs-help">
+                    <div class="gs-help-num">2</div>
+                    <h3 class="gs-help-title">Connect safely</h3>
+                    <p class="gs-help-text">
+                        Chat with other members, check ratings, and keep everything organized in one account.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gs-help">
+                    <div class="gs-help-num">3</div>
+                    <h3 class="gs-help-title">Sell in minutes</h3>
+                    <p class="gs-help-text">
+                        Create a listing quickly, add photos, and reach local buyers—no complicated setup.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <a asp-controller="Categories" asp-action="Index" class="btn btn-outline-dark">
+                Browse categories
+            </a>
+            <a asp-controller="Search" asp-action="Advanced" class="btn btn-outline-secondary">
+                Advanced search
+            </a>
+        </div>
+    </section>
+
+    <!-- Search -->
+    <section class="container pb-4">
         <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h3 class="text-center mb-3">
+            <div class="card-body p-4">
+                <h3 class="text-center mb-3 gs-section-title">
                     <i class="fas fa-search me-2"></i>What are you looking for?
                 </h3>
                 <form asp-controller="Ads" asp-action="Index" method="get">
                     <div class="input-group input-group-lg">
-                        <input type="text" name="searchTerm" class="form-control" 
-                               placeholder="Search for electronics, furniture, vehicles, and more..." 
+                        <input type="text" name="searchTerm" class="form-control"
+                               placeholder="Search for electronics, furniture, vehicles, and more..."
                                id="homeSearch" />
-                        <button class="btn btn-primary" type="submit">
+                        <button class="btn btn-success" type="submit">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
                     </div>
@@ -106,101 +179,81 @@
                 </form>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- Popular Categories Preview -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <h2 class="text-center mb-4">
+    <!-- Popular categories -->
+    <section class="container pb-2 gs-popular-categories">
+        <h2 class="text-center mb-2 gs-section-title">
             <i class="fas fa-fire me-2"></i>Popular Categories
         </h2>
         <p class="text-center text-muted mb-4">Quick access to our most active categories</p>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-3 col-sm-6 mb-3">
-        <a asp-controller="Categories" asp-action="Browse" asp-route-id="1" asp-route-slug="electronics" 
-           class="text-decoration-none">
-            <div class="card border-0 shadow-sm h-100 category-card">
-                <div class="card-body text-center">
-                    <i class="fas fa-laptop fa-2x text-primary mb-2"></i>
-                    <h6 class="card-title">Electronics</h6>
-                    <small class="text-muted">Phones, Laptops, Gaming</small>
-                </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <a asp-controller="Categories" asp-action="Browse" asp-route-id="1" asp-route-slug="electronics" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 category-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-laptop fa-2x text-success mb-2"></i>
+                            <h6 class="card-title">Electronics</h6>
+                            <small class="text-muted">Phones, Laptops, Gaming</small>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <a asp-controller="Categories" asp-action="Browse" asp-route-id="2" asp-route-slug="vehicles" 
-           class="text-decoration-none">
-            <div class="card border-0 shadow-sm h-100 category-card">
-                <div class="card-body text-center">
-                    <i class="fas fa-car fa-2x text-primary mb-2"></i>
-                    <h6 class="card-title">Vehicles</h6>
-                    <small class="text-muted">Cars, Bikes, Parts</small>
-                </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <a asp-controller="Categories" asp-action="Browse" asp-route-id="2" asp-route-slug="vehicles" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 category-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-car fa-2x text-success mb-2"></i>
+                            <h6 class="card-title">Vehicles</h6>
+                            <small class="text-muted">Cars, Bikes, Parts</small>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <a asp-controller="Categories" asp-action="Browse" asp-route-id="3" asp-route-slug="home-garden" 
-           class="text-decoration-none">
-            <div class="card border-0 shadow-sm h-100 category-card">
-                <div class="card-body text-center">
-                    <i class="fas fa-home fa-2x text-primary mb-2"></i>
-                    <h6 class="card-title">Home & Garden</h6>
-                    <small class="text-muted">Furniture, Appliances</small>
-                </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <a asp-controller="Categories" asp-action="Browse" asp-route-id="3" asp-route-slug="home-garden" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 category-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-home fa-2x text-success mb-2"></i>
+                            <h6 class="card-title">Home & Garden</h6>
+                            <small class="text-muted">Furniture, Appliances</small>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <a asp-controller="Categories" asp-action="Browse" asp-route-id="4" asp-route-slug="fashion-beauty" 
-           class="text-decoration-none">
-            <div class="card border-0 shadow-sm h-100 category-card">
-                <div class="card-body text-center">
-                    <i class="fas fa-tshirt fa-2x text-primary mb-2"></i>
-                    <h6 class="card-title">Fashion</h6>
-                    <small class="text-muted">Clothing, Accessories</small>
-                </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <a asp-controller="Categories" asp-action="Browse" asp-route-id="4" asp-route-slug="fashion-beauty" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 category-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-tshirt fa-2x text-success mb-2"></i>
+                            <h6 class="card-title">Fashion</h6>
+                            <small class="text-muted">Clothing, Accessories</small>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-</div>
+        </div>
 
-<!-- View All Categories Button -->
-<div class="row mb-5">
-    <div class="col-12 text-center">
-        <a asp-controller="Categories" asp-action="Index" class="btn btn-primary btn-lg">
-            <i class="fas fa-th-large me-2"></i>View All Categories
-        </a>
-    </div>
-</div>
+        <div class="text-center mb-5">
+            <a asp-controller="Categories" asp-action="Index" class="btn btn-success btn-lg">
+                <i class="fas fa-th-large me-2"></i>View All Categories
+            </a>
+        </div>
+    </section>
 
-@if (!SignInManager.IsSignedIn(User))
-{
-    <!-- CTA Section for non-authenticated users -->
-    <div class="bg-light rounded p-5 mt-5 text-center">
-        <h3 class="mb-3">Ready to Get Started?</h3>
-        <p class="text-muted mb-4">
-            Join our community of buyers and sellers today. It's completely free!
-        </p>
-        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg">
-            <i class="fas fa-user-plus me-2"></i>Create Free Account
-        </a>
-    </div>
-}
-
-<style>
-    .category-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        cursor: pointer;
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <section class="container pb-5">
+            <div class="rounded-4 p-5 text-center border gs-cta-bottom">
+                <h3 class="mb-3 gs-section-title">Ready to get started?</h3>
+                <p class="text-muted mb-4">
+                    Join our community of buyers and sellers today. It's completely free!
+                </p>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg px-4">
+                    <i class="fas fa-user-plus me-2"></i>Create free account
+                </a>
+            </div>
+        </section>
     }
-    
-    .category-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-</style>
+</div>

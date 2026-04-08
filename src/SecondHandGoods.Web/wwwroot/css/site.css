@@ -132,12 +132,46 @@ body {
   color: #e0e0e0;
 }
 
+/* Breadcrumbs on default (light) page background */
 [data-theme="dark"] .breadcrumb {
   background-color: #2d2d2d;
 }
 
 [data-theme="dark"] .breadcrumb-item a {
-  color: #258cfb;
+  color: #6ea8fe;
+}
+
+[data-theme="dark"] .breadcrumb .breadcrumb-item.active {
+  color: #c8c8c8;
+}
+
+/* Breadcrumbs on inverse / colored bars (category browse, headers): keep transparent bar + light text */
+[data-theme="dark"] .bg-primary .breadcrumb,
+[data-theme="dark"] .bg-success .breadcrumb,
+[data-theme="dark"] .bg-danger .breadcrumb,
+[data-theme="dark"] .bg-dark .breadcrumb {
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .bg-primary .breadcrumb-item a,
+[data-theme="dark"] .bg-success .breadcrumb-item a,
+[data-theme="dark"] .bg-danger .breadcrumb-item a,
+[data-theme="dark"] .bg-dark .breadcrumb-item a {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="dark"] .bg-primary .breadcrumb-item a:hover,
+[data-theme="dark"] .bg-success .breadcrumb-item a:hover,
+[data-theme="dark"] .bg-danger .breadcrumb-item a:hover,
+[data-theme="dark"] .bg-dark .breadcrumb-item a:hover {
+  color: #fff !important;
+}
+
+[data-theme="dark"] .bg-primary .breadcrumb-item.active,
+[data-theme="dark"] .bg-success .breadcrumb-item.active,
+[data-theme="dark"] .bg-danger .breadcrumb-item.active,
+[data-theme="dark"] .bg-dark .breadcrumb-item.active {
+  color: #fff !important;
 }
 
 /* Image Gallery Modal Styles */
@@ -303,9 +337,30 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.card.hover-lift {
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.05),
+    0 8px 22px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .card.hover-lift {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
 .hover-lift:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="dark"] .hover-lift:hover {
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
 }
 
 .paid-ad-space {
@@ -390,4 +445,373 @@ body {
 
 [data-theme="dark"] .card-body {
   background-color: #3a3a3a !important;
+}
+
+/* Landing-style homepage */
+.gs-landing {
+  margin-top: -0.75rem; /* visually tuck under navbar margin */
+}
+
+.gs-hero {
+  background: #fbf4ea;
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 0.75rem 0 1.5rem;
+}
+
+[data-theme="dark"] .gs-hero {
+  background: #22201c;
+}
+
+.gs-hero-inner {
+  padding: clamp(24px, 4vw, 56px);
+}
+
+.gs-hero-title {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-size: clamp(2.25rem, 4.2vw, 3.5rem);
+  color: #141414;
+}
+
+[data-theme="dark"] .gs-hero-title {
+  color: #f2f2f2;
+}
+
+.gs-hero .fw-semibold {
+  color: rgba(20, 20, 20, 0.92);
+}
+
+[data-theme="dark"] .gs-hero .fw-semibold {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.gs-hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(24, 24, 24, 0.72);
+  max-width: 40rem;
+}
+
+[data-theme="dark"] .gs-hero-subtitle {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.gs-hero-note {
+  font-size: 0.95rem;
+  color: rgba(24, 24, 24, 0.60);
+}
+
+[data-theme="dark"] .gs-hero-note {
+  color: rgba(255, 255, 255, 0.60);
+}
+
+.gs-hero-art {
+  position: relative;
+  min-height: 360px;
+  border-radius: 16px;
+  background: radial-gradient(closest-side at 60% 40%, rgba(255, 203, 156, 0.55), rgba(255, 203, 156, 0) 70%),
+              radial-gradient(closest-side at 40% 70%, rgba(168, 222, 255, 0.65), rgba(168, 222, 255, 0) 70%);
+}
+
+[data-theme="dark"] .gs-hero-art {
+  background: radial-gradient(closest-side at 60% 40%, rgba(255, 203, 156, 0.18), rgba(255, 203, 156, 0) 70%),
+              radial-gradient(closest-side at 40% 70%, rgba(168, 222, 255, 0.18), rgba(168, 222, 255, 0) 70%);
+}
+
+.gs-hero-orb {
+  position: absolute;
+  inset: auto 10% 14% auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  background: rgba(255, 213, 168, 0.55);
+  filter: blur(0.2px);
+}
+
+[data-theme="dark"] .gs-hero-orb {
+  background: rgba(255, 213, 168, 0.12);
+}
+
+.gs-hero-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+[data-theme="dark"] .gs-hero-card {
+  background: rgba(45, 45, 45, 0.88);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+.gs-hero-card-header {
+  padding: 10px 12px;
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .gs-hero-card-header {
+  border-bottom-color: rgba(255, 255, 255, 0.10);
+}
+
+.gs-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .gs-dot {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.gs-hero-card-body {
+  padding: 14px 14px 16px;
+}
+
+.gs-card-1 {
+  top: 6%;
+  left: 10%;
+  width: min(420px, 82%);
+}
+
+.gs-card-2 {
+  right: 8%;
+  top: 42%;
+  width: 260px;
+}
+
+.gs-card-3 {
+  left: 14%;
+  bottom: 10%;
+  width: 300px;
+}
+
+.gs-skeleton {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12), rgba(0,0,0,0.06));
+}
+
+[data-theme="dark"] .gs-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+}
+
+.gs-hero-stamp {
+  position: absolute;
+  right: 10%;
+  bottom: 8%;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+}
+
+[data-theme="dark"] .gs-hero-stamp {
+  background: rgba(45, 45, 45, 0.9);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.gs-hero-stamp i {
+  color: #2f9e44;
+  font-size: 20px;
+}
+
+.gs-stars {
+  color: #f4b400;
+  white-space: nowrap;
+}
+
+.gs-section-title {
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  color: #141414;
+}
+
+[data-theme="dark"] .gs-section-title {
+  color: #f0f0f0;
+}
+
+.gs-help {
+  padding-top: 6px;
+  max-width: 26rem;
+}
+
+.gs-help-num {
+  font-weight: 750;
+  color: #caa46a;
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+[data-theme="dark"] .gs-help-num {
+  color: #d6b47a;
+}
+
+.gs-help-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #141414;
+}
+
+[data-theme="dark"] .gs-help-title {
+  color: #f0f0f0;
+}
+
+.gs-help-text {
+  color: rgba(24, 24, 24, 0.68);
+  margin-bottom: 0;
+}
+
+[data-theme="dark"] .gs-help-text {
+  color: rgba(255, 255, 255, 0.70);
+}
+
+/* Landing: outline-dark is illegible on dark page/hero — use light outline */
+[data-theme="dark"] .gs-landing .btn-outline-dark {
+  color: #e8e8e8;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .gs-landing .btn-outline-dark:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Homepage bottom CTA band */
+.gs-cta-bottom {
+  background: #fafafa;
+  border-color: #dee2e6 !important;
+}
+
+[data-theme="dark"] .gs-cta-bottom {
+  background: #2d2d2d;
+  border-color: #404040 !important;
+}
+
+[data-theme="dark"] .gs-cta-bottom .text-muted {
+  color: #b0b0b0 !important;
+}
+
+/* Hero mock card: Bootstrap text-bg-light on white glass = invisible in light theme */
+.gs-hero-card .badge.text-bg-light.border {
+  background-color: rgba(245, 240, 232, 0.98) !important;
+  color: #2a2a2a !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+[data-theme="dark"] .gs-hero-card .badge.text-bg-light.border {
+  background-color: rgba(60, 58, 55, 0.95) !important;
+  color: #eee !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Landing: main search / promo cards — clearer depth than shadow-sm alone */
+.gs-landing section .card.shadow-sm:not(.category-card) {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 8px 22px rgba(0, 0, 0, 0.09),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="dark"] .gs-landing section .card.shadow-sm:not(.category-card) {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Category tiles: visible depth at rest (clickable affordance) */
+.category-card.card {
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.05),
+    0 8px 22px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .category-card.card {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+/* Homepage only: Popular Categories ivory tint (light theme) */
+html[data-theme="light"] .gs-popular-categories .category-card.card {
+  background-color: #fbffe6;
+}
+
+html[data-theme="light"] .gs-popular-categories .category-card .card-body {
+  background-color: transparent !important;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="dark"] .category-card:hover {
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Listing grid cards: same affordance as category tiles */
+.advertisement-card.card {
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.05),
+    0 8px 22px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .advertisement-card.card {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+.advertisement-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="dark"] .advertisement-card:hover {
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+.advertisement-card .card-img-top {
+  transition: transform 0.3s ease;
+}
+
+.advertisement-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+@media (max-width: 991.98px) {
+  .gs-hero-art {
+    min-height: 300px;
+  }
+  .gs-card-2 {
+    top: 52%;
+  }
 }
