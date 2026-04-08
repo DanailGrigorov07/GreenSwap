@@ -37,6 +37,31 @@ body {
   transition: color 0.2s ease;
 }
 
+/* Fixed main header (offset set in JS via --site-header-height) */
+body.has-site-header-fixed {
+  padding-top: var(--site-header-height, 56px);
+}
+
+header.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+header.site-header.site-header--hidden {
+  transform: translateY(-100%);
+}
+
+/* Below lg: never hide header (hamburger must stay reachable); JS skips hide on small viewports */
+@media (max-width: 991.98px) {
+  header.site-header.site-header--hidden {
+    transform: none;
+  }
+}
+
 /* Avoid clipping the user dropdown when the collapsed navbar is open on small screens */
 @media (max-width: 991.98px) {
   .navbar-expand-lg .navbar-collapse.collapse.show {

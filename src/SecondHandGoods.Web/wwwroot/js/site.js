@@ -45,3 +45,77 @@
         scheduleLayoutFixes();
     });
 })();
+
+(function () {
+    var header = document.querySelector('header.site-header');
+    if (!header) return;
+
+    document.body.classList.add('has-site-header-fixed');
+
+    var mqDesktop = window.matchMedia('(min-width: 992px)');
+
+    function setHeaderHeight() {
+        var h = header.offsetHeight;
+        document.documentElement.style.setProperty('--site-header-height', h + 'px');
+    }
+
+    var lastY = window.scrollY;
+    var ticking = false;
+    var threshold = 8;
+    var hideAfter = 56;
+
+    function onScroll() {
+        if (!mqDesktop.matches) {
+            header.classList.remove('site-header--hidden');
+            lastY = window.scrollY;
+            ticking = false;
+            return;
+        }
+        var y = window.scrollY;
+        if (y <= threshold) {
+            header.classList.remove('site-header--hidden');
+        } else if (y > lastY && y > hideAfter) {
+            header.classList.add('site-header--hidden');
+        } else if (y < lastY) {
+            header.classList.remove('site-header--hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(onScroll);
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', setHeaderHeight);
+    function onMqChange() {
+        if (!mqDesktop.matches) {
+            header.classList.remove('site-header--hidden');
+        }
+        setHeaderHeight();
+    }
+    if (mqDesktop.addEventListener) {
+        mqDesktop.addEventListener('change', onMqChange);
+    } else if (mqDesktop.addListener) {
+        mqDesktop.addListener(onMqChange);
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(setHeaderHeight).observe(header);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setHeaderHeight);
+    } else {
+        setHeaderHeight();
+    }
+
+    var collapseEl = document.getElementById('mainNavbarCollapse');
+    if (collapseEl) {
+        collapseEl.addEventListener('shown.bs.collapse', setHeaderHeight);
+        collapseEl.addEventListener('hidden.bs.collapse', setHeaderHeight);
+    }
+})();
