@@ -143,6 +143,66 @@ header.site-header.site-header--hidden {
   color: #b0b0b0;
 }
 
+/* Site footer (main bar below featured/paid blocks) */
+.site-footer {
+  background-color: #f8f9fa;
+}
+
+.site-footer a:not(.text-muted) {
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+
+.site-footer a:not(.text-muted):hover {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
+
+.site-footer .text-muted a:hover {
+  color: var(--bs-primary) !important;
+}
+
+[data-theme="dark"] .site-footer {
+  background-color: #252525;
+  color: #c8c8c8;
+}
+
+[data-theme="dark"] .site-footer a:not(.text-muted) {
+  color: #e0e0e0;
+}
+
+/* Tight, predictable vertical rhythm (avoid stretched row + heading margins) */
+.site-footer .footer-tagline {
+  max-width: 22rem;
+  line-height: 1.5;
+}
+
+.site-footer .footer-col-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  margin-top: 0;
+  margin-bottom: 0.65rem;
+  line-height: 1.25;
+}
+
+.site-footer .footer-link-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.35;
+}
+
+.site-footer .footer-link-list li:last-child {
+  margin-bottom: 0;
+}
+
+.site-footer .footer-contact-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.site-footer .footer-contact-list li:last-child {
+  margin-bottom: 0;
+}
+
 [data-theme="dark"] .dropdown-menu {
   background-color: #2d2d2d;
   border-color: #404040;
