@@ -51,6 +51,24 @@ header.site-header {
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Unread count pill on profile dropdown (synced with Messages row badge via site.js) */
+.nav-profile-unread-badge {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.1rem;
+  z-index: 1;
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1.15;
+  min-width: 1.2rem;
+  padding: 0.2em 0.42em;
+  text-align: center;
+}
+
+[data-theme="dark"] .nav-profile-unread-badge {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
 header.site-header.site-header--hidden {
   transform: translateY(-100%);
 }

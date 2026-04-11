@@ -119,3 +119,62 @@
         collapseEl.addEventListener('hidden.bs.collapse', setHeaderHeight);
     }
 })();
+
+/** Navbar unread message badges (profile bubble + Messages menu); display caps at 99+ */
+(function () {
+    function formatUnreadLabel(n) {
+        if (n <= 0) return '';
+        return n > 99 ? '99+' : String(n);
+    }
+
+    function updateNavUnreadBadges(count) {
+        var label = formatUnreadLabel(count);
+        var show = count > 0;
+        var profile = document.getElementById('navProfileUnreadBadge');
+        var messages = document.getElementById('navUnreadBadge');
+        [profile, messages].forEach(function (el) {
+            if (!el) return;
+            if (show) {
+                el.textContent = label;
+                el.style.display = 'inline-block';
+                el.setAttribute('aria-hidden', 'false');
+                el.setAttribute('aria-label', count + ' unread message' + (count === 1 ? '' : 's'));
+                el.title = count + ' unread message' + (count === 1 ? '' : 's');
+            } else {
+                el.textContent = '';
+                el.style.display = 'none';
+                el.setAttribute('aria-hidden', 'true');
+                el.removeAttribute('aria-label');
+                el.title = '';
+            }
+        });
+    }
+
+    async function refreshNavUnread() {
+        if (!document.getElementById('navProfileUnreadBadge') && !document.getElementById('navUnreadBadge')) {
+            return;
+        }
+        try {
+            var r = await fetch('/Chat/UnreadCount', { credentials: 'same-origin' });
+            if (!r.ok) return;
+            var ct = r.headers.get('content-type');
+            if (!ct || ct.indexOf('application/json') === -1) return;
+            var data = await r.json();
+            var c = typeof data.unreadCount === 'number' ? data.unreadCount : 0;
+            updateNavUnreadBadges(c);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    function startUnreadPolling() {
+        refreshNavUnread();
+        setInterval(refreshNavUnread, 30000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startUnreadPolling);
+    } else {
+        startUnreadPolling();
+    }
+})();
