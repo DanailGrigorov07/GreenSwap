@@ -218,6 +218,54 @@ header.site-header.site-header--hidden {
   color: #e0e0e0;
 }
 
+/* Chat / Messages: conversation list rows */
+.conversation-item {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.conversation-item:hover {
+  background-color: #f8f9fa;
+}
+
+.conversation-unread {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+}
+
+.conversation-unread:hover {
+  background-color: #ffe69c;
+}
+
+.conversation-item:last-child {
+  border-bottom: none !important;
+}
+
+[data-theme="dark"] .conversation-item:hover {
+  background-color: rgba(255, 255, 255, 0.045);
+}
+
+/* Unread: amber tint + gold bar — stands out without harsh light-yellow */
+[data-theme="dark"] .conversation-unread {
+  background-color: rgba(255, 193, 7, 0.11);
+  border-left-color: #e8a54b;
+  box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.18);
+}
+
+[data-theme="dark"] .conversation-unread:hover {
+  background-color: rgba(255, 193, 7, 0.18);
+  border-left-color: #f0b85c;
+  box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.28);
+}
+
+[data-theme="dark"] .conversation-unread .text-muted {
+  color: #aeb6bf !important;
+}
+
+[data-theme="dark"] .conversation-unread a.text-dark {
+  color: #f0f4f8 !important;
+}
+
 /* Breadcrumbs on default (light) page background */
 [data-theme="dark"] .breadcrumb {
   background-color: #2d2d2d;
