@@ -228,9 +228,10 @@ header.site-header.site-header--hidden {
   background-color: #f8f9fa;
 }
 
+/* Unread row: same warm highlight as before; only the 4px left bar is red */
 .conversation-unread {
   background-color: #fff3cd;
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid #dc3545;
 }
 
 .conversation-unread:hover {
@@ -245,16 +246,16 @@ header.site-header.site-header--hidden {
   background-color: rgba(255, 255, 255, 0.045);
 }
 
-/* Unread: amber tint + gold bar — stands out without harsh light-yellow */
+/* Dark: restore amber tint; left bar stays visibly red (not theme border grey) */
 [data-theme="dark"] .conversation-unread {
   background-color: rgba(255, 193, 7, 0.11);
-  border-left-color: #e8a54b;
+  border-left: 4px solid #dc3545 !important;
   box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.18);
 }
 
 [data-theme="dark"] .conversation-unread:hover {
   background-color: rgba(255, 193, 7, 0.18);
-  border-left-color: #f0b85c;
+  border-left: 4px solid #e35d6a !important;
   box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.28);
 }
 
