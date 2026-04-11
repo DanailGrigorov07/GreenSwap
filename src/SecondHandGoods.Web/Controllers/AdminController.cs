@@ -547,7 +547,7 @@ namespace SecondHandGoods.Web.Controllers
         /// User action endpoint (activate, deactivate, promote, etc.)
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> UserAction(AdminUserActionViewModel model)
+        public async Task<IActionResult> UserAction([FromBody] AdminUserActionViewModel model)
         {
             try
             {
@@ -626,7 +626,7 @@ namespace SecondHandGoods.Web.Controllers
         /// Advertisement action endpoint (activate, deactivate, feature, etc.)
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> AdAction(AdminAdActionViewModel model)
+        public async Task<IActionResult> AdAction([FromBody] AdminAdActionViewModel model)
         {
             try
             {
@@ -685,7 +685,7 @@ namespace SecondHandGoods.Web.Controllers
         /// Bulk actions for multiple items
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> BulkAction(AdminBulkActionViewModel model)
+        public async Task<IActionResult> BulkAction([FromBody] AdminBulkActionViewModel model)
         {
             try
             {
@@ -697,8 +697,14 @@ namespace SecondHandGoods.Web.Controllers
 
                 if (model.EntityType.ToLower() == "ads")
                 {
+                    var adIds = model.SelectedIds
+                        .Select(s => int.TryParse(s, out var id) ? id : (int?)null)
+                        .Where(id => id.HasValue)
+                        .Select(id => id!.Value)
+                        .ToList();
+
                     var ads = await _context.Advertisements
-                        .Where(a => model.SelectedIds.Contains(a.Id))
+                        .Where(a => adIds.Contains(a.Id))
                         .ToListAsync();
 
                     foreach (var ad in ads)
@@ -731,7 +737,7 @@ namespace SecondHandGoods.Web.Controllers
                 else if (model.EntityType.ToLower() == "users")
                 {
                     var users = await _context.Users
-                        .Where(u => model.SelectedIds.Select(id => id.ToString()).Contains(u.Id))
+                        .Where(u => model.SelectedIds.Contains(u.Id))
                         .ToListAsync();
 
                     foreach (var user in users)

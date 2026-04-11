@@ -634,7 +634,7 @@
                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
                         },
                         body: JSON.stringify({
-                            selectedIds: selectedAdId,
+                            selectedIds: selectedAdId.map(id => String(id)),
                             action: selectedAction,
                             reason: reason,
                             entityType: 'ads'

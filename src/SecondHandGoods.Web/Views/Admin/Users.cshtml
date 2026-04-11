@@ -298,11 +298,14 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
-                                                        data-bs-toggle="dropdown">
+                                                <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                                        data-bs-toggle="dropdown"
+                                                        data-bs-boundary="viewport"
+                                                        aria-expanded="false"
+                                                        aria-haspopup="true">
                                                     <i class="fas fa-cog"></i>
                                                 </button>
-                                                <ul class="dropdown-menu">
+                                                <ul class="dropdown-menu dropdown-menu-end">
                                                     @if (user.IsActive)
                                                     {
                                                         <li><a class="dropdown-item user-action" href="#" 
@@ -588,7 +591,7 @@
                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
                         },
                         body: JSON.stringify({
-                            selectedIds: selectedUserId.map(id => parseInt(id, 10)),
+                            selectedIds: selectedUserId.map(id => String(id)),
                             action: selectedAction,
                             reason: reason,
                             entityType: 'users'

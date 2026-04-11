@@ -626,8 +626,9 @@ namespace SecondHandGoods.Web.Models.Admin
     /// </summary>
     public class AdminBulkActionViewModel
     {
+        /// <summary>Ad IDs (numeric) or Identity user IDs (GUID strings), depending on <see cref="EntityType"/>.</summary>
         [Required]
-        public List<int> SelectedIds { get; set; } = new();
+        public List<string> SelectedIds { get; set; } = new();
 
         [Required]
         public string Action { get; set; } = string.Empty;
