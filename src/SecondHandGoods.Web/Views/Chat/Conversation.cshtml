@@ -20,7 +20,7 @@
                                 <div>
                                     <h6 class="mb-1">
                                         <a asp-controller="Ads" asp-action="Details" asp-route-id="@Model.AdvertisementId"
-                                           class="text-decoration-none">
+                                           class="text-decoration-none text-body">
                                             @Model.AdvertisementTitle
                                         </a>
                                         @if (Model.IsAdvertisementSold)
@@ -237,84 +237,6 @@
     <input type="hidden" name="Content" id="fallbackContent" />
     <input type="hidden" name="MessageType" id="fallbackMessageType" value="1" />
 </form>
-
-<style>
-    .chat-container {
-        height: 70vh;
-    }
-
-    .message-item {
-        margin-bottom: 15px;
-    }
-
-    .message-sent {
-        text-align: right;
-    }
-
-    .message-sent .message-bubble {
-        display: inline-block;
-        max-width: 70%;
-        margin-left: auto;
-        background-color: #007bff !important;
-        color: white !important;
-    }
-
-    .message-received .message-bubble {
-        display: inline-block;
-        max-width: 70%;
-        background-color: #f8f9fa;
-        color: #333;
-    }
-
-    .typing-indicator {
-        animation: fadeIn 0.3s ease-in;
-    }
-
-    .typing-animation {
-        display: inline-block;
-    }
-
-    .typing-dot {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background-color: #999;
-        border-radius: 50%;
-        margin: 0 2px;
-        animation: typing 1.4s infinite ease-in-out;
-    }
-
-    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-    @@keyframes typing {
-        0%, 80%, 100% { 
-            transform: scale(0.8);
-            opacity: 0.5;
-        }
-        40% { 
-            transform: scale(1);
-            opacity: 1;
-        }
-    }
-
-    @@keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    #messagesContainer {
-        scroll-behavior: smooth;
-    }
-
-    .template-btn {
-        font-size: 0.8rem;
-    }
-
-    .message-meta {
-        font-size: 0.75rem;
-    }
-</style>
 
 @section Scripts {
     <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>

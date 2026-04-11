@@ -267,6 +267,122 @@ header.site-header.site-header--hidden {
   color: #f0f4f8 !important;
 }
 
+/* Chat / Conversation: bubbles (received used #333 on bg-light — unreadable when bg-light goes dark) */
+.chat-container {
+  height: 70vh;
+}
+
+.message-item {
+  margin-bottom: 15px;
+}
+
+.message-sent {
+  text-align: right;
+}
+
+.message-sent .message-bubble {
+  display: inline-block;
+  max-width: 70%;
+  margin-left: auto;
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+.message-received .message-bubble {
+  display: inline-block;
+  max-width: 70%;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.message-received .message-bubble .message-meta {
+  color: rgba(33, 37, 41, 0.8);
+}
+
+[data-theme="dark"] .message-received .message-bubble {
+  background-color: #3a3a3a !important;
+  color: #e8eaed !important;
+  border: 1px solid #4d4d4d;
+}
+
+[data-theme="dark"] .message-received .message-bubble .message-meta {
+  color: rgba(232, 234, 237, 0.85) !important;
+}
+
+[data-theme="dark"] .typing-indicator .message-bubble.bg-light {
+  background-color: #3a3a3a !important;
+  color: #e8eaed;
+  border: 1px solid #4d4d4d;
+}
+
+[data-theme="dark"] .typing-indicator .text-muted {
+  color: #aeb6bf !important;
+}
+
+#messagesContainer {
+  scroll-behavior: smooth;
+}
+
+.template-btn {
+  font-size: 0.8rem;
+}
+
+.chat-container .message-meta {
+  font-size: 0.75rem;
+}
+
+.typing-indicator {
+  animation: chatFadeIn 0.3s ease-in;
+}
+
+.typing-animation {
+  display: inline-block;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #999;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: chatTyping 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+[data-theme="dark"] .typing-dot {
+  background-color: #adb5bd;
+}
+
+@keyframes chatTyping {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes chatFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Breadcrumbs on default (light) page background */
 [data-theme="dark"] .breadcrumb {
   background-color: #2d2d2d;
