@@ -148,6 +148,58 @@ header.site-header.site-header--hidden {
   color: #b0b0b0 !important;
 }
 
+/*
+ * Admin panel: views use inline <style> with #2c3e50, #495057, etc. Those load after site.css
+ * and win in the cascade — use main scope + !important so dark mode stays readable.
+ */
+[data-theme="dark"] main .metric-value,
+[data-theme="dark"] main .stat-value {
+  color: #e8eaed !important;
+}
+
+[data-theme="dark"] main .metric-label,
+[data-theme="dark"] main .stat-label {
+  color: #adb5bd !important;
+}
+
+[data-theme="dark"] main .metric-change {
+  color: #c4c9cc !important;
+}
+
+[data-theme="dark"] main .list-item {
+  border-bottom-color: #404040 !important;
+}
+
+[data-theme="dark"] main .list-item:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] main .table th {
+  color: #e0e0e0 !important;
+  border-bottom-color: #495057 !important;
+}
+
+[data-theme="dark"] main .table td {
+  color: #e0e0e0 !important;
+  border-top-color: #404040 !important;
+}
+
+[data-theme="dark"] main .table tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.12) !important;
+}
+
+[data-theme="dark"] main .ad-item:hover {
+  background-color: rgba(13, 110, 253, 0.12) !important;
+}
+
+[data-theme="dark"] main .ad-item img {
+  border-color: #555 !important;
+}
+
+[data-theme="dark"] main .border.rounded:not(.bg-warning) {
+  border-color: #404040 !important;
+}
+
 [data-theme="dark"] .border-bottom {
   border-color: #404040 !important;
 }
