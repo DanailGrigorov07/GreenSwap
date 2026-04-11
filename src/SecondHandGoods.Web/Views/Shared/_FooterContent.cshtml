@@ -1,17 +1,3 @@
-<!-- Footer Content: User Ads Carousel and Paid Ad Spaces -->
-<div class="footer-content-section py-4 mt-5">
-    <div class="container">
-        <!-- User Ads Carousel Section -->
-        @await Component.InvokeAsync("FeaturedAds")
-
-        <!-- Paid Advertisement Spaces (from DB: footer-1, footer-2, footer-3) -->
-        <div class="row">
-            <div class="col-12">
-                <div class="border-top pt-3">
-                    @await Component.InvokeAsync("PaidAds")
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+@* Featured listings and paid ads are separate full-width sections above the main site footer (avoids layout overlap). *@
+@await Html.PartialAsync("_FeaturedListingsSection")
+@await Html.PartialAsync("_PaidAdsSection")
