@@ -22,24 +22,24 @@ video {
 }
 
 html {
-  position: relative;
   min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   max-width: 100%;
   overflow-x: hidden;
-  position: relative;
-  /* Avoid animating background on load/navigation — it amplified light flash before dark theme applied */
   transition: color 0.2s ease;
 }
 
-/* Fixed main header (offset set in JS via --site-header-height) */
+/* Fixed main header: JS sets --site-header-height; add extra gap so content isn’t tucked under the nav */
 body.has-site-header-fixed {
-  padding-top: var(--site-header-height, 56px);
+  padding-top: calc(var(--site-header-height, 56px) + 1rem);
 }
 
 header.site-header {
@@ -138,13 +138,14 @@ header.site-header.site-header--hidden {
   border-color: #404040 !important;
 }
 
-[data-theme="dark"] .footer {
-  background-color: #2d2d2d;
+[data-theme="dark"] .site-footer {
+  background-color: #252525;
   color: #b0b0b0;
 }
 
-/* Site footer (main bar below featured/paid blocks) */
+/* Site footer (main bar below featured/paid blocks) — auto-push keeps it at bottom on short pages */
 .site-footer {
+  margin-top: auto;
   background-color: #f8f9fa;
 }
 
@@ -412,10 +413,23 @@ header.site-header.site-header--hidden {
   border-color: #258cfb;
 }
 
-/* Footer Content Styles */
-.footer-content-section {
+/* Pre-footer sections (featured carousel + paid ads) — separate blocks so the main .site-footer never overlaps content */
+.page-featured-listings,
+.page-paid-ads {
+  display: flow-root;
   border-top: 2px solid #e0e0e0;
   background-color: #f8f9fa;
+}
+
+/* Carousel must reserve vertical space (image ~150px + card body) so layout doesn’t collapse */
+.page-featured-listings #userAdsCarousel .carousel-inner {
+  min-height: 15rem;
+}
+
+@media (min-width: 768px) {
+  .page-featured-listings #userAdsCarousel .carousel-inner {
+    min-height: 16rem;
+  }
 }
 
 .hover-lift {
@@ -462,7 +476,8 @@ header.site-header.site-header--hidden {
   border-radius: 4px;
 }
 
-[data-theme="dark"] .footer-content-section {
+[data-theme="dark"] .page-featured-listings,
+[data-theme="dark"] .page-paid-ads {
   background-color: #2d2d2d !important;
   border-top-color: #404040 !important;
 }
@@ -478,20 +493,24 @@ header.site-header.site-header--hidden {
   color: #b0b0b0 !important;
 }
 
-[data-theme="dark"] .footer-content-section .card {
+[data-theme="dark"] .page-featured-listings .card,
+[data-theme="dark"] .page-paid-ads .card {
   background-color: #3a3a3a !important;
   color: #e0e0e0 !important;
 }
 
-[data-theme="dark"] .footer-content-section .text-dark {
+[data-theme="dark"] .page-featured-listings .text-dark,
+[data-theme="dark"] .page-paid-ads .text-dark {
   color: #e0e0e0 !important;
 }
 
-[data-theme="dark"] .footer-content-section .text-muted {
+[data-theme="dark"] .page-featured-listings .text-muted,
+[data-theme="dark"] .page-paid-ads .text-muted {
   color: #b0b0b0 !important;
 }
 
-[data-theme="dark"] .footer-content-section.bg-light {
+[data-theme="dark"] .page-featured-listings.bg-light,
+[data-theme="dark"] .page-paid-ads.bg-light {
   background-color: #2d2d2d !important;
 }
 

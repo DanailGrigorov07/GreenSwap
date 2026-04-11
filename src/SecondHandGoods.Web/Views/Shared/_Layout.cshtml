@@ -247,16 +247,16 @@
         </nav>
     }
 
-    <div class="container">
+    <div class="container flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- Footer Content: User Ads Carousel and Paid Ads -->
+    <!-- Pre-footer: featured listings + paid ads (separate sections; see _FooterContent / _FeaturedListingsSection / _PaidAdsSection) -->
     @await Html.PartialAsync("_FooterContent")
 
-    <footer class="site-footer footer border-top mt-auto">
+    <footer class="site-footer border-top">
         <div class="container py-4 py-lg-5">
             <div class="row g-4 align-items-start">
                 <div class="col-lg-4">
