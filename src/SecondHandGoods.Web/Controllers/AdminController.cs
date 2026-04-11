@@ -252,6 +252,29 @@ namespace SecondHandGoods.Web.Controllers
                 if (model.MinRating.HasValue)
                     query = query.Where(u => u.SellerRating >= model.MinRating.Value);
 
+                // Role filter (Admin vs non-Admin — matches RoleOptions in AdminUserManagementViewModel)
+                if (!string.IsNullOrWhiteSpace(model.Role))
+                {
+                    var adminRoleId = await _context.Roles
+                        .Where(r => r.Name == "Admin")
+                        .Select(r => r.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrEmpty(adminRoleId))
+                    {
+                        if (string.Equals(model.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            query = query.Where(u =>
+                                _context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == adminRoleId));
+                        }
+                        else if (string.Equals(model.Role, "User", StringComparison.OrdinalIgnoreCase))
+                        {
+                            query = query.Where(u =>
+                                !_context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == adminRoleId));
+                        }
+                    }
+                }
+
                 // Get total count
                 model.TotalUsers = await query.CountAsync();
 
