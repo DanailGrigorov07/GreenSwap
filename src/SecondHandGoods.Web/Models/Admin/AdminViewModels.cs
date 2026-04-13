@@ -567,6 +567,18 @@ namespace SecondHandGoods.Web.Models.Admin
         public int TotalMessages { get; set; }
         public decimal TotalRevenue { get; set; }
 
+        /// <summary>Average chat messages per registered user (non-deleted messages / total users).</summary>
+        public double MessagesPerUser => TotalUsers > 0 ? (double)TotalMessages / TotalUsers : 0;
+
+        /// <summary>Average reviews per registered user.</summary>
+        public double ReviewsPerUser => TotalUsers > 0 ? (double)TotalReviews / TotalUsers : 0;
+
+        /// <summary>0–100 bar for Key Metrics: ~4 messages per user = full bar.</summary>
+        public double MessageActivityBarPercent => Math.Min(100, MessagesPerUser * 25);
+
+        /// <summary>0–100 bar for Key Metrics: ~4 reviews per user = full bar.</summary>
+        public double ReviewActivityBarPercent => Math.Min(100, ReviewsPerUser * 25);
+
         public List<CategoryStatsItem> CategoryStats { get; set; } = new();
         public List<UserActivityItem> TopUsers { get; set; } = new();
         public List<PopularSearchItem> PopularSearches { get; set; } = new();

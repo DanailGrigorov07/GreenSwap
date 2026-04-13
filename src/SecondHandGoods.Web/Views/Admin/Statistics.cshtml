@@ -364,20 +364,24 @@
 
                 <div class="metric-item mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="metric-label">Platform Activity</span>
-                        <span class="metric-value">
-                            @{
-                                var totalMessages = Model.TotalMessages;
-                                var totalReviews = Model.TotalReviews;
-                                var activityScore = Math.Min(100, (totalMessages + totalReviews) / Math.Max(totalUsers, 1) * 10);
-                            }
-                            @activityScore.ToString("F0")
-                        </span>
+                        <span class="metric-label">Chat messages</span>
+                        <span class="metric-value">@Model.TotalMessages.ToString("N0")</span>
                     </div>
                     <div class="progress mb-1" style="height: 8px;">
-                        <div class="progress-bar bg-info" style="width: @activityScore%"></div>
+                        <div class="progress-bar bg-info" style="width: @((int)System.Math.Clamp(System.Math.Round(Model.MessageActivityBarPercent), 0, 100))%"></div>
                     </div>
-                    <small class="text-muted">Based on messages and reviews per user</small>
+                    <small class="text-muted">@Model.MessagesPerUser.ToString("F2") avg per user · bar scales to ~4 msgs/user</small>
+                </div>
+
+                <div class="metric-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="metric-label">Reviews</span>
+                        <span class="metric-value">@Model.TotalReviews.ToString("N0")</span>
+                    </div>
+                    <div class="progress mb-1" style="height: 8px;">
+                        <div class="progress-bar bg-secondary" style="width: @((int)System.Math.Clamp(System.Math.Round(Model.ReviewActivityBarPercent), 0, 100))%"></div>
+                    </div>
+                    <small class="text-muted">@Model.ReviewsPerUser.ToString("F2") avg per user · bar scales to ~4 reviews/user</small>
                 </div>
 
                 <div class="metric-item mb-3">
