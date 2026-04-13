@@ -98,6 +98,25 @@ namespace SecondHandGoods.Tests.Entities
         }
 
         [Fact]
+        public void IsDisplayable_WhenRatingZero_ShouldReturnFalse()
+        {
+            var review = new Review
+            {
+                Id = 1,
+                Rating = 0,
+                Comment = "Invalid",
+                ReviewerId = "reviewer1",
+                ReviewedUserId = "reviewed1",
+                OrderId = 1,
+                IsPublic = true,
+                IsApproved = true,
+                IsReported = false
+            };
+
+            Assert.False(review.IsDisplayable);
+        }
+
+        [Fact]
         public void FormattedRating_ShouldReturnCorrectFormat()
         {
             // Arrange

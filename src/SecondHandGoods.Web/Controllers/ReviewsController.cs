@@ -58,7 +58,8 @@ namespace SecondHandGoods.Web.Controllers
                     .Include(r => r.Order)
                         .ThenInclude(o => o.Advertisement)
                             .ThenInclude(a => a.Images)
-                    .Where(r => r.ReviewedUserId == userId && r.IsDisplayable)
+                    .Where(r => r.ReviewedUserId == userId)
+                    .WhereDisplayable()
                     .AsQueryable();
 
                 // Apply filters
@@ -109,7 +110,8 @@ namespace SecondHandGoods.Web.Controllers
 
                 // Get rating breakdown
                 var ratingBreakdown = await _context.Reviews
-                    .Where(r => r.ReviewedUserId == userId && r.IsDisplayable)
+                    .Where(r => r.ReviewedUserId == userId)
+                    .WhereDisplayable()
                     .GroupBy(r => r.Rating)
                     .ToDictionaryAsync(g => g.Key, g => g.Count());
 
@@ -379,7 +381,8 @@ namespace SecondHandGoods.Web.Controllers
             try
             {
                 var reviews = await _context.Reviews
-                    .Where(r => r.ReviewedUserId == userId && r.IsDisplayable)
+                    .Where(r => r.ReviewedUserId == userId)
+                    .WhereDisplayable()
                     .ToListAsync();
 
                 if (!reviews.Any())
@@ -604,7 +607,8 @@ namespace SecondHandGoods.Web.Controllers
                 if (user == null) return;
 
                 var reviews = await _context.Reviews
-                    .Where(r => r.ReviewedUserId == userId && r.IsDisplayable)
+                    .Where(r => r.ReviewedUserId == userId)
+                    .WhereDisplayable()
                     .ToListAsync();
 
                 if (reviews.Any())

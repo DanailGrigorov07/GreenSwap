@@ -96,9 +96,9 @@ namespace SecondHandGoods.Data.Entities
         public virtual Order Order { get; set; } = null!;
 
         /// <summary>
-        /// Whether this review should be displayed publicly
+        /// Whether this review should be displayed publicly (valid 1–5 star rating required)
         /// </summary>
-        public bool IsDisplayable => IsPublic && IsApproved && !IsReported;
+        public bool IsDisplayable => IsPublic && IsApproved && !IsReported && Rating >= 1 && Rating <= 5;
 
         /// <summary>
         /// Gets a formatted rating display (e.g., "4.5 stars")

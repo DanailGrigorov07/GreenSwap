@@ -74,7 +74,7 @@ namespace SecondHandGoods.Web.Controllers
                 model.TotalReviews = await _context.Reviews.CountAsync();
                 model.ReportedReviewsCount = await _context.Reviews.CountAsync(r => r.IsReported);
                 model.UnapprovedReviews = await _context.Reviews.CountAsync(r => !r.IsApproved);
-                model.AverageRating = await _context.Reviews.AverageAsync(r => (decimal?)r.Rating) ?? 0m;
+                model.AverageRating = await AverageReviewStarRatingAsync(_context.Reviews);
 
                 model.TotalMessages = await _context.Messages.CountAsync(m => !m.IsDeleted);
                 model.MessagesToday = await _context.Messages.CountAsync(m => m.SentAt >= todayStart && m.SentAt < todayEnd && !m.IsDeleted);
@@ -491,7 +491,7 @@ namespace SecondHandGoods.Web.Controllers
                 model.TotalOrders = await _context.Orders.CountAsync();
                 model.CompletedOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
                 model.TotalReviews = await _context.Reviews.CountAsync();
-                model.AverageRating = await _context.Reviews.AverageAsync(r => (decimal?)r.Rating) ?? 0m;
+                model.AverageRating = await AverageReviewStarRatingAsync(_context.Reviews);
                 model.TotalMessages = await _context.Messages.CountAsync(m => !m.IsDeleted);
                 model.TotalRevenue = await _context.Orders.Where(o => o.Status == OrderStatus.Completed).SumAsync(o => (decimal?)o.FinalPrice) ?? 0m;
             }
@@ -816,6 +816,15 @@ namespace SecondHandGoods.Web.Controllers
             var totalMessages = await _context.Messages.CountAsync(m => (m.SenderId == userId || m.ReceiverId == userId) && !m.IsDeleted);
 
             return (totalAds, activeAds, soldAds, totalOrders, totalReviews, totalMessages);
+        }
+
+        /// <summary>
+        /// Mean of <see cref="Review.Rating"/> for rows with a valid 1–5 star value (excludes 0, which is not a real rating).
+        /// </summary>
+        private static async Task<decimal> AverageReviewStarRatingAsync(IQueryable<Review> reviews)
+        {
+            var q = reviews.Where(r => r.Rating >= 1 && r.Rating <= 5);
+            return await q.AnyAsync() ? await q.AverageAsync(r => (decimal)r.Rating) : 0m;
         }
 
         /// <summary>
