@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Privacy</li>
+                </ol>
+            </nav>
+
+            <h1 class="h3 mb-3">Privacy Policy</h1>
+            <p class="text-muted small mb-4">Last updated: @DateTime.UtcNow.ToString("MMMM yyyy")</p>
+
+            <div class="legal-content text-body">
+                <p>
+                    GreenSwap (“we,” “our,” or “us”) operates a marketplace that helps people buy and sell pre-owned goods.
+                    This page describes how we handle personal information when you use our website and related services.
+                    It is provided as an example for development and should be reviewed by qualified counsel before production use.
+                </p>
+
+                <h2 class="h5 mt-4">Information we collect</h2>
+                <p>
+                    We may collect information you provide directly, such as your name, email address, profile details,
+                    listings, messages between buyers and sellers, and payment or order-related information needed to complete transactions.
+                    We also collect technical data such as device type, browser, and approximate usage patterns to keep the service secure and reliable.
+                </p>
+
+                <h2 class="h5 mt-4">How we use information</h2>
+                <p>
+                    We use your information to operate the marketplace: creating and displaying listings, enabling messaging,
+                    processing orders, preventing fraud and abuse, improving search and recommendations, and communicating with you
+                    about your account or important service changes.
+                </p>
+
+                <h2 class="h5 mt-4">Sharing</h2>
+                <p>
+                    We do not sell your personal information. We may share data with service providers who assist us
+                    (for example hosting, email delivery, or analytics) under contracts that limit their use of the data.
+                    We may also disclose information when required by law or to protect the rights and safety of our users and the public.
+                </p>
+
+                <h2 class="h5 mt-4">Your choices</h2>
+                <p>
+                    Depending on your region, you may have rights to access, correct, or delete certain personal data,
+                    or to object to or restrict some processing. You can update much of your profile information in your account settings.
+                    To exercise other rights, contact us using the details in the footer of this site.
+                </p>
+
+                <h2 class="h5 mt-4">Contact</h2>
+                <p>
+                    Questions about this policy can be sent to
+                    <a href="mailto:support@greenswap.example">support@greenswap.example</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
