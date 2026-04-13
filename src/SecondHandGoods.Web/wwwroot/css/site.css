@@ -148,6 +148,38 @@ header.site-header.site-header--hidden {
   color: #b0b0b0 !important;
 }
 
+/* Static pages (Privacy, etc.): Bootstrap .text-body keeps dark --bs-body-color in dark theme */
+[data-theme="dark"] main .legal-page .text-body,
+[data-theme="dark"] main .legal-page .legal-content {
+  color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] main .legal-page .legal-page-title,
+[data-theme="dark"] main .legal-page .legal-content h2,
+[data-theme="dark"] main .legal-page .legal-content .h5 {
+  color: #f1f3f4 !important;
+}
+
+[data-theme="dark"] main .legal-page .legal-page-meta {
+  color: #b8bcc0 !important;
+}
+
+[data-theme="dark"] main .legal-page .breadcrumb {
+  --bs-breadcrumb-divider-color: #888;
+}
+
+[data-theme="dark"] main .legal-page .breadcrumb-item a {
+  color: #9ecbff !important;
+}
+
+[data-theme="dark"] main .legal-page .breadcrumb-item.active {
+  color: #d0d0d0 !important;
+}
+
+[data-theme="dark"] main .legal-page .legal-content a:not(.btn) {
+  color: #9ecbff !important;
+}
+
 /*
  * Admin panel: views use inline <style> with #2c3e50, #495057, etc. Those load after site.css
  * and win in the cascade — use main scope + !important so dark mode stays readable.
