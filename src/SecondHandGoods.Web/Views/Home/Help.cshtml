@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Help";
+    ViewData["Title"] = "Help Center";
 }
 
 <div class="container py-4 py-md-5">
@@ -12,11 +12,121 @@
                 </ol>
             </nav>
 
-            <h1 class="h3 mb-3 legal-page-title">Help</h1>
+            <h1 class="h3 mb-2 legal-page-title">Help Center — GreenSwap</h1>
+            <p class="text-muted small mb-4 legal-page-meta">Guidance for using the marketplace</p>
 
             <div class="legal-content text-body">
-                <p class="mb-2">Welcome to GreenSwap—this is placeholder help text you can replace with FAQs, contact steps, and how-to guides.</p>
-                <p class="mb-0">For support, email <a href="mailto:support@greenswap.example">support@greenswap.example</a> or use the contact details in the site footer.</p>
+                <p>
+                    Welcome to <strong>GreenSwap Help Center</strong>. We’re here to make your experience simple and secure—whether you’re new or a regular user, you’ll find answers to common questions and guidance on how to get the most out of GreenSwap.
+                </p>
+
+                <hr class="my-4 opacity-25" />
+
+                <h2 class="h5 mt-4">What is GreenSwap?</h2>
+                <p>
+                    GreenSwap is a marketplace where people <strong>buy and sell pre-owned items</strong> locally or online. Our focus is on giving goods a second life—reducing waste and supporting reuse—while connecting buyers and sellers through listings, messaging, and orders.
+                </p>
+
+                <h2 class="h5 mt-4">Getting started</h2>
+
+                <h3 class="h6 mt-3">1. Create an account</h3>
+                <ul class="mb-3">
+                    <li>Choose <strong>Register</strong> and provide your details.</li>
+                    <li>Confirm your email when prompted so your account is active.</li>
+                </ul>
+
+                <h3 class="h6 mt-3">2. Set up your profile</h3>
+                <ul class="mb-3">
+                    <li>Add a profile photo and a short bio if you like.</li>
+                    <li>Add your general location to help buyers and sellers find deals nearby.</li>
+                </ul>
+
+                <h3 class="h6 mt-3">3. Browse or list</h3>
+                <ul class="mb-3">
+                    <li>Browse categories and listings, or <a asp-controller="Ads" asp-action="Create">create a listing</a> for something you want to sell.</li>
+                    <li>Message other users and complete purchases using the tools on the site.</li>
+                </ul>
+
+                <h2 class="h5 mt-4">How buying and selling works</h2>
+                <ol class="mb-3">
+                    <li class="mb-2"><strong>List an item.</strong> Add photos, a description, price, and condition so buyers know what they’re getting.</li>
+                    <li class="mb-2"><strong>Find what you need.</strong> Search or browse categories and open listings that interest you.</li>
+                    <li class="mb-2"><strong>Talk to the other party.</strong> Use built-in messaging to agree on price, pickup or shipping, and timing.</li>
+                    <li class="mb-0"><strong>Complete the sale.</strong> Follow through on payment and handoff as you agree. After a completed order, you can leave a rating or review.</li>
+                </ol>
+
+                <h2 class="h5 mt-4">Safety and trust</h2>
+                <ul class="mb-3">
+                    <li>Keep communication on the platform when possible.</li>
+                    <li>Review profiles and feedback before you commit to a deal.</li>
+                    <li>For in-person meetings, choose public, well-lit places.</li>
+                    <li>Report suspicious listings or behavior using the site’s reporting tools or by contacting support.</li>
+                </ul>
+
+                <h2 class="h5 mt-4">Messaging and notifications</h2>
+                <ul class="mb-3">
+                    <li>Use chat to negotiate and coordinate with buyers and sellers.</li>
+                    <li>Enable browser or email notifications where offered so you don’t miss messages or order updates.</li>
+                </ul>
+
+                <h2 class="h5 mt-4">Shipping and pickup</h2>
+                <ul class="mb-3">
+                    <li>Unless an integrated shipping option is shown on the site, <strong>buyers and sellers arrange delivery or pickup between themselves</strong>.</li>
+                    <li>Agree clearly on who pays shipping and which method to use before you finalize.</li>
+                    <li>When shipping, prefer trackable services when it makes sense for the item and value.</li>
+                </ul>
+
+                <h2 class="h5 mt-4">Frequently asked questions</h2>
+
+                <h3 class="h6 mt-3">Is GreenSwap free to use?</h3>
+                <p>Core features are free to use. We may introduce optional paid features in the future; we’ll describe them clearly if we do.</p>
+
+                <h3 class="h6 mt-3">What can I list?</h3>
+                <p>Legal, honest listings for pre-owned goods you’re allowed to sell. Don’t list prohibited, unsafe, or illegal items, or anything that breaks our policies or the law.</p>
+
+                <h3 class="h6 mt-3">Can I cancel an order?</h3>
+                <p>Cancellation depends on the stage of the order and what you and the other user agreed. Communicate promptly. Repeated cancellations or no-shows can affect your reputation on the platform.</p>
+
+                <h3 class="h6 mt-3">How do ratings and reviews work?</h3>
+                <p>After a completed transaction, you may be able to rate and review the other party so the community can build trust over time.</p>
+
+                <h2 class="h5 mt-4">Troubleshooting</h2>
+
+                <h3 class="h6 mt-3">I can’t log in</h3>
+                <ul class="mb-3">
+                    <li>Check your email and password.</li>
+                    <li>Use the password reset flow on the login page if you need a new password.</li>
+                </ul>
+
+                <h3 class="h6 mt-3">I didn’t receive a verification email</h3>
+                <ul class="mb-3">
+                    <li>Check your spam or promotions folder.</li>
+                    <li>Request another confirmation email if the site offers that option.</li>
+                </ul>
+
+                <h3 class="h6 mt-3">My listing isn’t visible</h3>
+                <ul class="mb-3">
+                    <li>Make sure your listing meets our guidelines and isn’t inactive or removed.</li>
+                    <li>Allow a short time for processing after you publish; contact support if it persists.</li>
+                </ul>
+
+                <h2 class="h5 mt-4">Contact support</h2>
+                <p>Still need help? Reach out to our team:</p>
+                <ul class="mb-3">
+                    <li>Email: <a href="mailto:support@greenswap.example">support@greenswap.example</a></li>
+                    <li>Typical response time: within 24–48 business hours</li>
+                </ul>
+
+                <h2 class="h5 mt-4">Community guidelines</h2>
+                <p>
+                    Be respectful, honest, and considerate of others. GreenSwap works best when buyers and sellers communicate clearly and follow through. Help us keep the marketplace safe and fair for everyone.
+                </p>
+
+                <hr class="my-4 opacity-25" />
+
+                <p class="mb-0">
+                    Thank you for being part of the GreenSwap community. Together we can make reuse and second-hand trade easier for everyone.
+                </p>
             </div>
         </div>
     </div>
