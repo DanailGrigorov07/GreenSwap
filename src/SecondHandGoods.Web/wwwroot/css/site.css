@@ -156,8 +156,14 @@ header.site-header.site-header--hidden {
 
 [data-theme="dark"] main .legal-page .legal-page-title,
 [data-theme="dark"] main .legal-page .legal-content h2,
-[data-theme="dark"] main .legal-page .legal-content .h5 {
+[data-theme="dark"] main .legal-page .legal-content h3,
+[data-theme="dark"] main .legal-page .legal-content .h5,
+[data-theme="dark"] main .legal-page .legal-content .h6 {
   color: #f1f3f4 !important;
+}
+
+[data-theme="dark"] main .legal-page .legal-content ul li::marker {
+  color: #b8bcc0;
 }
 
 [data-theme="dark"] main .legal-page .legal-page-meta {
