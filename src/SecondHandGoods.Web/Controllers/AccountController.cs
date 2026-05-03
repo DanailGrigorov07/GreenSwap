@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using SecondHandGoods.Data;
 using SecondHandGoods.Data.Entities;
 using SecondHandGoods.Web.Models.Account;
 
@@ -14,15 +16,18 @@ namespace SecondHandGoods.Web.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            ApplicationDbContext context,
             ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
             _logger = logger;
         }
 
@@ -202,18 +207,7 @@ namespace SecondHandGoods.Web.Controllers
                 return NotFound();
             }
 
-            var model = new ProfileViewModel
-            {
-                Email = user.Email!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Location = user.Location,
-                Bio = user.Bio,
-                SellerRating = user.SellerRating,
-                RatingCount = user.RatingCount,
-                CreatedAt = user.CreatedAt
-            };
-
+            var model = await BuildProfileViewModelAsync(user);
             return View(model);
         }
 
@@ -225,15 +219,16 @@ namespace SecondHandGoods.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(ProfileViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await MergeProfileStatisticsAsync(model, user.Id);
+                return View(model);
             }
 
             user.FirstName = model.FirstName;
@@ -255,7 +250,37 @@ namespace SecondHandGoods.Web.Controllers
                 ModelState.AddModelError("", error.Description);
             }
 
+            await MergeProfileStatisticsAsync(model, user.Id);
             return View(model);
+        }
+
+        private async Task<ProfileViewModel> BuildProfileViewModelAsync(ApplicationUser user)
+        {
+            var model = new ProfileViewModel
+            {
+                Email = user.Email!,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Location = user.Location,
+                Bio = user.Bio,
+                SellerRating = user.SellerRating,
+                RatingCount = user.RatingCount,
+                CreatedAt = user.CreatedAt
+            };
+            await MergeProfileStatisticsAsync(model, user.Id);
+            return model;
+        }
+
+        private async Task MergeProfileStatisticsAsync(ProfileViewModel model, string userId)
+        {
+            var now = DateTime.UtcNow;
+            model.FavoriteCount = await _context.Favorites.CountAsync(f => f.UserId == userId);
+            model.ActiveAdsCount = await _context.Advertisements.CountAsync(a =>
+                a.UserId == userId
+                && !a.IsDeleted
+                && a.IsActive
+                && !a.IsSold
+                && a.ExpiresAt > now);
         }
 
         /// <summary>

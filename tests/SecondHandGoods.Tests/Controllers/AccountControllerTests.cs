@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SecondHandGoods.Data;
 using SecondHandGoods.Data.Entities;
 using SecondHandGoods.Web.Controllers;
 using SecondHandGoods.Web.Models.Account;
@@ -10,8 +12,9 @@ using Xunit;
 
 namespace SecondHandGoods.Tests.Controllers
 {
-    public class AccountControllerTests
+    public class AccountControllerTests : IDisposable
     {
+        private readonly ApplicationDbContext _context;
         private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
         private readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
         private readonly Mock<ILogger<AccountController>> _loggerMock;
@@ -19,6 +22,11 @@ namespace SecondHandGoods.Tests.Controllers
 
         public AccountControllerTests()
         {
+            var dbOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            _context = new ApplicationDbContext(dbOptions);
+
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             _userManagerMock = new Mock<UserManager<ApplicationUser>>(
                 userStore.Object, null, null, null, null, null, null, null, null);
@@ -35,6 +43,7 @@ namespace SecondHandGoods.Tests.Controllers
             _controller = new AccountController(
                 _userManagerMock.Object,
                 _signInManagerMock.Object,
+                _context,
                 _loggerMock.Object);
 
             _controller.ControllerContext = new ControllerContext
@@ -92,5 +101,7 @@ namespace SecondHandGoods.Tests.Controllers
             Assert.Equal("Index", redirect.ActionName);
             Assert.Equal("Home", redirect.ControllerName);
         }
+
+        public void Dispose() => _context.Dispose();
     }
 }

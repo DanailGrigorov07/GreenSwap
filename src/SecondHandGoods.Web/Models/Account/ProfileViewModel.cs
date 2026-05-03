@@ -57,6 +57,18 @@ namespace SecondHandGoods.Web.Models.Account
         public int RatingCount { get; set; }
 
         /// <summary>
+        /// Number of advertisements saved as favorites (read-only)
+        /// </summary>
+        [Display(Name = "Favorites")]
+        public int FavoriteCount { get; set; }
+
+        /// <summary>
+        /// Active non-expired listings owned by the user (read-only)
+        /// </summary>
+        [Display(Name = "Active ads")]
+        public int ActiveAdsCount { get; set; }
+
+        /// <summary>
         /// Account creation date (read-only)
         /// </summary>
         [Display(Name = "Member Since")]

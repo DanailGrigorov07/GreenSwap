@@ -37,6 +37,8 @@ namespace SecondHandGoods.Web.Models.Ads
         // Additional info
         public string? CurrentCategoryName { get; set; }
         public bool IsUserAds { get; set; } // True when viewing current user's ads
+        /// <summary>True when viewing the current user's bookmarked advertisements.</summary>
+        public bool IsFavoritesPage { get; set; }
 
         public AdvertisementListViewModel()
         {

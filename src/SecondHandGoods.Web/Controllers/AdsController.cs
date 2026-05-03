@@ -194,6 +194,138 @@ namespace SecondHandGoods.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// Display advertisements the current user has favorited
+        /// </summary>
+        [Authorize]
+        public async Task<IActionResult> Favorites(AdvertisementListViewModel model)
+        {
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                    return Challenge();
+
+                model.IsFavoritesPage = true;
+
+                var favoriteAdIds = await _context.Favorites
+                    .Where(f => f.UserId == currentUser.Id)
+                    .Select(f => f.AdvertisementId)
+                    .ToListAsync();
+
+                var query = _context.Advertisements
+                    .Include(a => a.Category)
+                    .Include(a => a.User)
+                    .Include(a => a.Images)
+                    .Where(a => favoriteAdIds.Contains(a.Id) && !a.IsDeleted)
+                    .AsQueryable();
+
+                query = ApplyFilters(query, model, excludeUserFilter: true);
+                query = ApplySorting(query, model.SortBy);
+
+                model.TotalCount = await query.CountAsync();
+
+                var advertisements = await query
+                    .Skip((model.Page - 1) * model.PageSize)
+                    .Take(model.PageSize)
+                    .Select(a => new AdvertisementCardViewModel
+                    {
+                        Id = a.Id,
+                        Title = a.Title,
+                        Description = a.Description.Length > 150 ? a.Description.Substring(0, 150) + "..." : a.Description,
+                        Price = a.Price,
+                        IsPriceNegotiable = a.IsPriceNegotiable,
+                        Condition = a.Condition,
+                        Location = a.Location,
+                        CreatedAt = a.CreatedAt,
+                        IsFeatured = a.IsFeatured,
+                        IsSold = a.IsSold,
+                        ViewCount = a.ViewCount,
+                        CategoryId = a.CategoryId,
+                        CategoryName = a.Category.Name,
+                        CategoryIconClass = a.Category.IconClass,
+                        UserId = a.UserId,
+                        UserName = a.User.FirstName + " " + a.User.LastName,
+                        UserRating = a.User.SellerRating,
+                        MainImageUrl = a.Images
+                            .Where(img => img.IsMainImage)
+                            .Select(img => img.ImageUrl)
+                            .FirstOrDefault() ?? "/images/no-image.jpg",
+                        MainImageAlt = a.Images
+                            .Where(img => img.IsMainImage)
+                            .Select(img => img.AltText)
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                model.Advertisements = advertisements;
+                await PopulateDropdownsAsync(model);
+
+                return View("Index", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while loading favorited advertisements");
+                TempData["Error"] = "An error occurred while loading your favorites. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        /// <summary>
+        /// Add or remove the current user's favorite for an advertisement
+        /// </summary>
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFavorite([FromForm] int advertisementId)
+        {
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                    return Json(new { success = false, message = "You must be signed in." });
+
+                var advertisement = await _context.Advertisements
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.Id == advertisementId && !a.IsDeleted);
+
+                if (advertisement == null)
+                    return Json(new { success = false, message = "Listing not found." });
+
+                if (advertisement.UserId == currentUser.Id)
+                    return Json(new { success = false, message = "You cannot favorite your own listing." });
+
+                var existing = await _context.Favorites
+                    .FirstOrDefaultAsync(f =>
+                        f.UserId == currentUser.Id && f.AdvertisementId == advertisementId);
+
+                bool isFavorite;
+                if (existing != null)
+                {
+                    _context.Favorites.Remove(existing);
+                    isFavorite = false;
+                }
+                else
+                {
+                    _context.Favorites.Add(new Favorite
+                    {
+                        UserId = currentUser.Id,
+                        AdvertisementId = advertisementId,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                    isFavorite = true;
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, isFavorited = isFavorite });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling favorite for advertisement {AdvertisementId}", advertisementId);
+                return Json(new { success = false, message = "Something went wrong. Please try again." });
+            }
+        }
+
         #endregion
 
         #region Details Action

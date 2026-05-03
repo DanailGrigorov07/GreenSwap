@@ -6,6 +6,7 @@
 }
 
 <div class="container-fluid">
+    @Html.AntiForgeryToken()
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
@@ -383,6 +384,46 @@
 
 @section Scripts {
     <script>
+        async function toggleFavorite(advertisementId) {
+            const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!tokenEl) {
+                alert('Unable to verify request. Refresh the page and try again.');
+                return;
+            }
+            var body = new URLSearchParams();
+            body.append('advertisementId', String(advertisementId));
+            body.append('__RequestVerificationToken', tokenEl.value);
+            var btn = document.getElementById('favoriteBtn');
+            if (btn) btn.disabled = true;
+            try {
+                var response = await fetch('@Url.Action("ToggleFavorite", "Ads")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+                var result = await response.json();
+                if (!result.success) {
+                    alert(result.message || 'Could not update favorites.');
+                    return;
+                }
+                var icon = btn && btn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fas', result.isFavorited);
+                    icon.classList.toggle('far', !result.isFavorited);
+                }
+                if (btn) {
+                    btn.innerHTML = result.isFavorited
+                        ? '<i class="fas fa-heart me-2"></i>Remove from Favorites'
+                        : '<i class="far fa-heart me-2"></i>Add to Favorites';
+                }
+            } catch (e) {
+                console.error(e);
+                alert('An error occurred.');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
         function showContactInfo() {
             alert('Contact information would be displayed here after proper verification.');
         }

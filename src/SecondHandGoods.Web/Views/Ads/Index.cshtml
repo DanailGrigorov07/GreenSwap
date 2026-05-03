@@ -1,6 +1,11 @@
 @model SecondHandGoods.Web.Models.Ads.AdvertisementListViewModel
 @{
-    ViewData["Title"] = Model.IsUserAds ? "My Advertisements" : (string.IsNullOrEmpty(Model.CurrentCategoryName) ? "All Advertisements" : $"{Model.CurrentCategoryName} - Advertisements");
+    var adsListAction = Model.IsFavoritesPage ? "Favorites" : Model.IsUserAds ? "MyAds" : "Index";
+    ViewData["Title"] = Model.IsFavoritesPage
+        ? "Favorite Advertisements"
+        : Model.IsUserAds
+            ? "My Advertisements"
+            : (string.IsNullOrEmpty(Model.CurrentCategoryName) ? "All Advertisements" : $"{Model.CurrentCategoryName} - Advertisements");
 }
 
 <div class="container-fluid">
@@ -10,7 +15,11 @@
             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-stretch align-items-md-center gap-3 mb-3">
                 <div>
                     <h1 class="h3 mb-1">
-                        @if (Model.IsUserAds)
+                        @if (Model.IsFavoritesPage)
+                        {
+                            <text><i class="fas fa-heart me-2"></i>My Favorites</text>
+                        }
+                        else if (Model.IsUserAds)
                         {
                             <text><i class="fas fa-user-tag me-2"></i>My Advertisements</text>
                         }
@@ -40,10 +49,19 @@
                         <a asp-action="Create" class="btn btn-primary w-100 w-sm-auto">
                             <i class="fas fa-plus me-1"></i>Post Advertisement
                         </a>
-                        @if (!Model.IsUserAds)
+                        @if (!Model.IsUserAds && !Model.IsFavoritesPage)
                         {
                             <a asp-action="MyAds" class="btn btn-outline-secondary w-100 w-sm-auto">
                                 <i class="fas fa-user-tag me-1"></i>My Ads
+                            </a>
+                            <a asp-action="Favorites" class="btn btn-outline-danger w-100 w-sm-auto">
+                                <i class="fas fa-heart me-1"></i>Favorites
+                            </a>
+                        }
+                        @if (Model.IsFavoritesPage)
+                        {
+                            <a asp-action="Index" class="btn btn-outline-primary w-100 w-sm-auto">
+                                <i class="fas fa-shopping-bag me-1"></i>Browse all listings
                             </a>
                         }
                     </div>
@@ -57,7 +75,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <form method="get" asp-action="@(Model.IsUserAds ? "MyAds" : "Index")">
+                    <form method="get" asp-action="@adsListAction">
                         <input type="hidden" asp-for="Page" value="1" />
                         
                         <div class="row g-3">
@@ -228,6 +246,13 @@
                             <i class="fas fa-plus me-1"></i>Post Your First Advertisement
                         </a>
                     }
+                    else if (Model.IsFavoritesPage)
+                    {
+                        <p class="text-muted mb-4">Save listings you like with the heart button on each item's page.</p>
+                        <a asp-action="Index" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-bag me-1"></i>Browse advertisements
+                        </a>
+                    }
                     else
                     {
                         <p class="text-muted mb-4">Try adjusting your search criteria or browse different categories.</p>
@@ -250,7 +275,7 @@
                         <!-- Previous -->
                         <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
                             <a class="page-link" 
-                               asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                               asp-action="@adsListAction"
                                asp-route-page="@(Model.Page - 1)"
                                asp-route-searchTerm="@Model.SearchTerm"
                                asp-route-categoryId="@Model.CategoryId"
@@ -274,7 +299,7 @@
                         {
                             <li class="page-item">
                                 <a class="page-link" 
-                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-action="@adsListAction"
                                    asp-route-page="1"
                                    asp-route-searchTerm="@Model.SearchTerm"
                                    asp-route-categoryId="@Model.CategoryId"
@@ -297,7 +322,7 @@
                         {
                             <li class="page-item @(i == Model.Page ? "active" : "")">
                                 <a class="page-link" 
-                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-action="@adsListAction"
                                    asp-route-page="@i"
                                    asp-route-searchTerm="@Model.SearchTerm"
                                    asp-route-categoryId="@Model.CategoryId"
@@ -320,7 +345,7 @@
                             }
                             <li class="page-item">
                                 <a class="page-link" 
-                                   asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                                   asp-action="@adsListAction"
                                    asp-route-page="@Model.TotalPages"
                                    asp-route-searchTerm="@Model.SearchTerm"
                                    asp-route-categoryId="@Model.CategoryId"
@@ -336,7 +361,7 @@
                         <!-- Next -->
                         <li class="page-item @(!Model.HasNext ? "disabled" : "")">
                             <a class="page-link" 
-                               asp-action="@(Model.IsUserAds ? "MyAds" : "Index")"
+                               asp-action="@adsListAction"
                                asp-route-page="@(Model.Page + 1)"
                                asp-route-searchTerm="@Model.SearchTerm"
                                asp-route-categoryId="@Model.CategoryId"
